@@ -1,59 +1,120 @@
-import React from 'react';
-import styled from 'styled-components';
+import Avatar from '@material-ui/core/Avatar';
+import Box from '@material-ui/core/Box';
+import Button from '@material-ui/core/Button';
+import Container from '@material-ui/core/Container';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Link from '@material-ui/core/Link';
+import { makeStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
+import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+import React, { useState } from 'react';
 
-const LoginForm = styled.div`
-    margin: 200px auto;
-    text-align: center;
-    width: 300px;
-    border: 2px solid rgb(84, 163, 233);
-    box-shadow: 10px 10px 15px #aaaaaa;
-`;
-
-const Field = styled.input`
-    display: block;
-    margin: 20px auto;
-    width: 200px;
-    height: 30px;
-`;
-
-const LoginConfirm = styled.button`
-    display: block;
-    margin: 20px auto;
-    width: 100px;
-    height: 30px;
-`;
-
-
-
-class Login extends React.Component {
-    state = {
-        username: '',
-        password: '',
-    }
-
-    handleUsernameChange = (event) => {
-        this.setState({ username: event.target.value})
-    }
-
-    handlePasswordChange = (event) => {
-        this.setState({ password: event.target.value})
-    }
-
-    login = () => {
-        const { username, password } = this.state;
-        this.props.onLogin(username, password)
-    }
-
-    render() {
-        return (
-            <LoginForm>
-                <p>Please log in to continue!</p>
-                <Field placeholder='username' type='text' onChange={this.handleUsernameChange} value={this.state.username} />
-                <Field placeholder='password' type='password' onChange={this.handlePasswordChange} value={this.state.password} />
-                <LoginConfirm onClick={this.login} >Log in</LoginConfirm>
-            </LoginForm>
-        )
-    }
+function Copyright() {
+  return (
+    <Typography variant="body2" color="textSecondary" align="center">
+      {'Copyright © '}
+      <Link color="inherit" href="https://material-ui.com/">
+        Elms
+      </Link>{' '}
+      {new Date().getFullYear()}
+      {'.'}
+    </Typography>
+  );
 }
 
-export default Login;
+const useStyles = makeStyles((theme) => ({
+  paper: {
+    marginTop: theme.spacing(8),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  avatar: {
+    margin: theme.spacing(1),
+    backgroundColor: theme.palette.secondary.main,
+  },
+  form: {
+    width: '100%', // Fix IE 11 issue.
+    marginTop: theme.spacing(1),
+  },
+  submit: {
+    margin: theme.spacing(3, 0, 2),
+  },
+}));
+
+export default function Login (props) {
+        const [ username, setUsername ] = useState();
+        const [ password, setPassword ] = useState();
+        const classes = useStyles();
+
+        const handleUsernameChange = (event) => {
+            setUsername(event.target.value)
+        }
+    
+        const handlePasswordChange = (event) => {
+            setPassword(event.target.value)
+        }
+    
+        const login = (event) => {
+            event.preventDefault();
+            props.onLogin(username, password)
+        }
+        return (
+            <Container component="main" maxWidth="xs">
+              <CssBaseline />
+              <div className={classes.paper}>
+                <Avatar className={classes.avatar}>
+                  <LockOutlinedIcon />
+                </Avatar>
+                <Typography component="h1" variant="h5">
+                  Sign in
+                </Typography>
+                <form className={classes.form} validate='true'>
+                  <TextField
+                    variant="outlined"
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="username"
+                    label="Username"
+                    name="username"
+                    autoComplete="username"
+                    autoFocus
+                    onChange={handleUsernameChange}
+                  />
+                  <TextField
+                    variant="outlined"
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="password"
+                    label="Password"
+                    type="password"
+                    id="password"
+                    autoComplete="current-password"
+                    onChange={handlePasswordChange}
+                  />
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    className={classes.submit}
+                    onClick={login}
+                  >
+                    Sign In
+                  </Button>
+                </form>
+              </div>
+              <Box mt={8}>
+                <Copyright />
+              </Box>
+            </Container>
+          );
+    }
+
+
+
+   
+
