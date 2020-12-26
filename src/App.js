@@ -3,11 +3,24 @@ import React from 'react';
 import Login from './components/Login/Login';
 import logo from './logo.svg';
 import './App.css';
+const axios = require('axios');
 
 class App extends React.Component {
   state = {
-    loggedIn: false
+    loggedIn: false,
+    authUser: '',
   }
+
+  login = (username, password) => {
+    return axios.post("http://localhost:8888/api/user/login", {username: username, password: password})
+    .then((response) => {
+      this.setState({ authUser: response.username, loggedIn: true})
+    })
+    .catch((error) => {
+      console.log(error)
+  })
+  }
+
   render () {
     if (this.state.loggedIn) {
       return (
@@ -15,7 +28,7 @@ class App extends React.Component {
           <header className="App-header">
             <img src={logo} className="App-logo" alt="logo" />
             <p>
-              welcome to elms
+              Welcome to ELMS
             </p>
             <a
               className="App-link"
@@ -29,7 +42,7 @@ class App extends React.Component {
         </div>
       );
     }
-    return <Login />
+    return <Login onLogin={this.login}/>
   }
   
 }
