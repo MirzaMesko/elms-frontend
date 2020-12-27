@@ -9,6 +9,7 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 
 function Copyright() {
   return (
@@ -17,8 +18,7 @@ function Copyright() {
       <Link color="inherit" href="https://material-ui.com/">
         Elms
       </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
+      {new Date().getFullYear()}.
     </Typography>
   );
 }
@@ -43,78 +43,77 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Login (props) {
-        const [ username, setUsername ] = useState();
-        const [ password, setPassword ] = useState();
-        const classes = useStyles();
+export default function Login(props) {
+  const [username, setUsername] = useState();
+  const [password, setPassword] = useState();
+  const classes = useStyles();
 
-        const handleUsernameChange = (event) => {
-            setUsername(event.target.value)
-        }
-    
-        const handlePasswordChange = (event) => {
-            setPassword(event.target.value)
-        }
-    
-        const login = (event) => {
-            event.preventDefault();
-            props.onLogin(username, password)
-        }
-        return (
-            <Container component="main" maxWidth="xs">
-              <CssBaseline />
-              <div className={classes.paper}>
-                <Avatar className={classes.avatar}>
-                  <LockOutlinedIcon />
-                </Avatar>
-                <Typography component="h1" variant="h5">
-                  Log in
-                </Typography>
-                <form className={classes.form} validate='true'>
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    fullWidth
-                    id="username"
-                    label="Username"
-                    name="username"
-                    autoComplete="username"
-                    autoFocus
-                    onChange={handleUsernameChange}
-                  />
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    fullWidth
-                    name="password"
-                    label="Password"
-                    type="password"
-                    id="password"
-                    autoComplete="current-password"
-                    onChange={handlePasswordChange}
-                  />
-                  <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    className={classes.submit}
-                    onClick={login}
-                  >
-                    Sign In
-                  </Button>
-                </form>
-              </div>
-              <Box mt={8}>
-                <Copyright />
-              </Box>
-            </Container>
-          );
-    }
+  const handleUsernameChange = (event) => {
+    setUsername(event.target.value);
+  };
 
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value);
+  };
 
+  const login = (event) => {
+    event.preventDefault();
+    props.onLogin(username, password);
+  };
+  return (
+    <Container component="main" maxWidth="xs">
+      <CssBaseline />
+      <div className={classes.paper}>
+        <Avatar className={classes.avatar}>
+          <LockOutlinedIcon />
+        </Avatar>
+        <Typography component="h1" variant="h5">
+          Log in
+        </Typography>
+        <form className={classes.form} validate="true">
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            id="username"
+            label="Username"
+            name="username"
+            autoComplete="username"
+            autoFocus
+            onChange={handleUsernameChange}
+          />
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            name="password"
+            label="Password"
+            type="password"
+            id="password"
+            autoComplete="current-password"
+            onChange={handlePasswordChange}
+          />
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="primary"
+            className={classes.submit}
+            onClick={login}
+          >
+            Sign In
+          </Button>
+        </form>
+      </div>
+      <Box mt={8}>
+        <Copyright />
+      </Box>
+    </Container>
+  );
+}
 
-   
-
+Login.propTypes = {
+  onLogin: PropTypes.func.isRequired,
+};
