@@ -10,6 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import Alert from './Alert';
 
 function Copyright() {
   return (
@@ -60,8 +61,12 @@ export default function Login(props) {
     event.preventDefault();
     props.onLogin(username, password);
   };
+
+  const { alert, message } = props;
+
   return (
     <Container component="main" maxWidth="xs">
+      {alert ? <Alert alert={alert} message={message} /> : null}
       <CssBaseline />
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
@@ -116,4 +121,6 @@ export default function Login(props) {
 
 Login.propTypes = {
   onLogin: PropTypes.func.isRequired,
+  alert: PropTypes.bool.isRequired,
+  message: PropTypes.string.isRequired,
 };

@@ -14,6 +14,8 @@ class App extends React.Component {
     this.state = {
       loggedIn: false,
       authUser: '',
+      showAlert: false,
+      errorMessage: '',
     };
   }
 
@@ -22,20 +24,29 @@ class App extends React.Component {
     axios
       .post('http://localhost:8888/api/user/login', { username, password })
       .then((response) => {
-        this.setState({ authUser: response.username, loggedIn: true });
+        if (response.status === 201) {
+          this.setState({ authUser: response.username, loggedIn: true });
+        } else if (response.status === 401) {
+          this.setState({ showAlert: true });
+          // eslint-disable-next-line
+          console.log(this.state.showAlert)
+        }
         history.push('/');
       })
       .catch((error) => {
+        this.setState({ showAlert: true, errorMessage: error.message });
         // eslint-disable-next-line
-        alert(error.message);
       });
   };
 
   render() {
-    const { loggedIn, authUser } = this.state;
+    const { loggedIn, authUser, showAlert, errorMessage } = this.state;
     return (
       <Switch>
-        <Route path="/login" render={() => <Login onLogin={this.login} />} />
+        <Route
+          path="/login"
+          render={() => <Login onLogin={this.login} alert={showAlert} message={errorMessage} />}
+        />
         <GuardedRoute path="/" exact component={Dashboard} auth={loggedIn} authUser={authUser} />
       </Switch>
     );
