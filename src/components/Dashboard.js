@@ -5,6 +5,7 @@ import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
+import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import Link from '@material-ui/core/Link';
@@ -17,6 +18,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import PersonIcon from '@material-ui/icons/Person';
 import clsx from 'clsx';
+import PropTypes from 'prop-types';
 import React from 'react';
 import mainListItems from './ListItems';
 
@@ -114,7 +116,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Dashboard() {
+export default function Dashboard(props) {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   const handleDrawerOpen = () => {
@@ -122,6 +124,14 @@ export default function Dashboard() {
   };
   const handleDrawerClose = () => {
     setOpen(false);
+  };
+
+  const { info } = props;
+  // eslint-disable-next-line
+  console.log(info, props);
+
+  const logout = () => {
+    info.onLogout();
   };
 
   return (
@@ -149,6 +159,12 @@ export default function Dashboard() {
           <IconButton color="inherit">
             <Badge color="secondary">
               <PersonIcon />
+              <Typography className={classes.title}>Hello {info.user}</Typography>
+            </Badge>
+          </IconButton>
+          <IconButton color="inherit" edge="end" onClick={logout}>
+            <Badge color="secondary">
+              <PowerSettingsNewIcon />
             </Badge>
           </IconButton>
         </Toolbar>
@@ -182,3 +198,8 @@ export default function Dashboard() {
     </div>
   );
 }
+
+Dashboard.propTypes = {
+  info: PropTypes.objectOf.isRequired,
+  onLogout: PropTypes.func.isRequired,
+};

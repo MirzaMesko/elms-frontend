@@ -1,15 +1,18 @@
 import Avatar from '@material-ui/core/Avatar';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
+import { connect } from 'react-redux';
 import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Link from '@material-ui/core/Link';
+import { history as historyPropTypes } from 'history-prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { login } from '../actions/users';
 import Alert from './Alert';
 
 function Copyright() {
@@ -44,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Login(props) {
+function Login(props) {
   const [username, setUsername] = useState();
   const [password, setPassword] = useState();
   const classes = useStyles();
@@ -57,16 +60,20 @@ export default function Login(props) {
     setPassword(event.target.value);
   };
 
-  const login = (event) => {
-    event.preventDefault();
-    props.onLogin(username, password);
-  };
+  const { error, history } = props;
 
-  const { alert, message } = props;
+  const logIn = (event) => {
+    event.preventDefault();
+    props.onLogin(username, password).then(() => {
+      history.push('/');
+    });
+    // eslint-disable-next-line
+    console.log(history);
+  };
 
   return (
     <Container component="main" maxWidth="xs">
-      {alert ? <Alert alert={alert} message={message} /> : null}
+      <Alert message={error.message} />
       <CssBaseline />
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
@@ -106,7 +113,7 @@ export default function Login(props) {
             variant="contained"
             color="primary"
             className={classes.submit}
-            onClick={login}
+            onClick={logIn}
           >
             Sign In
           </Button>
@@ -121,6 +128,17 @@ export default function Login(props) {
 
 Login.propTypes = {
   onLogin: PropTypes.func.isRequired,
-  alert: PropTypes.bool.isRequired,
-  message: PropTypes.string.isRequired,
+  error: PropTypes.string.isRequired,
+  history: PropTypes.shape(historyPropTypes).isRequired,
 };
+
+// eslint-disable-next-line
+const mapDispatchToProps = (dispatch) => {
+  // eslint-disable-next-line
+  return {
+    // eslint-disable-next-line
+    onLogin: (username, password) => dispatch(login(username, password)),
+  };
+};
+
+export default connect(null, mapDispatchToProps)(Login);

@@ -51,13 +51,15 @@ const DialogActions = withStyles((theme) => ({
 }))(MuiDialogActions);
 
 export default function Alert(props) {
-  const { alert, message } = props;
-  const [open, setOpen] = React.useState(alert);
+  const { message } = props;
+  const [open, setOpen] = React.useState(!!message);
 
   const handleClose = () => {
     setOpen(false);
   };
 
+  // eslint-disable-next-line
+  console.log(message, open);
   return (
     <div>
       <Dialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
@@ -78,6 +80,9 @@ export default function Alert(props) {
 }
 
 Alert.propTypes = {
-  alert: PropTypes.bool.isRequired,
-  message: PropTypes.string.isRequired,
+  message: PropTypes.string,
+};
+
+Alert.defaultProps = {
+  message: null,
 };

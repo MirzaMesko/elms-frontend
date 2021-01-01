@@ -1,60 +1,56 @@
+import { history as historyPropTypes } from 'history-prop-types';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import React from 'react';
 import { Route, Switch, withRouter } from 'react-router-dom';
 import './App.css';
-import PropTypes from 'prop-types';
 import Dashboard from './components/Dashboard';
-import Login from './components/Login';
 import GuardedRoute from './components/GuardedRoute';
+import { logout } from './actions/users';
+import Login from './components/Login';
 
-const axios = require('axios');
-
-class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      loggedIn: false,
-      authUser: '',
-      showAlert: false,
-      errorMessage: '',
-    };
-  }
-
-  login = (username, password) => {
-    const { history } = this.props;
-    axios
-      .post('http://localhost:8888/api/user/login', { username, password })
-      .then((response) => {
-        if (response.status === 201) {
-          this.setState({ authUser: response.username, loggedIn: true });
-        } else if (response.status === 401) {
-          this.setState({ showAlert: true });
-          // eslint-disable-next-line
-          console.log(this.state.showAlert)
-        }
-        history.push('/');
-      })
-      .catch((error) => {
-        this.setState({ showAlert: true, errorMessage: error.message });
-        // eslint-disable-next-line
-      });
-  };
-
-  render() {
-    const { loggedIn, authUser, showAlert, errorMessage } = this.state;
-    return (
-      <Switch>
-        <Route
-          path="/login"
-          render={() => <Login onLogin={this.login} alert={showAlert} message={errorMessage} />}
-        />
-        <GuardedRoute path="/" exact component={Dashboard} auth={loggedIn} authUser={authUser} />
-      </Switch>
-    );
-  }
+function App(props) {
+  const { loggedIn, history, error, authUser, onLogout } = props;
+  // eslint-disable-next-line
+  console.log(history, loggedIn, error);
+  return (
+    <Switch>
+      <Route path="/login" render={() => <Login error={error} history={history} />} />
+      <GuardedRoute
+        path="/"
+        exact
+        component={Dashboard}
+        auth={loggedIn}
+        props={{ user: authUser, onLogout }}
+      />
+    </Switch>
+  );
 }
 
 App.propTypes = {
-  history: PropTypes.string.isRequired,
+  history: PropTypes.shape(historyPropTypes).isRequired,
+  loggedIn: PropTypes.bool.isRequired,
+  error: PropTypes.string.isRequired,
+  authUser: PropTypes.string.isRequired,
+  onLogout: PropTypes.func.isRequired,
+};
+// eslint-disable-next-line
+const mapStateToProps = (state) => {
+  // eslint-disable-next-line
+  return {
+    // eslint-disable-next-line
+    loggedIn: state.loggedIn,
+    error: state.error,
+    authUser: state.authUser.username,
+  };
+};
+// eslint-disable-next-line
+const mapDispatchToProps = (dispatch) => {
+  // eslint-disable-next-line
+  return {
+    // eslint-disable-next-line
+    onLogout: () => dispatch(logout()),
+  };
 };
 
-export default withRouter(App);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(App));
