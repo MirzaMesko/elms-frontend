@@ -12,6 +12,7 @@ const reducer = (state = initialState, action) => {
       ...state,
       loggedIn: true,
       authUser: action.user,
+      error: '',
     };
   }
   if (action.type === SET_AUTH_FAIL) {
@@ -25,6 +26,7 @@ const reducer = (state = initialState, action) => {
       ...state,
       loggedIn: false,
       authUser: '',
+      error: '',
     };
   }
   return state;
