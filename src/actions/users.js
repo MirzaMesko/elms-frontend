@@ -27,7 +27,9 @@ export function login(username, password) {
         dispatch(authSuccess(response.data));
       })
       .catch((error) => {
-        dispatch(authFail(error.response.data));
+        if (error.response.data.statusCode === 401) {
+          dispatch(authFail('Incorrect username / password.'));
+        }
       });
   };
 }
@@ -36,4 +38,18 @@ export function logout() {
   return {
     type: LOG_OUT,
   };
+}
+
+export function addUser(email, username, password, roles, name, bio, token) {
+  // eslint-disable-next-line
+  console.log(email, username, password, roles, bio, name, token);
+  const headers = { Authorization: `Bearer ${token}` };
+  return axios
+    .post(
+      'http://localhost:8888/api/user',
+      { email, username, password, roles, name, bio },
+      { headers }
+    )
+    .then((response) => response)
+    .catch((error) => error.response.data);
 }
