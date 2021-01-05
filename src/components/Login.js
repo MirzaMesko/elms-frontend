@@ -67,13 +67,11 @@ function Login(props) {
     props.onLogin(username, password).then(() => {
       history.push('/');
     });
-    // eslint-disable-next-line
-    console.log(history);
   };
 
   return (
     <Container component="main" maxWidth="xs">
-      <Alert message={error.message} />
+      <Alert show={error} title="Error" message={error} />
       <CssBaseline />
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
@@ -134,9 +132,7 @@ Login.propTypes = {
 
 // eslint-disable-next-line
 const mapDispatchToProps = (dispatch) => {
-  // eslint-disable-next-line
   return {
-    // eslint-disable-next-line
     onLogin: (username, password) => dispatch(login(username, password)),
   };
 };
