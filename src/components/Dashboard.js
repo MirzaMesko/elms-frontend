@@ -3,24 +3,26 @@ import Badge from '@material-ui/core/Badge';
 import Box from '@material-ui/core/Box';
 import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
-import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import Link from '@material-ui/core/Link';
 import List from '@material-ui/core/List';
+import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import MenuIcon from '@material-ui/icons/Menu';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import PersonIcon from '@material-ui/icons/Person';
+import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
 import clsx from 'clsx';
+import { history as historyPropTypes } from 'history-prop-types';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { NavLink as RouterLink } from 'react-router-dom';
 import mainListItems from './ListItems';
+import Section from './Section';
 
 function Copyright() {
   return (
@@ -44,36 +46,15 @@ const useStyles = makeStyles((theme) => ({
   toolbar: {
     paddingRight: 24, // keep right padding when drawer closed
   },
-  toolbarIcon: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    padding: '0 8px',
-    ...theme.mixins.toolbar,
-  },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-  },
-  appBarShift: {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
   },
   menuButton: {
     marginRight: 36,
   },
-  menuButtonHidden: {
-    display: 'none',
-  },
   title: {
     flexGrow: 1,
+    color: 'white',
   },
   drawerPaper: {
     position: 'relative',
@@ -110,46 +91,67 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     overflow: 'auto',
     flexDirection: 'column',
+    '&:hover': { backgroundColor: '#abc' },
   },
   fixedHeight: {
-    height: 240,
+    height: 150,
+  },
+  submit: {
+    margin: theme.spacing(3, 0, 2),
+  },
+  link: {
+    color: 'red',
+    textDecoration: 'none',
+  },
+  linkActive: {
+    fontWeight: 'bold',
+    color: 'red',
+    textDecoration: 'none',
   },
 }));
 
 export default function Dashboard(props) {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-  const handleDrawerClose = () => {
-    setOpen(false);
+  const toggleDrawerOpen = () => {
+    setOpen(!open);
   };
 
-  const { info } = props;
+  const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
+
+  const { user, onLogout, history, children } = props;
   // eslint-disable-next-line
-  console.log(info, props);
+  console.log(history, props);
 
   const logout = () => {
-    info.onLogout();
+    onLogout();
   };
 
   return (
     <div className={classes.root}>
       <CssBaseline />
-      <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
-        <Toolbar className={classes.toolbar}>
+      <AppBar position="absolute" className={clsx(classes.appBar)}>
+        <Toolbar>
           <IconButton
             edge="start"
             color="inherit"
             aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            className={clsx(classes.menuButton, open && classes.menuButtonHidden)}
+            onClick={toggleDrawerOpen}
+            className={clsx(classes.menuButton)}
           >
             <MenuIcon />
           </IconButton>
           <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
-            Elms
+            <RouterLink
+              to="/"
+              activeStyle={{
+                fontWeight: 'bold',
+                color: 'inherit',
+                textDecoration: 'none',
+              }}
+            >
+              Elms
+            </RouterLink>
           </Typography>
           <IconButton color="inherit">
             <Badge badgeContent={0} color="secondary">
@@ -159,7 +161,7 @@ export default function Dashboard(props) {
           <IconButton color="inherit">
             <Badge color="secondary">
               <PersonIcon />
-              <Typography className={classes.title}>Hello {info.user}</Typography>
+              <Typography className={classes.title}>Hello {user}</Typography>
             </Badge>
           </IconButton>
           <IconButton color="inherit" edge="end" onClick={logout}>
@@ -176,20 +178,24 @@ export default function Dashboard(props) {
         }}
         open={open}
       >
-        <div className={classes.toolbarIcon}>
-          <IconButton onClick={handleDrawerClose}>
-            <ChevronLeftIcon />
-          </IconButton>
-        </div>
-        <Divider />
-        <List>{mainListItems}</List>
+        <List style={{ marginTop: '55px', alignItems: 'center', justifyContent: 'flex-end' }}>
+          {mainListItems}
+        </List>
       </Drawer>
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
         <Container maxWidth="lg" className={classes.container}>
           <Grid container spacing={3}>
             {/* Chart */}
+            <Grid item xs={12} md={4}>
+              <RouterLink to="/manage/users" className={classes.link && classes.linkActive}>
+                <Paper className={fixedHeightPaper}>
+                  <Section title="Manage Users " text="Add, edit or remove users from Elms" />
+                </Paper>
+              </RouterLink>
+            </Grid>
           </Grid>
+          {children}
           <Box pt={4}>
             <Copyright />
           </Box>
@@ -200,6 +206,8 @@ export default function Dashboard(props) {
 }
 
 Dashboard.propTypes = {
-  info: PropTypes.objectOf.isRequired,
+  user: PropTypes.string.isRequired,
   onLogout: PropTypes.func.isRequired,
+  history: PropTypes.shape(historyPropTypes).isRequired,
+  children: PropTypes.element.isRequired,
 };
