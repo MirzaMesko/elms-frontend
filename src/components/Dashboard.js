@@ -22,7 +22,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { NavLink as RouterLink } from 'react-router-dom';
 import mainListItems from './ListItems';
-import Section from './Section';
+import Card from './Card';
 
 function Copyright() {
   return (
@@ -190,7 +190,7 @@ export default function Dashboard(props) {
             <Grid item xs={12} md={4}>
               <RouterLink to="/manage/users" className={classes.link && classes.linkActive}>
                 <Paper className={fixedHeightPaper}>
-                  <Section title="Manage Users " text="Add, edit or remove users from Elms" />
+                  <Card title="Manage Users " text="Add, edit or remove users from Elms" />
                 </Paper>
               </RouterLink>
             </Grid>
