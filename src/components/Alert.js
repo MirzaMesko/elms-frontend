@@ -50,27 +50,29 @@ const DialogActions = withStyles((theme) => ({
   },
 }))(MuiDialogActions);
 
-export default function Alert(props) {
-  const { message } = props;
-  const [open, setOpen] = React.useState(!!message);
+function Alert(props) {
+  const { show, title, message } = props;
+  const [open, setOpen] = React.useState(show);
+
+  React.useEffect(() => {
+    setOpen(show);
+  }, [show]);
 
   const handleClose = () => {
     setOpen(false);
   };
 
-  // eslint-disable-next-line
-  console.log(message, open);
   return (
     <div>
       <Dialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
         <DialogTitle id="customized-dialog-title" onClose={handleClose}>
-          Error
+          {title}
         </DialogTitle>
         <DialogContent dividers>
-          <Typography gutterBottom>{message}</Typography>
+          <Typography gutterBottom>{message || 'Something went wrong. Try again .'}</Typography>
         </DialogContent>
         <DialogActions>
-          <Button autoFocus onClick={handleClose} color="primary">
+          <Button onClick={handleClose} color="primary">
             OK
           </Button>
         </DialogActions>
@@ -80,9 +82,9 @@ export default function Alert(props) {
 }
 
 Alert.propTypes = {
-  message: PropTypes.string,
+  show: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  message: PropTypes.string.isRequired,
 };
 
-Alert.defaultProps = {
-  message: null,
-};
+export default Alert;
