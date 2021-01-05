@@ -3,7 +3,7 @@ import { SET_AUTH_FAIL, SET_AUTH_USER, LOG_OUT } from '../actions/users';
 const initialState = {
   loggedIn: false,
   authUser: '',
-  error: '',
+  error: false,
 };
 
 const reducer = (state = initialState, action) => {
@@ -12,7 +12,6 @@ const reducer = (state = initialState, action) => {
       ...state,
       loggedIn: true,
       authUser: action.user,
-      error: '',
     };
   }
   if (action.type === SET_AUTH_FAIL) {
@@ -26,7 +25,7 @@ const reducer = (state = initialState, action) => {
       ...state,
       loggedIn: false,
       authUser: '',
-      error: '',
+      error: false,
     };
   }
   return state;
