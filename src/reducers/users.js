@@ -1,4 +1,5 @@
-import { SET_AUTH_FAIL, SET_AUTH_USER, LOG_OUT } from '../actions/users';
+import { SET_AUTH_FAIL, SET_AUTH_USER, LOG_OUT } from '../actions/auth';
+import { RETRIEVE_USERS_SUCCESS, RETRIEVE_USERS_FAIL } from '../actions/users';
 
 const initialState = {
   loggedIn: false,
@@ -7,6 +8,7 @@ const initialState = {
     error: false,
     message: '',
   },
+  users: [],
 };
 
 const reducer = (state = initialState, action) => {
@@ -32,6 +34,18 @@ const reducer = (state = initialState, action) => {
       loggedIn: false,
       authUser: '',
       error: false,
+    };
+  }
+  if (action.type === RETRIEVE_USERS_SUCCESS) {
+    return {
+      ...state,
+      users: action.users,
+    };
+  }
+  if (action.type === RETRIEVE_USERS_FAIL) {
+    return {
+      ...state,
+      users: action.error,
     };
   }
   return state;
