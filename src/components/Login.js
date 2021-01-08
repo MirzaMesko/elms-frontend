@@ -12,7 +12,7 @@ import Typography from '@material-ui/core/Typography';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { login } from '../actions/users';
+import { login } from '../actions/auth';
 import Alert from './Alert';
 
 function Copyright() {
@@ -60,7 +60,7 @@ function Login(props) {
     setPassword(event.target.value);
   };
 
-  const { error, history } = props;
+  const { error, history, message } = props;
 
   const logIn = (event) => {
     event.preventDefault();
@@ -71,7 +71,7 @@ function Login(props) {
 
   return (
     <Container component="main" maxWidth="xs">
-      <Alert show={error} title="Error" message={error} />
+      <Alert show={error} title="Error" message={message} />
       <CssBaseline />
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
@@ -126,7 +126,8 @@ function Login(props) {
 
 Login.propTypes = {
   onLogin: PropTypes.func.isRequired,
-  error: PropTypes.string.isRequired,
+  error: PropTypes.bool.isRequired,
+  message: PropTypes.string.isRequired,
   history: PropTypes.shape(historyPropTypes).isRequired,
 };
 
