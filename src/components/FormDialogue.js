@@ -13,6 +13,8 @@ import Confirm from './Confirm';
 import MulitpleSelect from './MulitpleSelect';
 import CustomizedSnackbars from './Snackbar';
 
+const roleOptions = ['Admin', 'Librarian', 'Student'];
+
 function FormDialog(props) {
   const { show, close, token } = props;
   const [open, setOpen] = React.useState(show);
@@ -24,6 +26,7 @@ function FormDialog(props) {
   const [username, setUsername] = React.useState('');
   const [bio, setBio] = React.useState('');
   const [name, setName] = React.useState('');
+  const [roles, setRoles] = React.useState([]);
   const [severity, setSeverity] = React.useState('');
 
   const handleUsernameChange = (event) => {
@@ -46,6 +49,12 @@ function FormDialog(props) {
     setEmail(event.target.value);
   };
 
+  const handleRoleChange = (selectedRoles) => {
+    // eslint-disable-next-line
+    console.log(selectedRoles);
+    setRoles(selectedRoles);
+  };
+
   const resetInput = () => {
     setEmail('');
     setBio('');
@@ -63,7 +72,6 @@ function FormDialog(props) {
 
   const onAddUser = (event) => {
     event.preventDefault();
-    const roles = ['Admin'];
     addUser(email, username, password, roles, name, bio, token).then((response) => {
       if (
         response.statusCode === 400 ||
@@ -135,7 +143,12 @@ function FormDialog(props) {
             fullWidth
             onChange={handlePasswordChange}
           />
-          <MulitpleSelect />
+          <MulitpleSelect
+            onChange={handleRoleChange}
+            selected={roles}
+            options={roleOptions}
+            label="Roles"
+          />
           <TextField
             margin="dense"
             id="name"
