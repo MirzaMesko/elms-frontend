@@ -1,46 +1,9 @@
 const axios = require('axios');
 
-export const SET_AUTH_USER = 'SET_AUTH_USER';
-export const SET_AUTH_FAIL = 'SET_AUTH_FAIL';
-export const LOG_OUT = 'LOG_OUT';
+export const RETRIEVE_USERS_SUCCESS = 'RETRIEVE_USERS_SUCCESS';
+export const RETRIEVE_USERS_FAIL = 'RETRIEVE_USERS_FAIL';
 
-function authSuccess(user) {
-  return {
-    type: SET_AUTH_USER,
-    user,
-  };
-}
-
-function authFail(error) {
-  return {
-    type: SET_AUTH_FAIL,
-    error,
-  };
-}
-
-export function login(username, password) {
-  // eslint-disable-next-line func-names
-  return function (dispatch) {
-    return axios
-      .post('http://localhost:8888/api/user/login', { username, password })
-      .then((response) => {
-        dispatch(authSuccess(response.data));
-      })
-      .catch((error) => {
-        if (error.response.data.statusCode === 401) {
-          dispatch(authFail('Incorrect username / password.'));
-        }
-      });
-  };
-}
-
-export function logout() {
-  return {
-    type: LOG_OUT,
-  };
-}
-
-export function addUser(email, username, password, roles, name, bio, token) {
+export default function addUser(email, username, password, roles, name, bio, token) {
   // eslint-disable-next-line
   console.log(email, username, password, roles, bio, name, token);
   const headers = { Authorization: `Bearer ${token}` };
@@ -52,4 +15,38 @@ export function addUser(email, username, password, roles, name, bio, token) {
     )
     .then((response) => response)
     .catch((error) => error.response.data);
+}
+
+function retrieveUsersSuccess(users) {
+  return {
+    type: RETRIEVE_USERS_SUCCESS,
+    users,
+  };
+}
+
+function retrieveUsersFail(error) {
+  return {
+    type: RETRIEVE_USERS_FAIL,
+    error,
+  };
+}
+
+export function getUsers(token, offset, limit, roles, name, email) {
+  const headers = { Authorization: `Bearer ${token}` };
+  // eslint-disable-next-line func-names
+  return function (dispatch) {
+    return axios
+      .get(
+        `http://localhost:8888//api/users?offset=${offset}&limit=${limit}$roles=${roles}&name=${name}&email=${email}`,
+        { headers }
+      )
+      .then((response) => {
+        dispatch(retrieveUsersSuccess(response.items));
+      })
+      .catch((error) => {
+        if (error.response.data.statusCode === 401) {
+          dispatch(retrieveUsersFail(error));
+        }
+      });
+  };
 }
