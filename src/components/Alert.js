@@ -82,7 +82,7 @@ function Alert(props) {
 }
 
 Alert.propTypes = {
-  show: PropTypes.string.isRequired,
+  show: PropTypes.bool.isRequired,
   title: PropTypes.string.isRequired,
   message: PropTypes.string.isRequired,
 };

@@ -4,11 +4,9 @@ import Box from '@material-ui/core/Box';
 import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Drawer from '@material-ui/core/Drawer';
-import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import Link from '@material-ui/core/Link';
 import List from '@material-ui/core/List';
-import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
@@ -17,12 +15,10 @@ import NotificationsIcon from '@material-ui/icons/Notifications';
 import PersonIcon from '@material-ui/icons/Person';
 import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
 import clsx from 'clsx';
-import { history as historyPropTypes } from 'history-prop-types';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { NavLink as RouterLink } from 'react-router-dom';
-import mainListItems from './ListItems';
-import Card from './Card';
+import MainListItems from './ListItems';
 
 function Copyright() {
   return (
@@ -73,7 +69,7 @@ const useStyles = makeStyles((theme) => ({
     }),
     width: theme.spacing(7),
     [theme.breakpoints.up('sm')]: {
-      width: theme.spacing(9),
+      width: theme.spacing(7),
     },
   },
   appBarSpacer: theme.mixins.toolbar,
@@ -83,8 +79,10 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'auto',
   },
   container: {
-    paddingTop: theme.spacing(4),
-    paddingBottom: theme.spacing(4),
+    paddingTop: theme.spacing(0),
+    paddingBottom: theme.spacing(1),
+    paddingLeft: '0px',
+    paddingRight: '0px',
   },
   paper: {
     padding: theme.spacing(2),
@@ -117,11 +115,10 @@ export default function Dashboard(props) {
     setOpen(!open);
   };
 
-  const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
-
-  const { user, onLogout, history, children } = props;
+  const { onLogout, children, roles } = props;
+  const isAdmin = roles.includes('Admin');
   // eslint-disable-next-line
-  console.log(history, props);
+  console.log(isAdmin);
 
   const logout = () => {
     onLogout();
@@ -161,7 +158,6 @@ export default function Dashboard(props) {
           <IconButton color="inherit">
             <Badge color="secondary">
               <PersonIcon />
-              <Typography className={classes.title}>Hello {user}</Typography>
             </Badge>
           </IconButton>
           <IconButton color="inherit" edge="end" onClick={logout}>
@@ -179,24 +175,14 @@ export default function Dashboard(props) {
         open={open}
       >
         <List style={{ marginTop: '55px', alignItems: 'center', justifyContent: 'flex-end' }}>
-          {mainListItems}
+          <MainListItems show={isAdmin} />
         </List>
       </Drawer>
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
         <Container maxWidth="lg" className={classes.container}>
-          <Grid container spacing={3}>
-            {/* Chart */}
-            <Grid item xs={12} md={4}>
-              <RouterLink to="/manage/users" className={classes.link && classes.linkActive}>
-                <Paper className={fixedHeightPaper}>
-                  <Card title="Manage Users " text="Add, edit or remove users from Elms" />
-                </Paper>
-              </RouterLink>
-            </Grid>
-          </Grid>
           {children}
-          <Box pt={4}>
+          <Box pt={28}>
             <Copyright />
           </Box>
         </Container>
@@ -206,8 +192,7 @@ export default function Dashboard(props) {
 }
 
 Dashboard.propTypes = {
-  user: PropTypes.string.isRequired,
   onLogout: PropTypes.func.isRequired,
-  history: PropTypes.shape(historyPropTypes).isRequired,
   children: PropTypes.element.isRequired,
+  roles: PropTypes.arrayOf(PropTypes.string).isRequired,
 };

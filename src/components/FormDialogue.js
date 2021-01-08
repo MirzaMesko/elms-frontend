@@ -8,7 +8,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import PropTypes from 'prop-types';
-import { addUser } from '../actions/users';
+import addUser from '../actions/users';
 import Confirm from './Confirm';
 import MulitpleSelect from './MulitpleSelect';
 import CustomizedSnackbars from './Snackbar';
