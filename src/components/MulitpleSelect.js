@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -37,33 +38,27 @@ const MenuProps = {
   },
 };
 
-const roles = ['Admin', 'Librarian', 'Student'];
-
-export default function MultipleSelect() {
+export default function MultipleSelect(props) {
+  const { onChange, selected, options, label } = props;
   const classes = useStyles();
-  const [role, setRole] = React.useState([]);
-
-  const handleChange = (event) => {
-    setRole(event.target.value);
-  };
 
   return (
     <div>
       <FormControl className={classes.formControl}>
-        <InputLabel id="demo-mutiple-checkbox-label">Role</InputLabel>
+        <InputLabel id="demo-mutiple-checkbox-label">{label}</InputLabel>
         <Select
           labelId="demo-mutiple-checkbox-label"
           id="demo-mutiple-checkbox"
           multiple
-          value={role}
-          onChange={handleChange}
+          value={selected}
+          onChange={(event) => onChange(event.target.value)}
           input={<Input />}
-          renderValue={(selected) => selected.join(', ')}
+          renderValue={(chosen) => chosen.join(', ')}
           MenuProps={MenuProps}
         >
-          {roles.map((name) => (
+          {options.map((name) => (
             <MenuItem key={name} value={name}>
-              <Checkbox checked={role.indexOf(name) > -1} />
+              <Checkbox checked={selected.indexOf(name) > -1} />
               <ListItemText primary={name} />
             </MenuItem>
           ))}
@@ -72,3 +67,10 @@ export default function MultipleSelect() {
     </div>
   );
 }
+
+MultipleSelect.propTypes = {
+  onChange: PropTypes.func.isRequired,
+  selected: PropTypes.arrayOf(PropTypes.string).isRequired,
+  options: PropTypes.arrayOf(PropTypes.string).isRequired,
+  label: PropTypes.string.isRequired,
+};
