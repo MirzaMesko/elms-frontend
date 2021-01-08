@@ -7,22 +7,32 @@ import './App.css';
 import Dashboard from './components/Dashboard';
 import ManageUsers from './components/ManageUsers';
 import { logout } from './actions/users';
+import Links from './components/Links';
 import Login from './components/Login';
 
 function App(props) {
-  const { loggedIn, history, error, authUser, onLogout } = props;
+  const { loggedIn, history, error, authUser, onLogout, roles } = props;
 
   let routes = (
     <Switch>
-      <Route path="/login" render={() => <Login error={error} history={history} />} />;
+      <Route
+        path="/login"
+        render={() => <Login error={error.error} history={history} message={error.message} />}
+      />
+      ;
       <Redirect to="/login" />
     </Switch>
   );
 
   if (loggedIn) {
     routes = (
-      <Dashboard user={authUser} onLogout={onLogout} history={history}>
+      <Dashboard onLogout={onLogout} history={history} roles={roles}>
         <Switch>
+          <Route
+            path="/"
+            exact
+            render={() => <Links history={history} roles={roles} user={authUser} />}
+          />
           <Route path="/manage/users" render={() => <ManageUsers history={history} />} />
         </Switch>
       </Dashboard>
@@ -35,9 +45,14 @@ function App(props) {
 App.propTypes = {
   history: PropTypes.shape(historyPropTypes).isRequired,
   loggedIn: PropTypes.bool.isRequired,
-  error: PropTypes.bool.isRequired,
+  error: PropTypes.shape({}).isRequired,
   authUser: PropTypes.string,
   onLogout: PropTypes.func.isRequired,
+  roles: PropTypes.arrayOf(PropTypes.string).isRequired,
+};
+
+App.defaultProps = {
+  roles: [],
 };
 // eslint-disable-next-line
 const mapStateToProps = (state) => {
@@ -45,6 +60,7 @@ const mapStateToProps = (state) => {
     loggedIn: state.loggedIn,
     error: state.error,
     authUser: state.authUser.username,
+    roles: state.authUser.roles,
   };
 };
 // eslint-disable-next-line
