@@ -46,8 +46,6 @@ function FormDialog(props) {
   };
 
   const handleRoleChange = (selectedRoles) => {
-    // eslint-disable-next-line
-    console.log(selectedRoles);
     setRoles(selectedRoles);
   };
 

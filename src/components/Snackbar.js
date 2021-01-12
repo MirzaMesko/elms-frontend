@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 
 function Alert(props) {
-  // eslint-disable-next-line
   return <MuiAlert elevation={11} variant="filled" {...props} />;
 }
 

@@ -14,8 +14,6 @@ function currentUser(user) {
 }
 
 export default function addUser(email, username, password, roles, name, bio, token) {
-  // eslint-disable-next-line
-  console.log(email, username, password, roles, bio, name, token);
   const headers = { Authorization: `Bearer ${token}` };
   return axios
     .post(
@@ -44,10 +42,8 @@ function retrieveUsersFail(error) {
 export function getUsers(token, params) {
   const headers = { Authorization: `Bearer ${token}` };
   const url = 'http://localhost:8888/api/users';
-
-  // eslint-disable-next-line func-names
-  return function (dispatch) {
-    return axios
+  return (dispatch) =>
+    axios
       .get(url, { headers, params })
       .then((response) => {
         dispatch(retrieveUsersSuccess(response.data.items));
@@ -57,20 +53,16 @@ export function getUsers(token, params) {
           dispatch(retrieveUsersFail(error));
         }
       });
-  };
 }
 
 export function getCurrentUser(token) {
   const headers = { Authorization: `Bearer ${token}` };
   const url = 'http://localhost:8888/api/user';
 
-  // eslint-disable-next-line func-names
-  return function (dispatch) {
-    return axios
+  return (dispatch) =>
+    axios
       .get(url, { headers })
       .then((response) => {
-        // eslint-disable-next-line
-        console.log(response)
         dispatch(currentUser(response.data));
       })
       .catch((error) => {
@@ -78,5 +70,4 @@ export function getCurrentUser(token) {
           dispatch(authFail(error));
         }
       });
-  };
 }

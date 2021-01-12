@@ -39,16 +39,12 @@ export function checkAuthTimeout(expirationTime) {
 export function authCheckState() {
   return (dispatch) => {
     const token = localStorage.getItem('token');
-    // eslint-disable-next-line
-    console.log(token);
     if (!token) {
       dispatch(logout());
     } else {
       const expirationDate = new Date(localStorage.getItem('expirationDate'));
       if (expirationDate >= new Date()) {
         const user = localStorage.getItem('user');
-        // eslint-disable-next-line
-        console.log(user);
         dispatch(authSuccess(token, user));
         dispatch(checkAuthTimeout((expirationDate.getTime() - new Date().getTime()) / 1000));
       } else {
@@ -59,9 +55,8 @@ export function authCheckState() {
 }
 
 export function login(username, password) {
-  // eslint-disable-next-line func-names
-  return function (dispatch) {
-    return axios
+  return (dispatch) =>
+    axios
       .post('http://localhost:8888/api/user/login', { username, password })
       .then((response) => {
         const expirationDate = new Date(new Date().getTime() + 3600 * 1000);
@@ -75,5 +70,4 @@ export function login(username, password) {
           dispatch(authFail('Incorrect username / password.'));
         }
       });
-  };
 }

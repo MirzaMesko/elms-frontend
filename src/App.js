@@ -22,8 +22,6 @@ function App(props) {
     onTryAutoSignup,
     token,
   } = props;
-  // eslint-disable-next-line
-  console.log(roles, loggedIn);
 
   React.useEffect(() => {
     onTryAutoSignup();
