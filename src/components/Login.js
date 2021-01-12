@@ -131,11 +131,8 @@ Login.propTypes = {
   history: PropTypes.shape(historyPropTypes).isRequired,
 };
 
-// eslint-disable-next-line
-const mapDispatchToProps = (dispatch) => {
-  return {
-    onLogin: (username, password) => dispatch(login(username, password)),
-  };
-};
+const mapDispatchToProps = (dispatch) => ({
+  onLogin: (username, password) => dispatch(login(username, password)),
+});
 
 export default connect(null, mapDispatchToProps)(Login);
