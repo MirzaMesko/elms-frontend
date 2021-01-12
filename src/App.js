@@ -6,12 +6,28 @@ import { Route, Switch, withRouter, Redirect } from 'react-router-dom';
 import './App.css';
 import Dashboard from './components/Dashboard';
 import ManageUsers from './components/ManageUsers';
-import { logout } from './actions/users';
+import { logout, authCheckState } from './actions/auth';
 import Links from './components/Links';
 import Login from './components/Login';
 
 function App(props) {
-  const { loggedIn, history, error, authUser, onLogout, roles } = props;
+  const {
+    loggedIn,
+    history,
+    error,
+    authUser,
+    onLogout,
+    roles,
+    users,
+    onTryAutoSignup,
+    token,
+  } = props;
+  // eslint-disable-next-line
+  console.log(roles, loggedIn);
+
+  React.useEffect(() => {
+    onTryAutoSignup();
+  }, [token]);
 
   let routes = (
     <Switch>
@@ -33,7 +49,11 @@ function App(props) {
             exact
             render={() => <Links history={history} roles={roles} user={authUser} />}
           />
-          <Route path="/manage/users" render={() => <ManageUsers history={history} />} />
+          <Route
+            path="/manage/users"
+            render={() => <ManageUsers history={history} users={users} />}
+          />
+          <Redirect to="/" />
         </Switch>
       </Dashboard>
     );
@@ -48,26 +68,30 @@ App.propTypes = {
   error: PropTypes.shape({}).isRequired,
   authUser: PropTypes.string,
   onLogout: PropTypes.func.isRequired,
+  onTryAutoSignup: PropTypes.func.isRequired,
   roles: PropTypes.arrayOf(PropTypes.string).isRequired,
+  users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  token: PropTypes.string.isRequired,
 };
 
 App.defaultProps = {
   roles: [],
+  users: [],
+  authUser: '',
 };
-// eslint-disable-next-line
-const mapStateToProps = (state) => {
-  return {
-    loggedIn: state.loggedIn,
-    error: state.error,
-    authUser: state.authUser.username,
-    roles: state.authUser.roles,
-  };
-};
-// eslint-disable-next-line
-const mapDispatchToProps = (dispatch) => {
-  return {
-    onLogout: () => dispatch(logout()),
-  };
-};
+
+const mapStateToProps = (state) => ({
+  loggedIn: state.loggedIn,
+  error: state.error,
+  authUser: state.authUser.username,
+  roles: state.authUser.roles,
+  users: state.users,
+  token: state.token,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  onLogout: () => dispatch(logout()),
+  onTryAutoSignup: () => dispatch(authCheckState()),
+});
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(App));
