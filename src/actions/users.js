@@ -4,10 +4,11 @@ const axios = require('axios');
 
 export const RETRIEVE_USERS_SUCCESS = 'RETRIEVE_USERS_SUCCESS';
 export const RETRIEVE_USERS_FAIL = 'RETRIEVE_USERS_FAIL';
+export const CURRENT_USER_INFO = 'CURRENT_USER_INFO';
 
 function currentUser(user) {
   return {
-    type: 'CURRENT_USER_INFO',
+    type: CURRENT_USER_INFO,
     user,
   };
 }
