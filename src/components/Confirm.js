@@ -65,8 +65,6 @@ function Confirm(props) {
     }
   };
 
-  // eslint-disable-next-line
-  console.log(show, open);
   return (
     <div>
       <Dialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
