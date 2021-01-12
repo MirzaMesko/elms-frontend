@@ -50,8 +50,8 @@ const DialogActions = withStyles((theme) => ({
   },
 }))(MuiDialogActions);
 
-function Alert(props) {
-  const { show, title, message } = props;
+function Confirm(props) {
+  const { show, title, message, confirm, cancel } = props;
   const [open, setOpen] = React.useState(show);
 
   React.useEffect(() => {
@@ -60,6 +60,9 @@ function Alert(props) {
 
   const handleClose = () => {
     setOpen(false);
+    if (confirm) {
+      confirm();
+    }
   };
 
   return (
@@ -69,11 +72,14 @@ function Alert(props) {
           {title}
         </DialogTitle>
         <DialogContent dividers>
-          <Typography gutterBottom>{message || 'Something went wrong. Try again .'}</Typography>
+          <Typography gutterBottom>{message}</Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
-            OK
+          <Button autoFocus onClick={handleClose} color="primary">
+            Confirm Cancel
+          </Button>
+          <Button onClick={cancel} color="primary">
+            Continue editing
           </Button>
         </DialogActions>
       </Dialog>
@@ -81,10 +87,17 @@ function Alert(props) {
   );
 }
 
-Alert.propTypes = {
+Confirm.propTypes = {
   show: PropTypes.bool.isRequired,
   title: PropTypes.string.isRequired,
   message: PropTypes.string.isRequired,
+  confirm: PropTypes.func,
+  cancel: PropTypes.func,
 };
 
-export default Alert;
+Confirm.defaultProps = {
+  confirm: null,
+  cancel: null,
+};
+
+export default Confirm;

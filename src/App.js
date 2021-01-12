@@ -2,55 +2,94 @@ import { history as historyPropTypes } from 'history-prop-types';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Route, Switch, withRouter } from 'react-router-dom';
+import { Route, Switch, withRouter, Redirect } from 'react-router-dom';
 import './App.css';
 import Dashboard from './components/Dashboard';
-import GuardedRoute from './components/GuardedRoute';
-import { logout } from './actions/users';
+import ManageUsers from './components/ManageUsers';
+import { logout, authCheckState } from './actions/auth';
+import Links from './components/Links';
 import Login from './components/Login';
 
 function App(props) {
-  const { loggedIn, history, error, authUser, onLogout } = props;
-  // eslint-disable-next-line
-  console.log(history, loggedIn, error);
-  return (
+  const {
+    loggedIn,
+    history,
+    error,
+    authUser,
+    onLogout,
+    roles,
+    users,
+    onTryAutoSignup,
+    token,
+  } = props;
+
+  React.useEffect(() => {
+    onTryAutoSignup();
+  }, [token]);
+
+  let routes = (
     <Switch>
-      <Route path="/login" render={() => <Login error={error} history={history} />} />
-      <GuardedRoute
-        path="/"
-        exact
-        component={Dashboard}
-        auth={loggedIn}
-        props={{ user: authUser, onLogout }}
+      <Route
+        path="/login"
+        render={() => <Login error={error.error} history={history} message={error.message} />}
       />
+      ;
+      <Redirect to="/login" />
     </Switch>
   );
+
+  if (loggedIn) {
+    routes = (
+      <Dashboard onLogout={onLogout} history={history} roles={roles}>
+        <Switch>
+          <Route
+            path="/"
+            exact
+            render={() => <Links history={history} roles={roles} user={authUser} />}
+          />
+          <Route
+            path="/manage/users"
+            render={() => <ManageUsers history={history} users={users} />}
+          />
+          <Redirect to="/" />
+        </Switch>
+      </Dashboard>
+    );
+  }
+
+  return routes;
 }
 
 App.propTypes = {
   history: PropTypes.shape(historyPropTypes).isRequired,
   loggedIn: PropTypes.bool.isRequired,
-  error: PropTypes.string.isRequired,
-  authUser: PropTypes.string.isRequired,
+  error: PropTypes.shape({}).isRequired,
+  authUser: PropTypes.string,
   onLogout: PropTypes.func.isRequired,
+  onTryAutoSignup: PropTypes.func.isRequired,
+  roles: PropTypes.arrayOf(PropTypes.string).isRequired,
+  users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  token: PropTypes.string.isRequired,
 };
-// eslint-disable-next-line
-const mapStateToProps = (state) => {
-  // eslint-disable-next-line
-  return {
-    // eslint-disable-next-line
-    loggedIn: state.loggedIn,
-    error: state.error,
-    authUser: state.authUser.username,
-  };
+
+App.defaultProps = {
+  roles: [],
+  users: [],
+  authUser: '',
 };
-// eslint-disable-next-line
-const mapDispatchToProps = (dispatch) => {
-  // eslint-disable-next-line
-  return {
-    // eslint-disable-next-line
-    onLogout: () => dispatch(logout()),
-  };
-};
+
+const mapStateToProps = (state) => ({
+  loggedIn: state.loggedIn,
+  error: state.error,
+  authUser: state.authUser.username,
+  roles: state.authUser.roles,
+  users: state.users,
+  token: state.token,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  onLogout: () => dispatch(logout()),
+  onTryAutoSignup: () => dispatch(authCheckState()),
+});
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(App));

@@ -12,7 +12,7 @@ import Typography from '@material-ui/core/Typography';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { login } from '../actions/users';
+import { login } from '../actions/auth';
 import Alert from './Alert';
 
 function Copyright() {
@@ -60,20 +60,18 @@ function Login(props) {
     setPassword(event.target.value);
   };
 
-  const { error, history } = props;
+  const { error, history, message } = props;
 
   const logIn = (event) => {
     event.preventDefault();
     props.onLogin(username, password).then(() => {
       history.push('/');
     });
-    // eslint-disable-next-line
-    console.log(history);
   };
 
   return (
     <Container component="main" maxWidth="xs">
-      <Alert message={error.message} />
+      <Alert show={error} title="Error" message={message} />
       <CssBaseline />
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
@@ -128,17 +126,13 @@ function Login(props) {
 
 Login.propTypes = {
   onLogin: PropTypes.func.isRequired,
-  error: PropTypes.string.isRequired,
+  error: PropTypes.bool.isRequired,
+  message: PropTypes.string.isRequired,
   history: PropTypes.shape(historyPropTypes).isRequired,
 };
 
-// eslint-disable-next-line
-const mapDispatchToProps = (dispatch) => {
-  // eslint-disable-next-line
-  return {
-    // eslint-disable-next-line
-    onLogin: (username, password) => dispatch(login(username, password)),
-  };
-};
+const mapDispatchToProps = (dispatch) => ({
+  onLogin: (username, password) => dispatch(login(username, password)),
+});
 
 export default connect(null, mapDispatchToProps)(Login);
