@@ -1,9 +1,10 @@
 import { SET_AUTH_FAIL, SET_AUTH_USER, LOG_OUT } from '../actions/auth';
-import { RETRIEVE_USERS_SUCCESS, RETRIEVE_USERS_FAIL } from '../actions/users';
+import { RETRIEVE_USERS_SUCCESS, RETRIEVE_USERS_FAIL, CURRENT_USER_INFO } from '../actions/users';
 
 const initialState = {
   loggedIn: false,
   authUser: '',
+  token: '',
   error: {
     error: false,
     message: '',
@@ -13,6 +14,14 @@ const initialState = {
 
 const reducer = (state = initialState, action) => {
   if (action.type === SET_AUTH_USER) {
+    return {
+      ...state,
+      loggedIn: true,
+      token: action.token,
+      authUser: action.user,
+    };
+  }
+  if (action.type === CURRENT_USER_INFO) {
     return {
       ...state,
       loggedIn: true,
