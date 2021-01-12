@@ -11,23 +11,19 @@ import PropTypes from 'prop-types';
 import addUser from '../actions/users';
 import Confirm from './Confirm';
 import MulitpleSelect from './MulitpleSelect';
-import CustomizedSnackbars from './Snackbar';
 
 const roleOptions = ['Admin', 'Librarian', 'Student'];
 
 function FormDialog(props) {
-  const { show, close, token } = props;
+  const { show, close, token, onGetUsers, onShowSnackbar } = props;
   const [open, setOpen] = React.useState(show);
   const [openConfirm, setOpenConfirm] = React.useState(false);
-  const [openAlert, setOpenAlert] = React.useState(false);
-  const [newUser, setNewUser] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [username, setUsername] = React.useState('');
   const [bio, setBio] = React.useState('');
   const [name, setName] = React.useState('');
   const [roles, setRoles] = React.useState([]);
-  const [severity, setSeverity] = React.useState('');
 
   const handleUsernameChange = (event) => {
     setUsername(event.target.value);
@@ -78,17 +74,13 @@ function FormDialog(props) {
         response.statusCode === 401 ||
         response.statusCode === 403
       ) {
-        setSeverity('error');
-        setNewUser(response.message);
+        onShowSnackbar(true, 'error', response.message);
       }
       if (response.status === 201) {
-        setSeverity('success');
-        setNewUser(`User ${response.data.username} was created`);
+        onShowSnackbar(true, 'success', `User ${response.data.username} was created`);
+        onGetUsers(token);
+        close();
       }
-      setOpenAlert(true);
-      setTimeout(() => {
-        setOpenAlert(false);
-      }, 6000);
     });
   };
 
@@ -114,7 +106,6 @@ function FormDialog(props) {
           confirm={handleClose}
           cancel={() => setOpenConfirm(false)}
         />
-        <CustomizedSnackbars show={openAlert} severity={severity} message={newUser} />
         <DialogTitle id="form-dialog-title">Add New User</DialogTitle>
         <DialogContent>
           <DialogContentText>Please fill in the following information.</DialogContentText>
@@ -183,13 +174,12 @@ FormDialog.propTypes = {
   show: PropTypes.bool.isRequired,
   close: PropTypes.func.isRequired,
   token: PropTypes.string.isRequired,
+  onGetUsers: PropTypes.func.isRequired,
+  onShowSnackbar: PropTypes.func.isRequired,
 };
 
-// eslint-disable-next-line
-const mapStateToProps = (state) => {
-  return {
-    token: state.authUser.token,
-  };
-};
+const mapStateToProps = (state) => ({
+  token: state.authUser.token,
+});
 
 export default connect(mapStateToProps)(FormDialog);
