@@ -1,6 +1,7 @@
 import AppBar from '@material-ui/core/AppBar';
 import Badge from '@material-ui/core/Badge';
 import Box from '@material-ui/core/Box';
+import { connect } from 'react-redux';
 import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Drawer from '@material-ui/core/Drawer';
@@ -19,6 +20,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { NavLink as RouterLink } from 'react-router-dom';
 import MainListItems from './ListItems';
+import { getCurrentUser } from '../actions/users';
 
 function Copyright() {
   return (
@@ -108,21 +110,24 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Dashboard(props) {
+function Dashboard(props) {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   const toggleDrawerOpen = () => {
     setOpen(!open);
   };
 
-  const { onLogout, children, roles } = props;
+  const wrapper = React.createRef();
+  const { onLogout, children, roles, token, onGetCurrentUser } = props;
   const isAdmin = roles.includes('Admin');
-  // eslint-disable-next-line
-  console.log(isAdmin);
 
   const logout = () => {
     onLogout();
   };
+
+  React.useEffect(() => {
+    onGetCurrentUser(token);
+  }, [token]);
 
   return (
     <div className={classes.root}>
@@ -181,7 +186,7 @@ export default function Dashboard(props) {
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
         <Container maxWidth="lg" className={classes.container}>
-          {children}
+          <div ref={wrapper}>{children}</div>
           <Box pt={28}>
             <Copyright />
           </Box>
@@ -195,4 +200,16 @@ Dashboard.propTypes = {
   onLogout: PropTypes.func.isRequired,
   children: PropTypes.element.isRequired,
   roles: PropTypes.arrayOf(PropTypes.string).isRequired,
+  token: PropTypes.string.isRequired,
+  onGetCurrentUser: PropTypes.func.isRequired,
 };
+
+const mapStateToProps = (state) => ({
+  token: state.token,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  onGetCurrentUser: (token) => dispatch(getCurrentUser(token)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);
