@@ -314,7 +314,9 @@ function EnhancedTable(props) {
                         {user.username}
                       </TableCell>
                       <TableCell align="left">{user.email}</TableCell>
-                      <TableCell align="center">{user.roles}</TableCell>
+                      <TableCell align="center">
+                        {user.roles.length ? user.roles : 'Member'}
+                      </TableCell>
                       <TableCell align="center">{user.name}</TableCell>
                       <TableCell align="center">{user.bio}</TableCell>
                     </TableRow>
