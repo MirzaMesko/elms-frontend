@@ -21,6 +21,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
+import Chips from './Chips';
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -315,7 +316,16 @@ function EnhancedTable(props) {
                       </TableCell>
                       <TableCell align="left">{user.email}</TableCell>
                       <TableCell align="center">
-                        {user.roles.length ? user.roles : 'Member'}
+                        {user.roles.length ? (
+                          user.roles.map((item) => (
+                            <Chips
+                              label={item}
+                              color={item === 'Admin' ? 'secondary' : 'primary'}
+                            />
+                          ))
+                        ) : (
+                          <Chips label="Member" color="default" />
+                        )}
                       </TableCell>
                       <TableCell align="center">{user.name}</TableCell>
                       <TableCell align="center">{user.bio}</TableCell>
