@@ -21,7 +21,10 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
-import Chips from './Chips';
+import Chip from '@material-ui/core/Chip';
+import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
+import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -257,20 +260,31 @@ function EnhancedTable(props) {
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
+  const roleColor = (item) => {
+    if (item === 'Admin') {
+      return 'secondary';
+    }
+    if (item === 'Librarian') {
+      return 'primary';
+    }
+    return 'default';
+  };
+
+  const setIcon = (item) => {
+    if (item === 'Admin') {
+      return <VerifiedUserIcon />;
+    }
+    if (item === 'Librarian') {
+      return <AssignmentIndIcon />;
+    }
+    return <AccountCircleIcon />;
+  };
+
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, users.length - page * rowsPerPage);
 
   return (
     <div className={classes.root}>
       <Paper className={classes.paper}>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={users.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onChangePage={handleChangePage}
-          onChangeRowsPerPage={handleChangeRowsPerPage}
-        />
         <EnhancedTableToolbar numSelected={selected.length} />
         <TableContainer>
           <Table
@@ -316,16 +330,16 @@ function EnhancedTable(props) {
                       </TableCell>
                       <TableCell align="left">{user.email}</TableCell>
                       <TableCell align="center">
-                        {user.roles.length ? (
-                          user.roles.map((item) => (
-                            <Chips
-                              label={item}
-                              color={item === 'Admin' ? 'secondary' : 'primary'}
-                            />
-                          ))
-                        ) : (
-                          <Chips label="Member" color="default" />
-                        )}
+                        {user.roles.map((item) => (
+                          <Chip
+                            key={item}
+                            icon={setIcon(item)}
+                            size="small"
+                            label={item}
+                            color={roleColor(item)}
+                            style={{ margin: '3px' }}
+                          />
+                        ))}
                       </TableCell>
                       <TableCell align="center">{user.name}</TableCell>
                       <TableCell align="center">{user.bio}</TableCell>
@@ -363,7 +377,7 @@ EnhancedTable.propTypes = {
 };
 
 const mapStateToProps = (state) => ({
-  users: state.users,
+  users: state.users.map((user) => (user.roles.length ? user : { ...user, roles: ['Member'] })),
 });
 
 export default connect(mapStateToProps)(EnhancedTable);
