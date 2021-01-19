@@ -43,13 +43,14 @@ function App(props) {
       <Dashboard onLogout={onLogout} history={history} roles={roles}>
         <Switch>
           <Route
+            path="/manage/users"
+            exact
+            render={() => <ManageUsers history={history} users={users} />}
+          />
+          <Route
             path="/"
             exact
             render={() => <Links history={history} roles={roles} user={authUser} />}
-          />
-          <Route
-            path="/manage/users"
-            render={() => <ManageUsers history={history} users={users} />}
           />
           <Redirect to="/" />
         </Switch>
@@ -80,7 +81,7 @@ App.defaultProps = {
 
 const mapStateToProps = (state) => ({
   loggedIn: state.loggedIn,
-  error: state.error,
+  error: state.err,
   authUser: state.authUser.username,
   roles: state.authUser.roles,
   users: state.users,

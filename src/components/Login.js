@@ -126,9 +126,14 @@ function Login(props) {
 
 Login.propTypes = {
   onLogin: PropTypes.func.isRequired,
-  error: PropTypes.bool.isRequired,
-  message: PropTypes.string.isRequired,
+  error: PropTypes.bool,
+  message: PropTypes.string,
   history: PropTypes.shape(historyPropTypes).isRequired,
+};
+
+Login.defaultProps = {
+  error: false,
+  message: '',
 };
 
 const mapDispatchToProps = (dispatch) => ({

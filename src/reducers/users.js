@@ -5,7 +5,7 @@ const initialState = {
   loggedIn: false,
   authUser: '',
   token: '',
-  error: {
+  err: {
     error: false,
     message: '',
   },
@@ -31,7 +31,7 @@ const reducer = (state = initialState, action) => {
   if (action.type === SET_AUTH_FAIL) {
     return {
       ...state,
-      error: {
+      err: {
         error: true,
         message: action.error,
       },
