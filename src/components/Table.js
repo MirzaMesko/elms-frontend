@@ -20,7 +20,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import DeleteIcon from '@material-ui/icons/Delete';
-import FilterListIcon from '@material-ui/icons/FilterList';
+import EditIcon from '@material-ui/icons/Edit';
 import Chip from '@material-ui/core/Chip';
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
@@ -154,18 +154,19 @@ const EnhancedTableToolbar = (props) => {
       )}
 
       {numSelected > 0 ? (
-        <Tooltip title="Delete">
-          <IconButton aria-label="delete">
-            <DeleteIcon />
-          </IconButton>
-        </Tooltip>
-      ) : (
-        <Tooltip title="Filter list">
-          <IconButton aria-label="filter list">
-            <FilterListIcon />
-          </IconButton>
-        </Tooltip>
-      )}
+        <div style={{ display: 'inline-flex' }}>
+          <Tooltip title="Edit">
+            <IconButton aria-label="edit">
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Delete">
+            <IconButton aria-label="delete">
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+        </div>
+      ) : null}
     </Toolbar>
   );
 };
