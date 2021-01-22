@@ -33,9 +33,9 @@ function ManageUsers(props) {
   };
 
   const showSnackbar = (show, status, message) => {
+    setOpenSnackbar(show);
     setNewUser(message);
     setSeverity(status);
-    setOpenSnackbar(show);
     setTimeout(() => {
       setOpenSnackbar(false);
     }, 6000);
