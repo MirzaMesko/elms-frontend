@@ -12,7 +12,7 @@ import { getUsers } from '../actions/users';
 
 const useStyles = makeStyles((theme) => ({
   submit: {
-    margin: theme.spacing(3, 2, 2),
+    margin: theme.spacing(3, 3, 2),
   },
 }));
 
