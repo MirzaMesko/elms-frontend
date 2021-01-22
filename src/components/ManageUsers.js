@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import CustomizedSnackbars from './Snackbar';
 import FormDialogue from './FormDialogue';
-import Table from './Table';
+import UserTable from './UserTable';
 import { getUsers } from '../actions/users';
 
 const useStyles = makeStyles((theme) => ({
@@ -56,12 +56,13 @@ function ManageUsers(props) {
       >
         New User
       </Button>
-      <Table users={users} />
+      <UserTable users={users} onShowSnackbar={showSnackbar} />
       <FormDialogue
         show={openDialogue}
         close={handleClose}
         onGetUsers={onGetUsers}
         onShowSnackbar={showSnackbar}
+        title="Add New User"
       />
     </Box>
   );
