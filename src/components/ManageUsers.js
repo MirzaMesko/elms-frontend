@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import React from 'react';
+import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
 import CustomizedSnackbars from './Snackbar';
 import FormDialogue from './FormDialogue';
 import UserTable from './UserTable';
@@ -54,6 +55,7 @@ function ManageUsers(props) {
         className={classes.submit}
         onClick={handleOpen}
       >
+        <PersonAddOutlinedIcon style={{ marginRight: '15px' }} />
         New User
       </Button>
       <UserTable users={users} onShowSnackbar={showSnackbar} />
