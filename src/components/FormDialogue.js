@@ -8,14 +8,14 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import PropTypes from 'prop-types';
-import addUser from '../actions/users';
+import { addUser, editUser } from '../actions/users';
 import Confirm from './Confirm';
 import MulitpleSelect from './MulitpleSelect';
 
 const roleOptions = ['Admin', 'Librarian', 'Student'];
 
 function FormDialog(props) {
-  const { show, close, token, onGetUsers, onShowSnackbar } = props;
+  const { show, close, token, onGetUsers, onShowSnackbar, title, user, onEditUser } = props;
   const [open, setOpen] = React.useState(show);
   const [openConfirm, setOpenConfirm] = React.useState(false);
   const [email, setEmail] = React.useState('');
@@ -55,6 +55,7 @@ function FormDialog(props) {
     setName('');
     setPassword('');
     setUsername('');
+    setRoles([]);
   };
 
   const handleClose = () => {
@@ -82,6 +83,27 @@ function FormDialog(props) {
     });
   };
 
+  const onEdit = (event) => {
+    event.preventDefault();
+    // eslint-disable-next-line
+    console.log(email, password, roles, name, bio, token);
+    onEditUser(email, username, roles, name, bio, token).then((response) => {
+      // eslint-disable-next-line
+      console.log(response.status);
+      if (
+        response.statusCode === 400 ||
+        response.statusCode === 401 ||
+        response.statusCode === 403
+      ) {
+        onShowSnackbar(true, 'error', response.message);
+      }
+      if (response.status === 200) {
+        onShowSnackbar(true, 'success', `User ${response.data.username} was edited`);
+        close();
+      }
+    });
+  };
+
   const showConfirm = () => {
     if (username.length || password.length || email.length || name.length) {
       setOpenConfirm(true);
@@ -92,7 +114,20 @@ function FormDialog(props) {
 
   React.useEffect(() => {
     setOpen(show);
-  }, [show, handleClose]);
+    // eslint-disable-next-line
+    console.log('user: ', user, show);
+    if (user) {
+      setEmail(user.email);
+      setBio(user.bio);
+      setName(user.name);
+      setPassword(user.password);
+      setUsername(user.username);
+      // eslint-disable-next-line
+      if (user.roles.includes('Admin','Librarian')) {
+        setRoles(user.roles);
+      }
+    }
+  }, [show, user]);
 
   return (
     <div>
@@ -104,7 +139,7 @@ function FormDialog(props) {
           confirm={handleClose}
           cancel={() => setOpenConfirm(false)}
         />
-        <DialogTitle id="form-dialog-title">Add New User</DialogTitle>
+        <DialogTitle id="form-dialog-title">{title}</DialogTitle>
         <DialogContent>
           <DialogContentText>Please fill in the following information.</DialogContentText>
           <TextField
@@ -112,13 +147,16 @@ function FormDialog(props) {
             margin="dense"
             id="name"
             label="Username*"
+            placeholder={username}
             type="username"
             fullWidth
             onChange={handleUsernameChange}
           />
           <TextField
+            focus="true"
             margin="dense"
             id="name"
+            placeholder={email}
             label="Email Address*"
             type="email"
             fullWidth
@@ -129,6 +167,7 @@ function FormDialog(props) {
             id="name"
             label="Password*"
             type="password"
+            placeholder={password}
             fullWidth
             onChange={handlePasswordChange}
           />
@@ -143,6 +182,7 @@ function FormDialog(props) {
             id="name"
             label="Name"
             type="name"
+            placeholder={name}
             fullWidth
             onChange={handleNameChange}
           />
@@ -151,6 +191,7 @@ function FormDialog(props) {
             id="name"
             label="Bio"
             type="bio"
+            placeholder={bio}
             fullWidth
             onChange={handleBioChange}
           />
@@ -159,8 +200,8 @@ function FormDialog(props) {
           <Button onClick={showConfirm} color="primary">
             Cancel
           </Button>
-          <Button onClick={onAddUser} color="primary">
-            Add
+          <Button onClick={user ? onEdit : onAddUser} color="primary">
+            {user ? 'Edit' : 'Add'}
           </Button>
         </DialogActions>
       </Dialog>
@@ -174,10 +215,22 @@ FormDialog.propTypes = {
   token: PropTypes.string.isRequired,
   onGetUsers: PropTypes.func.isRequired,
   onShowSnackbar: PropTypes.func.isRequired,
+  title: PropTypes.string.isRequired,
+  user: PropTypes.objectOf(PropTypes.shape({})),
+  onEditUser: PropTypes.func.isRequired,
+};
+
+FormDialog.defaultProps = {
+  user: null,
 };
 
 const mapStateToProps = (state) => ({
   token: state.authUser.token,
 });
 
-export default connect(mapStateToProps)(FormDialog);
+const mapDispatchToProps = (dispatch) => ({
+  onEditUser: (email, username, roles, name, bio, token) =>
+    dispatch(editUser(email, username, roles, name, bio, token)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(FormDialog);
