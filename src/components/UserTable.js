@@ -1,8 +1,10 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
-import clsx from 'clsx';
-import { lighten, makeStyles } from '@material-ui/core/styles';
+import { Typography } from '@material-ui/core';
+import Chip from '@material-ui/core/Chip';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import IconButton from '@material-ui/core/IconButton';
+import Paper from '@material-ui/core/Paper';
+import { makeStyles } from '@material-ui/core/styles';
+import Switch from '@material-ui/core/Switch';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -11,20 +13,14 @@ import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
-import Checkbox from '@material-ui/core/Checkbox';
-import IconButton from '@material-ui/core/IconButton';
-import Tooltip from '@material-ui/core/Tooltip';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
-import DeleteIcon from '@material-ui/icons/Delete';
-import EditIcon from '@material-ui/icons/Edit';
-import Chip from '@material-ui/core/Chip';
-import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
-import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
+import EditIcon from '@material-ui/icons/Edit';
+import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import FormDialog from './FormDialogue';
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -61,7 +57,7 @@ const headCells = [
 ];
 
 function EnhancedTableHead(props) {
-  const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
+  const { classes, order, orderBy, onRequestSort } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -69,14 +65,10 @@ function EnhancedTableHead(props) {
   return (
     <TableHead>
       <TableRow>
-        <TableCell padding="checkbox">
-          <Checkbox
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-            inputProps={{ 'aria-label': 'select all desserts' }}
-          />
-        </TableCell>
+        <Typography style={{ padding: '10px', size: 'large' }}>Users</Typography>
+      </TableRow>
+      <TableRow>
+        <TableCell>{null}</TableCell>
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
@@ -105,74 +97,9 @@ function EnhancedTableHead(props) {
 
 EnhancedTableHead.propTypes = {
   classes: PropTypes.objectOf(PropTypes.string).isRequired,
-  numSelected: PropTypes.number.isRequired,
   onRequestSort: PropTypes.func.isRequired,
-  onSelectAllClick: PropTypes.func.isRequired,
   order: PropTypes.oneOf(['asc', 'desc']).isRequired,
   orderBy: PropTypes.string.isRequired,
-  rowCount: PropTypes.number.isRequired,
-};
-
-const useToolbarStyles = makeStyles((theme) => ({
-  root: {
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(1),
-  },
-  highlight:
-    theme.palette.type === 'light'
-      ? {
-          color: theme.palette.secondary.main,
-          backgroundColor: lighten(theme.palette.secondary.light, 0.85),
-        }
-      : {
-          color: theme.palette.text.primary,
-          backgroundColor: theme.palette.secondary.dark,
-        },
-  title: {
-    flex: '1 1 100%',
-  },
-}));
-
-const EnhancedTableToolbar = (props) => {
-  const classes = useToolbarStyles();
-  const { numSelected } = props;
-
-  return (
-    <Toolbar
-      className={clsx(classes.root, {
-        [classes.highlight]: numSelected > 0,
-      })}
-    >
-      {numSelected > 0 ? (
-        <Typography className={classes.title} color="inherit" variant="subtitle1" component="div">
-          {numSelected} selected
-        </Typography>
-      ) : (
-        <Typography className={classes.title} variant="h6" id="tableTitle" component="div">
-          Users
-        </Typography>
-      )}
-
-      {numSelected > 0 ? (
-        <div style={{ display: 'inline-flex' }}>
-          <Tooltip title="Edit">
-            <IconButton aria-label="edit">
-              <EditIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Delete">
-            <IconButton aria-label="delete">
-              <DeleteIcon />
-            </IconButton>
-          </Tooltip>
-        </div>
-      ) : null}
-    </Toolbar>
-  );
-};
-
-EnhancedTableToolbar.propTypes = {
-  numSelected: PropTypes.number.isRequired,
 };
 
 const useStyles = makeStyles((theme) => ({
@@ -204,46 +131,18 @@ function EnhancedTable(props) {
   const classes = useStyles();
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('username');
-  const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [showEditDialogue, setShowEditDialogue] = React.useState(false);
+  const [selectedUser, setSelectedUser] = React.useState();
 
-  const { users } = props;
+  const { users, onShowSnackbar } = props;
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
-  };
-
-  const handleSelectAllClick = (event) => {
-    if (event.target.checked) {
-      const newSelecteds = users.map((n) => n.username);
-      setSelected(newSelecteds);
-      return;
-    }
-    setSelected([]);
-  };
-
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
-
-    setSelected(newSelected);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -258,8 +157,6 @@ function EnhancedTable(props) {
   const handleChangeDense = (event) => {
     setDense(event.target.checked);
   };
-
-  const isSelected = (name) => selected.indexOf(name) !== -1;
 
   const roleColor = (item) => {
     if (item === 'Admin') {
@@ -281,12 +178,16 @@ function EnhancedTable(props) {
     return <AccountCircleIcon />;
   };
 
+  const onEdit = (user) => {
+    setSelectedUser(user);
+    setShowEditDialogue(!showEditDialogue);
+  };
+
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, users.length - page * rowsPerPage);
 
   return (
     <div className={classes.root}>
       <Paper className={classes.paper}>
-        <EnhancedTableToolbar numSelected={selected.length} />
         <TableContainer>
           <Table
             className={classes.table}
@@ -296,10 +197,8 @@ function EnhancedTable(props) {
           >
             <EnhancedTableHead
               classes={classes}
-              numSelected={selected.length}
               order={order}
               orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
               rowCount={users.length}
             />
@@ -307,24 +206,14 @@ function EnhancedTable(props) {
               {stableSort(users, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((user, index) => {
-                  const isItemSelected = isSelected(user.username);
                   const labelId = `enhanced-table-checkbox-${index}`;
 
                   return (
-                    <TableRow
-                      hover
-                      onClick={(event) => handleClick(event, user.username)}
-                      role="checkbox"
-                      aria-checked={isItemSelected}
-                      tabIndex={-1}
-                      key={user.username}
-                      selected={isItemSelected}
-                    >
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          checked={isItemSelected}
-                          inputProps={{ 'aria-labelledby': labelId }}
-                        />
+                    <TableRow hover role="checkbox" tabIndex={-1} key={user.username}>
+                      <TableCell padding="none">
+                        <IconButton aria-label="edit" onClick={() => onEdit(user)}>
+                          <EditIcon />
+                        </IconButton>
                       </TableCell>
                       <TableCell component="th" id={labelId} scope="row" padding="none">
                         {user.username}
@@ -352,6 +241,13 @@ function EnhancedTable(props) {
                   <TableCell colSpan={6} />
                 </TableRow>
               )}
+              <FormDialog
+                title="Edit user"
+                show={showEditDialogue}
+                close={() => onEdit()}
+                user={selectedUser}
+                onShowSnackbar={onShowSnackbar}
+              />
             </TableBody>
           </Table>
         </TableContainer>
@@ -375,6 +271,7 @@ function EnhancedTable(props) {
 
 EnhancedTable.propTypes = {
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  onShowSnackbar: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
