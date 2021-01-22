@@ -1,10 +1,8 @@
 import { Typography } from '@material-ui/core';
 import Chip from '@material-ui/core/Chip';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
-import Switch from '@material-ui/core/Switch';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -51,9 +49,8 @@ function stableSort(array, comparator) {
 const headCells = [
   { id: 'username', numeric: false, disablePadding: false, label: 'Username' },
   { id: 'email', numeric: false, disablePadding: false, label: 'Email' },
-  { id: 'roles', numeric: false, disablePadding: false, label: 'Roles' },
   { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
-  { id: 'bio', numeric: false, disablePadding: false, label: 'Bio' },
+  { id: 'roles', numeric: false, disablePadding: false, label: 'Roles' },
 ];
 
 function EnhancedTableHead(props) {
@@ -72,7 +69,7 @@ function EnhancedTableHead(props) {
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
-            align={headCell.numeric ? 'right' : 'center'}
+            align={headCell.numeric ? 'right' : 'left'}
             padding={headCell.disablePadding ? 'none' : 'default'}
             sortDirection={orderBy === headCell.id ? order : false}
           >
@@ -132,7 +129,6 @@ function EnhancedTable(props) {
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('username');
   const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [showEditDialogue, setShowEditDialogue] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState();
@@ -152,10 +148,6 @@ function EnhancedTable(props) {
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
-  };
-
-  const handleChangeDense = (event) => {
-    setDense(event.target.checked);
   };
 
   const roleColor = (item) => {
@@ -192,7 +184,7 @@ function EnhancedTable(props) {
           <Table
             className={classes.table}
             aria-labelledby="tableTitle"
-            size={dense ? 'small' : 'medium'}
+            size="medium"
             aria-label="enhanced table"
           >
             <EnhancedTableHead
@@ -215,11 +207,12 @@ function EnhancedTable(props) {
                           <EditIcon />
                         </IconButton>
                       </TableCell>
-                      <TableCell component="th" id={labelId} scope="row" padding="none">
+                      <TableCell component="th" id={labelId} scope="row">
                         {user.username}
                       </TableCell>
                       <TableCell align="left">{user.email}</TableCell>
-                      <TableCell align="center">
+                      <TableCell align="left">{user.name}</TableCell>
+                      <TableCell align="left">
                         {user.roles.map((item) => (
                           <Chip
                             key={item}
@@ -231,13 +224,11 @@ function EnhancedTable(props) {
                           />
                         ))}
                       </TableCell>
-                      <TableCell align="center">{user.name}</TableCell>
-                      <TableCell align="center">{user.bio}</TableCell>
                     </TableRow>
                   );
                 })}
               {emptyRows > 0 && (
-                <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
+                <TableRow style={{ height: 53 * emptyRows }}>
                   <TableCell colSpan={6} />
                 </TableRow>
               )}
@@ -261,10 +252,6 @@ function EnhancedTable(props) {
           onChangeRowsPerPage={handleChangeRowsPerPage}
         />
       </Paper>
-      <FormControlLabel
-        control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label="Dense padding"
-      />
     </div>
   );
 }
