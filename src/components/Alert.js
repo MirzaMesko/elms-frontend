@@ -82,9 +82,14 @@ function Alert(props) {
 }
 
 Alert.propTypes = {
-  show: PropTypes.bool.isRequired,
+  show: PropTypes.bool,
   title: PropTypes.string.isRequired,
-  message: PropTypes.string.isRequired,
+  message: PropTypes.string,
+};
+
+Alert.defaultProps = {
+  message: 'Something went wrong. Try again .',
+  show: false,
 };
 
 export default Alert;

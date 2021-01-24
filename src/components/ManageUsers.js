@@ -4,14 +4,15 @@ import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import React from 'react';
+import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
 import CustomizedSnackbars from './Snackbar';
 import FormDialogue from './FormDialogue';
-import Table from './Table';
+import UserTable from './UserTable';
 import { getUsers } from '../actions/users';
 
 const useStyles = makeStyles((theme) => ({
   submit: {
-    margin: theme.spacing(3, 2, 2),
+    margin: theme.spacing(3, 3, 2),
   },
 }));
 
@@ -54,14 +55,16 @@ function ManageUsers(props) {
         className={classes.submit}
         onClick={handleOpen}
       >
+        <PersonAddOutlinedIcon style={{ marginRight: '15px' }} />
         New User
       </Button>
-      <Table users={users} />
+      <UserTable users={users} onShowSnackbar={showSnackbar} />
       <FormDialogue
         show={openDialogue}
         close={handleClose}
         onGetUsers={onGetUsers}
         onShowSnackbar={showSnackbar}
+        title="Add New User"
       />
     </Box>
   );
