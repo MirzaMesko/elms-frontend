@@ -67,6 +67,10 @@ function FormDialog(props) {
 
   const onAddUser = (event) => {
     event.preventDefault();
+    if (!email || !username || !password) {
+      onShowSnackbar(true, 'error', 'Please fill in the required fileds!');
+      return;
+    }
     addUser(email, username, password, roles, name, bio, token).then((response) => {
       if (
         response.statusCode === 400 ||
@@ -89,7 +93,7 @@ function FormDialog(props) {
     console.log(email, password, roles, name, bio, token);
     onEditUser(email, username, roles, name, bio, token).then((response) => {
       // eslint-disable-next-line
-      console.log(response.status);
+      console.log(response);
       if (
         response.statusCode === 400 ||
         response.statusCode === 401 ||
@@ -147,7 +151,7 @@ function FormDialog(props) {
             margin="dense"
             id="name"
             label="Username*"
-            placeholder={username}
+            defaultValue={username}
             type="username"
             fullWidth
             onChange={handleUsernameChange}
@@ -156,7 +160,7 @@ function FormDialog(props) {
             focus="true"
             margin="dense"
             id="name"
-            placeholder={email}
+            defaultValue={email}
             label="Email Address*"
             type="email"
             fullWidth
@@ -167,7 +171,7 @@ function FormDialog(props) {
             id="name"
             label="Password*"
             type="password"
-            placeholder={password}
+            defaultValue={password}
             fullWidth
             onChange={handlePasswordChange}
           />
@@ -182,7 +186,7 @@ function FormDialog(props) {
             id="name"
             label="Name"
             type="name"
-            placeholder={name}
+            defaultValue={name}
             fullWidth
             onChange={handleNameChange}
           />
