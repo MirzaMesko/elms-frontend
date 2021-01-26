@@ -132,6 +132,7 @@ function EnhancedTable(props) {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [showEditDialogue, setShowEditDialogue] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState();
+  const [isHovering, setIsHovering] = React.useState({ show: false, index: 0 });
 
   const { users, onShowSnackbar } = props;
 
@@ -201,12 +202,22 @@ function EnhancedTable(props) {
                   const labelId = `enhanced-table-checkbox-${index}`;
 
                   return (
-                    <TableRow hover role="checkbox" tabIndex={-1} key={user.username}>
-                      <TableCell padding="none">
-                        <IconButton aria-label="edit" onClick={() => onEdit(user)}>
-                          <EditIcon />
-                        </IconButton>
+                    <TableRow
+                      hover
+                      role="checkbox"
+                      tabIndex={-1}
+                      key={user.username}
+                      onMouseEnter={() => setIsHovering({ show: true, index })}
+                      onMouseLeave={() => setIsHovering({ show: false, index })}
+                    >
+                      <TableCell padding="checkbox">
+                        {isHovering.show === true && isHovering.index === index ? (
+                          <IconButton aria-label="edit" onClick={() => onEdit(user)}>
+                            <EditIcon />
+                          </IconButton>
+                        ) : null}
                       </TableCell>
+
                       <TableCell component="th" id={labelId} scope="row">
                         {user.username}
                       </TableCell>
