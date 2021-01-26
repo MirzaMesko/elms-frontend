@@ -89,11 +89,7 @@ function FormDialog(props) {
 
   const onEdit = (event) => {
     event.preventDefault();
-    // eslint-disable-next-line
-    console.log(email, password, roles, name, bio, token);
     onEditUser(email, username, password, roles, name, bio, token).then((response) => {
-      // eslint-disable-next-line
-      console.log(response);
       if (
         response.statusCode === 400 ||
         response.statusCode === 401 ||
@@ -118,8 +114,6 @@ function FormDialog(props) {
 
   React.useEffect(() => {
     setOpen(show);
-    // eslint-disable-next-line
-    console.log('user: ', user, show);
     if (user) {
       setEmail(user.email);
       setBio(user.bio);
