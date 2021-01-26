@@ -91,7 +91,7 @@ function FormDialog(props) {
     event.preventDefault();
     // eslint-disable-next-line
     console.log(email, password, roles, name, bio, token);
-    onEditUser(email, username, roles, name, bio, token).then((response) => {
+    onEditUser(email, username, password, roles, name, bio, token).then((response) => {
       // eslint-disable-next-line
       console.log(response);
       if (
@@ -127,7 +127,7 @@ function FormDialog(props) {
       setPassword(user.password);
       setUsername(user.username);
       // eslint-disable-next-line
-      if (user.roles.includes('Admin','Librarian')) {
+      if (user.roles.includes('Admin', 'Librarian')) {
         setRoles(user.roles);
       }
     }
@@ -146,16 +146,31 @@ function FormDialog(props) {
         <DialogTitle id="form-dialog-title">{title}</DialogTitle>
         <DialogContent>
           <DialogContentText>Please fill in the following information.</DialogContentText>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="name"
-            label="Username*"
-            defaultValue={username}
-            type="username"
-            fullWidth
-            onChange={handleUsernameChange}
-          />
+          {!user ? (
+            <TextField
+              autoFocus
+              margin="dense"
+              id="name"
+              label="Username*"
+              defaultValue={username}
+              type="username"
+              fullWidth
+              onChange={handleUsernameChange}
+            />
+          ) : (
+            <TextField
+              autoFocus
+              margin="dense"
+              id="name"
+              label="Username*"
+              defaultValue={username}
+              disabled
+              type="username"
+              fullWidth
+              onChange={handleUsernameChange}
+            />
+          )}
+
           <TextField
             focus="true"
             margin="dense"
@@ -233,8 +248,8 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  onEditUser: (email, username, roles, name, bio, token) =>
-    dispatch(editUser(email, username, roles, name, bio, token)),
+  onEditUser: (email, username, password, roles, name, bio, token) =>
+    dispatch(editUser(email, username, password, roles, name, bio, token)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FormDialog);

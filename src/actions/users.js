@@ -72,13 +72,13 @@ export function getCurrentUser(token) {
       });
 }
 
-export function editUser(email, username, roles, name, bio, token) {
+export function editUser(email, username, password, roles, name, bio, token) {
   const headers = { Authorization: `Bearer ${token}` };
   const url = `http://localhost:8888/api/user/${username}`;
 
   return (dispatch) =>
     axios
-      .put(url, { email, username, roles, name, bio }, { headers })
+      .put(url, { email, password, roles, name, bio }, { headers })
       .then((response) => {
         dispatch(getUsers(token));
         return response;
