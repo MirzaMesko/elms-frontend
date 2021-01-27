@@ -33,9 +33,9 @@ function ManageUsers(props) {
   };
 
   const showSnackbar = (show, status, message) => {
-    setOpenSnackbar(show);
-    setNewUser(message);
     setSeverity(status);
+    setNewUser(message);
+    setOpenSnackbar(show);
     setTimeout(() => {
       setOpenSnackbar(false);
     }, 6000);
@@ -62,7 +62,6 @@ function ManageUsers(props) {
       <FormDialogue
         show={openDialogue}
         close={handleClose}
-        onGetUsers={onGetUsers}
         onShowSnackbar={showSnackbar}
         title="Add New User"
       />

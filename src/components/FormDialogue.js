@@ -8,14 +8,14 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import PropTypes from 'prop-types';
-import addUser from '../actions/users';
+import { addUser, editUser, getUsers } from '../actions/users';
 import Confirm from './Confirm';
 import MulitpleSelect from './MulitpleSelect';
 
 const roleOptions = ['Admin', 'Librarian', 'Student'];
 
 function FormDialog(props) {
-  const { show, close, token, onGetUsers, onShowSnackbar } = props;
+  const { show, close, token, onGetUsers, onShowSnackbar, title, user, onEditUser } = props;
   const [open, setOpen] = React.useState(show);
   const [openConfirm, setOpenConfirm] = React.useState(false);
   const [email, setEmail] = React.useState('');
@@ -55,6 +55,7 @@ function FormDialog(props) {
     setName('');
     setPassword('');
     setUsername('');
+    setRoles([]);
   };
 
   const handleClose = () => {
@@ -66,6 +67,10 @@ function FormDialog(props) {
 
   const onAddUser = (event) => {
     event.preventDefault();
+    if (!email || !username || !password) {
+      onShowSnackbar(true, 'error', 'Please fill in the required fileds!');
+      return;
+    }
     addUser(email, username, password, roles, name, bio, token).then((response) => {
       if (
         response.statusCode === 400 ||
@@ -82,6 +87,24 @@ function FormDialog(props) {
     });
   };
 
+  const onEdit = (event) => {
+    event.preventDefault();
+    onEditUser(email, username, password, roles, name, bio, token).then((response) => {
+      if (
+        response.statusCode === 400 ||
+        response.statusCode === 401 ||
+        response.statusCode === 403
+      ) {
+        onShowSnackbar(true, 'error', response.message);
+      }
+      if (response.status === 200) {
+        onShowSnackbar(true, 'success', `User ${response.data.username} was edited`);
+        onGetUsers(token);
+        close();
+      }
+    });
+  };
+
   const showConfirm = () => {
     if (username.length || password.length || email.length || name.length) {
       setOpenConfirm(true);
@@ -92,79 +115,109 @@ function FormDialog(props) {
 
   React.useEffect(() => {
     setOpen(show);
-  }, [show, handleClose]);
+    if (user) {
+      setEmail(user.email);
+      setBio(user.bio);
+      setName(user.name);
+      setPassword(user.password);
+      setUsername(user.username);
+      // eslint-disable-next-line
+      if (user.roles.includes('Admin', 'Librarian')) {
+        setRoles(user.roles);
+      }
+    }
+  }, [show, user]);
 
   return (
-    <div>
-      <Dialog open={open} onClose={showConfirm} aria-labelledby="form-dialog-title">
-        <Confirm
-          show={openConfirm}
-          title="Are you sure?"
-          message="Entered input will be lost. Are you sure you want to cancel?"
-          confirm={handleClose}
-          cancel={() => setOpenConfirm(false)}
-        />
-        <DialogTitle id="form-dialog-title">Add New User</DialogTitle>
-        <DialogContent>
-          <DialogContentText>Please fill in the following information.</DialogContentText>
+    <Dialog open={open} onClose={showConfirm} aria-labelledby="form-dialog-title">
+      <Confirm
+        show={openConfirm}
+        title="Are you sure?"
+        message="Entered input will be lost. Are you sure you want to cancel?"
+        confirm={handleClose}
+        cancel={() => setOpenConfirm(false)}
+      />
+      <DialogTitle id="form-dialog-title">{title}</DialogTitle>
+      <DialogContent>
+        <DialogContentText>Please fill in the following information.</DialogContentText>
+        {!user ? (
           <TextField
             autoFocus
             margin="dense"
-            id="name"
+            id="username"
             label="Username*"
+            defaultValue={username}
             type="username"
             fullWidth
             onChange={handleUsernameChange}
           />
+        ) : (
           <TextField
+            autoFocus
             margin="dense"
-            id="name"
-            label="Email Address*"
-            type="email"
+            id="username"
+            label="Username*"
+            defaultValue={username}
+            disabled
+            type="username"
             fullWidth
-            onChange={handleEmailChange}
+            onChange={handleUsernameChange}
           />
-          <TextField
-            margin="dense"
-            id="name"
-            label="Password*"
-            type="password"
-            fullWidth
-            onChange={handlePasswordChange}
-          />
-          <MulitpleSelect
-            onChange={handleRoleChange}
-            selected={roles}
-            options={roleOptions}
-            label="Roles"
-          />
-          <TextField
-            margin="dense"
-            id="name"
-            label="Name"
-            type="name"
-            fullWidth
-            onChange={handleNameChange}
-          />
-          <TextField
-            margin="dense"
-            id="name"
-            label="Bio"
-            type="bio"
-            fullWidth
-            onChange={handleBioChange}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={showConfirm} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={onAddUser} color="primary">
-            Add
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
+        )}
+
+        <TextField
+          focus="true"
+          margin="dense"
+          id="email"
+          defaultValue={email}
+          label="Email Address*"
+          type="email"
+          fullWidth
+          onChange={handleEmailChange}
+        />
+        <TextField
+          margin="dense"
+          id="password"
+          label="Password*"
+          type="password"
+          defaultValue={password}
+          fullWidth
+          onChange={handlePasswordChange}
+        />
+        <MulitpleSelect
+          onChange={handleRoleChange}
+          selected={roles}
+          options={roleOptions}
+          label="Roles"
+        />
+        <TextField
+          margin="dense"
+          id="name"
+          label="Name"
+          type="name"
+          defaultValue={name}
+          fullWidth
+          onChange={handleNameChange}
+        />
+        <TextField
+          margin="dense"
+          id="bio"
+          label="Bio"
+          type="bio"
+          placeholder={bio}
+          fullWidth
+          onChange={handleBioChange}
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={showConfirm} color="primary">
+          Cancel
+        </Button>
+        <Button onClick={user ? onEdit : onAddUser} color="primary">
+          {user ? 'Save' : 'Add'}
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }
 
@@ -174,10 +227,23 @@ FormDialog.propTypes = {
   token: PropTypes.string.isRequired,
   onGetUsers: PropTypes.func.isRequired,
   onShowSnackbar: PropTypes.func.isRequired,
+  title: PropTypes.string.isRequired,
+  user: PropTypes.objectOf(PropTypes.oneOfType([PropTypes.string, PropTypes.array])),
+  onEditUser: PropTypes.func.isRequired,
+};
+
+FormDialog.defaultProps = {
+  user: null,
 };
 
 const mapStateToProps = (state) => ({
   token: state.authUser.token,
 });
 
-export default connect(mapStateToProps)(FormDialog);
+const mapDispatchToProps = (dispatch) => ({
+  onEditUser: (email, username, password, roles, name, bio, token) =>
+    dispatch(editUser(email, username, password, roles, name, bio, token)),
+  onGetUsers: (token, params) => dispatch(getUsers(token, params)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(FormDialog);

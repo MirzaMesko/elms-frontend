@@ -13,7 +13,7 @@ function currentUser(user) {
   };
 }
 
-export default function addUser(email, username, password, roles, name, bio, token) {
+export function addUser(email, username, password, roles, name, bio, token) {
   const headers = { Authorization: `Bearer ${token}` };
   return axios
     .post(
@@ -70,4 +70,18 @@ export function getCurrentUser(token) {
           dispatch(authFail(error));
         }
       });
+}
+
+export function editUser(email, username, password, roles, name, bio, token) {
+  const headers = { Authorization: `Bearer ${token}` };
+  const url = `http://localhost:8888/api/user/${username}`;
+
+  return (dispatch) =>
+    axios
+      .put(url, { email, password, roles, name, bio }, { headers })
+      .then((response) => {
+        dispatch(getUsers(token));
+        return response;
+      })
+      .catch((error) => error.response.data);
 }
