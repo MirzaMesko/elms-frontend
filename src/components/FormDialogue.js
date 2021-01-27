@@ -8,7 +8,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import PropTypes from 'prop-types';
-import { addUser, editUser } from '../actions/users';
+import { addUser, editUser, getUsers } from '../actions/users';
 import Confirm from './Confirm';
 import MulitpleSelect from './MulitpleSelect';
 
@@ -99,6 +99,7 @@ function FormDialog(props) {
       }
       if (response.status === 200) {
         onShowSnackbar(true, 'success', `User ${response.data.username} was edited`);
+        onGetUsers(token);
         close();
       }
     });
@@ -128,97 +129,95 @@ function FormDialog(props) {
   }, [show, user]);
 
   return (
-    <div>
-      <Dialog open={open} onClose={showConfirm} aria-labelledby="form-dialog-title">
-        <Confirm
-          show={openConfirm}
-          title="Are you sure?"
-          message="Entered input will be lost. Are you sure you want to cancel?"
-          confirm={handleClose}
-          cancel={() => setOpenConfirm(false)}
-        />
-        <DialogTitle id="form-dialog-title">{title}</DialogTitle>
-        <DialogContent>
-          <DialogContentText>Please fill in the following information.</DialogContentText>
-          {!user ? (
-            <TextField
-              autoFocus
-              margin="dense"
-              id="name"
-              label="Username*"
-              defaultValue={username}
-              type="username"
-              fullWidth
-              onChange={handleUsernameChange}
-            />
-          ) : (
-            <TextField
-              autoFocus
-              margin="dense"
-              id="name"
-              label="Username*"
-              defaultValue={username}
-              disabled
-              type="username"
-              fullWidth
-              onChange={handleUsernameChange}
-            />
-          )}
+    <Dialog open={open} onClose={showConfirm} aria-labelledby="form-dialog-title">
+      <Confirm
+        show={openConfirm}
+        title="Are you sure?"
+        message="Entered input will be lost. Are you sure you want to cancel?"
+        confirm={handleClose}
+        cancel={() => setOpenConfirm(false)}
+      />
+      <DialogTitle id="form-dialog-title">{title}</DialogTitle>
+      <DialogContent>
+        <DialogContentText>Please fill in the following information.</DialogContentText>
+        {!user ? (
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label="Username*"
+            defaultValue={username}
+            type="username"
+            fullWidth
+            onChange={handleUsernameChange}
+          />
+        ) : (
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label="Username*"
+            defaultValue={username}
+            disabled
+            type="username"
+            fullWidth
+            onChange={handleUsernameChange}
+          />
+        )}
 
-          <TextField
-            focus="true"
-            margin="dense"
-            id="name"
-            defaultValue={email}
-            label="Email Address*"
-            type="email"
-            fullWidth
-            onChange={handleEmailChange}
-          />
-          <TextField
-            margin="dense"
-            id="name"
-            label="Password*"
-            type="password"
-            defaultValue={password}
-            fullWidth
-            onChange={handlePasswordChange}
-          />
-          <MulitpleSelect
-            onChange={handleRoleChange}
-            selected={roles}
-            options={roleOptions}
-            label="Roles"
-          />
-          <TextField
-            margin="dense"
-            id="name"
-            label="Name"
-            type="name"
-            defaultValue={name}
-            fullWidth
-            onChange={handleNameChange}
-          />
-          <TextField
-            margin="dense"
-            id="name"
-            label="Bio"
-            type="bio"
-            placeholder={bio}
-            fullWidth
-            onChange={handleBioChange}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={showConfirm} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={user ? onEdit : onAddUser} color="primary">
-            {user ? 'Edit' : 'Add'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
+        <TextField
+          focus="true"
+          margin="dense"
+          id="name"
+          defaultValue={email}
+          label="Email Address*"
+          type="email"
+          fullWidth
+          onChange={handleEmailChange}
+        />
+        <TextField
+          margin="dense"
+          id="name"
+          label="Password*"
+          type="password"
+          defaultValue={password}
+          fullWidth
+          onChange={handlePasswordChange}
+        />
+        <MulitpleSelect
+          onChange={handleRoleChange}
+          selected={roles}
+          options={roleOptions}
+          label="Roles"
+        />
+        <TextField
+          margin="dense"
+          id="name"
+          label="Name"
+          type="name"
+          defaultValue={name}
+          fullWidth
+          onChange={handleNameChange}
+        />
+        <TextField
+          margin="dense"
+          id="name"
+          label="Bio"
+          type="bio"
+          placeholder={bio}
+          fullWidth
+          onChange={handleBioChange}
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={showConfirm} color="primary">
+          Cancel
+        </Button>
+        <Button onClick={user ? onEdit : onAddUser} color="primary">
+          {user ? 'Save' : 'Add'}
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }
 
@@ -229,7 +228,7 @@ FormDialog.propTypes = {
   onGetUsers: PropTypes.func.isRequired,
   onShowSnackbar: PropTypes.func.isRequired,
   title: PropTypes.string.isRequired,
-  user: PropTypes.objectOf(PropTypes.shape({})),
+  user: PropTypes.objectOf(PropTypes.oneOfType([PropTypes.string, PropTypes.array])),
   onEditUser: PropTypes.func.isRequired,
 };
 
@@ -244,6 +243,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
   onEditUser: (email, username, password, roles, name, bio, token) =>
     dispatch(editUser(email, username, password, roles, name, bio, token)),
+  onGetUsers: (token, params) => dispatch(getUsers(token, params)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FormDialog);
