@@ -144,7 +144,7 @@ function FormDialog(props) {
           <TextField
             autoFocus
             margin="dense"
-            id="name"
+            id="username"
             label="Username*"
             defaultValue={username}
             type="username"
@@ -155,7 +155,7 @@ function FormDialog(props) {
           <TextField
             autoFocus
             margin="dense"
-            id="name"
+            id="username"
             label="Username*"
             defaultValue={username}
             disabled
@@ -168,7 +168,7 @@ function FormDialog(props) {
         <TextField
           focus="true"
           margin="dense"
-          id="name"
+          id="email"
           defaultValue={email}
           label="Email Address*"
           type="email"
@@ -177,7 +177,7 @@ function FormDialog(props) {
         />
         <TextField
           margin="dense"
-          id="name"
+          id="password"
           label="Password*"
           type="password"
           defaultValue={password}
@@ -201,7 +201,7 @@ function FormDialog(props) {
         />
         <TextField
           margin="dense"
-          id="name"
+          id="bio"
           label="Bio"
           type="bio"
           placeholder={bio}
