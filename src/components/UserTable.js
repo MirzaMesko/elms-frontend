@@ -10,6 +10,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
+import Toolbar from '@material-ui/core/Toolbar';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
@@ -61,9 +62,6 @@ function EnhancedTableHead(props) {
 
   return (
     <TableHead>
-      <TableRow>
-        <Typography style={{ padding: '10px', size: 'large' }}>Users</Typography>
-      </TableRow>
       <TableRow>
         <TableCell>{null}</TableCell>
         {headCells.map((headCell) => (
@@ -181,6 +179,11 @@ function EnhancedTable(props) {
   return (
     <div className={classes.root}>
       <Paper className={classes.paper}>
+        <Toolbar>
+          <Typography variant="h6" id="tableTitle" component="div">
+            Users
+          </Typography>
+        </Toolbar>
         <TableContainer>
           <Table
             className={classes.table}
@@ -211,13 +214,12 @@ function EnhancedTable(props) {
                       onMouseLeave={() => setIsHovering({ show: false, index })}
                     >
                       <TableCell padding="checkbox">
-                        {isHovering.show === true && isHovering.index === index ? (
+                        {isHovering.show && isHovering.index === index ? (
                           <IconButton aria-label="edit" onClick={() => onEdit(user)}>
                             <EditIcon />
                           </IconButton>
                         ) : null}
                       </TableCell>
-
                       <TableCell component="th" id={labelId} scope="row">
                         {user.username}
                       </TableCell>
@@ -238,11 +240,11 @@ function EnhancedTable(props) {
                     </TableRow>
                   );
                 })}
-              {emptyRows > 0 && (
+              {emptyRows > 0 ? (
                 <TableRow style={{ height: 53 * emptyRows }}>
                   <TableCell colSpan={6} />
                 </TableRow>
-              )}
+              ) : null}
               <FormDialog
                 title="Edit user"
                 show={showEditDialogue}
