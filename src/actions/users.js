@@ -83,9 +83,5 @@ export function editUser(email, username, password, roles, name, bio, token) {
         dispatch(getUsers(token));
         return response;
       })
-      .catch((error) => {
-        if (error.response.data.statusCode === 401) {
-          dispatch(authFail(error));
-        }
-      });
+      .catch((error) => error.response.data);
 }
