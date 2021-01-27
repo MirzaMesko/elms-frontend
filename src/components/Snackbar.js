@@ -53,5 +53,5 @@ export default function CustomizedSnackbars(props) {
 CustomizedSnackbars.propTypes = {
   show: PropTypes.bool.isRequired,
   severity: PropTypes.string.isRequired,
-  message: PropTypes.string.isRequired,
+  message: PropTypes.oneOfType([PropTypes.string, PropTypes.array]).isRequired,
 };
