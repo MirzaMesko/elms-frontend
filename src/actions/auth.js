@@ -1,3 +1,6 @@
+// eslint-disable-next-line camelcase
+import jwt_decode from 'jwt-decode';
+
 const axios = require('axios');
 
 export const SET_AUTH_USER = 'SET_AUTH_USER';
@@ -57,16 +60,22 @@ export function authCheckState() {
 export function login(username, password) {
   return (dispatch) =>
     axios
-      .post('http://localhost:8888/api/user/login', { username, password })
+      .post('http://localhost:3500/login', { username, password })
       .then((response) => {
         const expirationDate = new Date(new Date().getTime() + 3600 * 1000);
-        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('token', response.data.accessToken);
         localStorage.setItem('expirationDate', expirationDate);
-        localStorage.setItem('user', response.data.username);
-        dispatch(authSuccess(response.data.token, response.data));
+        const token = response.data.accessToken;
+        const decoded = jwt_decode(token);
+        const user = {
+          username: decoded.UserInfo.username,
+          roles: decoded.UserInfo.roles,
+        };
+        localStorage.setItem('user', user);
+        dispatch(authSuccess(response.data.accessToken, user));
       })
       .catch((error) => {
-        if (error.response.data.statusCode === 401) {
+        if (error.message.includes('401')) {
           dispatch(authFail('Incorrect username / password.'));
         }
       });
