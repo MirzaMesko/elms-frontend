@@ -14,6 +14,24 @@ const useStyles = makeStyles((theme) => ({
   submit: {
     margin: theme.spacing(3, 3, 2),
   },
+  container: {
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  search: {
+    margin: theme.spacing(3, 3, 2),
+    padding: '0.4rem',
+  },
+  label: {
+    fontSize: '20px',
+    color: '#3f51b5',
+  },
+  input: {
+    border: '1px solid #3f51b5',
+    padding: '0.3rem',
+    marginLeft: '0.9rem',
+    color: '#3f51b5',
+  },
 }));
 
 function ManageUsers(props) {
@@ -23,6 +41,8 @@ function ManageUsers(props) {
   const [severity, setSeverity] = React.useState('');
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [newUser, setNewUser] = React.useState('');
+  const [searchResults, setSearchResults] = React.useState([]);
+  const [search, setSearch] = React.useState('');
 
   const handleOpen = () => {
     setOpenDialogue(true);
@@ -42,23 +62,52 @@ function ManageUsers(props) {
   };
 
   React.useEffect(() => {
-    onGetUsers(token, { offset: 0 });
+    onGetUsers(token);
   }, [token]);
+
+  React.useEffect(() => {
+    setSearchResults(users);
+  }, [users]);
+
+  React.useEffect(() => {
+    const filteredResults = users.filter(
+      (user) =>
+        user.username.toLowerCase().includes(search.toLowerCase()) ||
+        user.email.toLowerCase().includes(search.toLowerCase())
+    );
+    setSearchResults(filteredResults.reverse());
+  }, [search]);
 
   return (
     <Box>
       <CustomizedSnackbars show={openSnackbar} severity={severity} message={newUser} />
-      <Button
-        type="submit"
-        variant="contained"
-        color="primary"
-        className={classes.submit}
-        onClick={handleOpen}
-      >
-        <PersonAddOutlinedIcon style={{ marginRight: '15px' }} />
-        New User
-      </Button>
-      <UserTable users={users} onShowSnackbar={showSnackbar} />
+      <div className={classes.container}>
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          className={classes.submit}
+          onClick={handleOpen}
+        >
+          <PersonAddOutlinedIcon style={{ marginRight: '15px' }} />
+          New User
+        </Button>
+        <form className={classes.search} onSubmit={(e) => e.preventDefault()}>
+          <label htmlFor="search" className={classes.label}>
+            Search users
+            <input
+              id="search"
+              type="text"
+              placeholder=""
+              value={search}
+              className={classes.input}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </label>
+        </form>
+      </div>
+
+      <UserTable users={searchResults} onShowSnackbar={showSnackbar} />
       <FormDialogue
         show={openDialogue}
         close={handleClose}
@@ -76,12 +125,12 @@ ManageUsers.propTypes = {
 };
 
 const mapStateToProps = (state) => ({
-  token: state.authUser.token,
+  token: state.token,
   users: state.users,
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  onGetUsers: (token, params) => dispatch(getUsers(token, params)),
+  onGetUsers: (token) => dispatch(getUsers(token)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ManageUsers);
