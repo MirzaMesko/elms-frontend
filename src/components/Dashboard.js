@@ -118,17 +118,12 @@ function Dashboard(props) {
   };
 
   const wrapper = React.createRef();
-  const { onLogout, children, roles, token, onGetCurrentUser } = props;
-  const isAdmin = roles.includes('Admin');
+  const { onLogout, children, roles } = props;
+  const isAdmin = Object.values(roles).includes('Admin');
 
   const logout = () => {
     onLogout();
   };
-
-  React.useEffect(() => {
-    onGetCurrentUser(token);
-  }, [token]);
-
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -199,9 +194,11 @@ function Dashboard(props) {
 Dashboard.propTypes = {
   onLogout: PropTypes.func.isRequired,
   children: PropTypes.element.isRequired,
-  roles: PropTypes.arrayOf(PropTypes.string).isRequired,
-  token: PropTypes.string.isRequired,
-  onGetCurrentUser: PropTypes.func.isRequired,
+  roles: PropTypes.objectOf(PropTypes.string),
+};
+
+Dashboard.defaultProps = {
+  roles: ['Member'],
 };
 
 const mapStateToProps = (state) => ({
