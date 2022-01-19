@@ -11,21 +11,11 @@ import Links from './components/Links';
 import Login from './components/Login';
 
 function App(props) {
-  const {
-    loggedIn,
-    history,
-    error,
-    authUser,
-    onLogout,
-    roles,
-    users,
-    onTryAutoSignup,
-    token,
-  } = props;
+  const { loggedIn, history, error, authUser, roles, onLogout, users, onTryAutoSignup } = props;
 
   React.useEffect(() => {
     onTryAutoSignup();
-  }, [token]);
+  }, []);
 
   let routes = (
     <Switch>
@@ -68,7 +58,7 @@ App.propTypes = {
   authUser: PropTypes.string,
   onLogout: PropTypes.func.isRequired,
   onTryAutoSignup: PropTypes.func.isRequired,
-  roles: PropTypes.arrayOf(PropTypes.string).isRequired,
+  roles: PropTypes.objectOf(PropTypes.string).isRequired,
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   token: PropTypes.string.isRequired,
 };
