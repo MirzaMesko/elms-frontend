@@ -12,15 +12,26 @@ import { addUser, editUser, getUsers } from '../actions/users';
 import Confirm from './Confirm';
 import MulitpleSelect from './MulitpleSelect';
 
-const roleOptions = ['Admin', 'Librarian', 'Student'];
+const roleOptions = ['Admin', 'Librarian', 'Member'];
 
 function FormDialog(props) {
-  const { show, close, token, onGetUsers, onShowSnackbar, title, user, onEditUser } = props;
+  const {
+    show,
+    close,
+    token,
+    onGetUsers,
+    onShowSnackbar,
+    title,
+    user,
+    onEditUser,
+    onAddUser,
+  } = props;
   const [open, setOpen] = React.useState(show);
   const [openConfirm, setOpenConfirm] = React.useState(false);
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [username, setUsername] = React.useState('');
+  const [id, setId] = React.useState('');
   const [bio, setBio] = React.useState('');
   const [name, setName] = React.useState('');
   const [roles, setRoles] = React.useState([]);
@@ -55,6 +66,7 @@ function FormDialog(props) {
     setName('');
     setPassword('');
     setUsername('');
+    setId('');
     setRoles([]);
   };
 
@@ -65,19 +77,15 @@ function FormDialog(props) {
     resetInput();
   };
 
-  const onAddUser = (event) => {
+  const onAdd = (event) => {
     event.preventDefault();
     if (!email || !username || !password) {
       onShowSnackbar(true, 'error', 'Please fill in the required fileds!');
       return;
     }
-    addUser(email, username, password, roles, name, bio, token).then((response) => {
-      if (
-        response.statusCode === 400 ||
-        response.statusCode === 401 ||
-        response.statusCode === 403
-      ) {
-        onShowSnackbar(true, 'error', response.message);
+    onAddUser(email, username, password, roles, name, bio, token).then((response) => {
+      if (response.status !== 201) {
+        onShowSnackbar(true, 'error', `${response.message}`);
       }
       if (response.status === 201) {
         onShowSnackbar(true, 'success', `User ${response.data.username} was created`);
@@ -89,12 +97,8 @@ function FormDialog(props) {
 
   const onEdit = (event) => {
     event.preventDefault();
-    onEditUser(email, username, password, roles, name, bio, token).then((response) => {
-      if (
-        response.statusCode === 400 ||
-        response.statusCode === 401 ||
-        response.statusCode === 403
-      ) {
+    onEditUser(id, email, roles, name, bio, token).then((response) => {
+      if (response.status === 400 || response.status === 401 || response.status === 403) {
         onShowSnackbar(true, 'error', response.message);
       }
       if (response.status === 200) {
@@ -121,9 +125,11 @@ function FormDialog(props) {
       setName(user.name);
       setPassword(user.password);
       setUsername(user.username);
+      // eslint-disable-next-line no-underscore-dangle
+      setId(user._id);
       // eslint-disable-next-line
-      if (user.roles.includes('Admin', 'Librarian')) {
-        setRoles(user.roles);
+      if (Object.values(user.roles).includes('Admin', 'Librarian')) {
+        setRoles(Object.values(user.roles));
       }
     }
   }, [show, user]);
@@ -140,30 +146,18 @@ function FormDialog(props) {
       <DialogTitle id="form-dialog-title">{title}</DialogTitle>
       <DialogContent>
         <DialogContentText>Please fill in the following information.</DialogContentText>
-        {!user ? (
-          <TextField
-            autoFocus
-            margin="dense"
-            id="username"
-            label="Username*"
-            defaultValue={username}
-            type="username"
-            fullWidth
-            onChange={handleUsernameChange}
-          />
-        ) : (
-          <TextField
-            autoFocus
-            margin="dense"
-            id="username"
-            label="Username*"
-            defaultValue={username}
-            disabled
-            type="username"
-            fullWidth
-            onChange={handleUsernameChange}
-          />
-        )}
+
+        <TextField
+          autoFocus
+          margin="dense"
+          id="username"
+          label="Username*"
+          defaultValue={username}
+          disabled={user}
+          type="username"
+          fullWidth
+          onChange={handleUsernameChange}
+        />
 
         <TextField
           focus="true"
@@ -180,6 +174,7 @@ function FormDialog(props) {
           id="password"
           label="Password*"
           type="password"
+          disabled={user}
           defaultValue={password}
           fullWidth
           onChange={handlePasswordChange}
@@ -204,7 +199,7 @@ function FormDialog(props) {
           id="bio"
           label="Bio"
           type="bio"
-          placeholder={bio}
+          defaultValue={bio}
           fullWidth
           onChange={handleBioChange}
         />
@@ -213,7 +208,7 @@ function FormDialog(props) {
         <Button onClick={showConfirm} color="primary">
           Cancel
         </Button>
-        <Button onClick={user ? onEdit : onAddUser} color="primary">
+        <Button onClick={user ? onEdit : onAdd} color="primary">
           {user ? 'Save' : 'Add'}
         </Button>
       </DialogActions>
@@ -230,6 +225,7 @@ FormDialog.propTypes = {
   title: PropTypes.string.isRequired,
   user: PropTypes.objectOf(PropTypes.oneOfType([PropTypes.string, PropTypes.array])),
   onEditUser: PropTypes.func.isRequired,
+  onAddUser: PropTypes.func.isRequired,
 };
 
 FormDialog.defaultProps = {
@@ -237,13 +233,15 @@ FormDialog.defaultProps = {
 };
 
 const mapStateToProps = (state) => ({
-  token: state.authUser.token,
+  token: state.token,
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  onEditUser: (email, username, password, roles, name, bio, token) =>
-    dispatch(editUser(email, username, password, roles, name, bio, token)),
-  onGetUsers: (token, params) => dispatch(getUsers(token, params)),
+  onEditUser: (id, email, roles, name, bio, token) =>
+    dispatch(editUser(id, email, roles, name, bio, token)),
+  onGetUsers: (token) => dispatch(getUsers(token)),
+  onAddUser: (email, username, password, roles, name, bio, token) =>
+    dispatch(addUser(email, username, password, roles, name, bio, token)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FormDialog);
