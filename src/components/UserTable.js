@@ -18,7 +18,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { connect } from 'react-redux';
+// import { connect } from 'react-redux';
 import FormDialog from './FormDialogue';
 
 function descendingComparator(a, b, orderBy) {
@@ -226,16 +226,27 @@ function EnhancedTable(props) {
                       <TableCell align="left">{user.email}</TableCell>
                       <TableCell align="left">{user.name}</TableCell>
                       <TableCell align="left">
-                        {user.roles.map((item) => (
+                        {user.roles ? (
+                          Object.values(user.roles).map((item) => (
+                            <Chip
+                              key={item}
+                              icon={setIcon(item)}
+                              size="small"
+                              label={item}
+                              color={roleColor(item)}
+                              style={{ margin: '3px' }}
+                            />
+                          ))
+                        ) : (
                           <Chip
-                            key={item}
-                            icon={setIcon(item)}
+                            key="Member"
+                            icon={setIcon('Member')}
                             size="small"
-                            label={item}
-                            color={roleColor(item)}
+                            label="Member"
+                            color={roleColor('Member')}
                             style={{ margin: '3px' }}
                           />
-                        ))}
+                        )}
                       </TableCell>
                     </TableRow>
                   );
@@ -274,8 +285,4 @@ EnhancedTable.propTypes = {
   onShowSnackbar: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = (state) => ({
-  users: state.users.map((user) => (user.roles.length ? user : { ...user, roles: ['Member'] })),
-});
-
-export default connect(mapStateToProps)(EnhancedTable);
+export default EnhancedTable;
