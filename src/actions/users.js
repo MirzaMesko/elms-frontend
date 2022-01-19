@@ -15,14 +15,15 @@ function currentUser(user) {
 
 export function addUser(email, username, password, roles, name, bio, token) {
   const headers = { Authorization: `Bearer ${token}` };
-  return axios
-    .post(
-      'http://localhost:8888/api/user',
-      { email, username, password, roles, name, bio },
-      { headers }
-    )
-    .then((response) => response)
-    .catch((error) => error.response.data);
+  return () =>
+    axios
+      .post(
+        'http://localhost:3500/users',
+        { email, username, password, roles, name, bio },
+        { headers }
+      )
+      .then((response) => response)
+      .catch((error) => error.response.data);
 }
 
 function retrieveUsersSuccess(users) {
@@ -39,14 +40,14 @@ function retrieveUsersFail(error) {
   };
 }
 
-export function getUsers(token, params) {
+export function getUsers(token) {
   const headers = { Authorization: `Bearer ${token}` };
-  const url = 'http://localhost:8888/api/users';
+  const url = 'http://localhost:3500/users';
   return (dispatch) =>
     axios
-      .get(url, { headers, params })
+      .get(url, { headers })
       .then((response) => {
-        dispatch(retrieveUsersSuccess(response.data.items));
+        dispatch(retrieveUsersSuccess(response.data));
       })
       .catch((error) => {
         if (error.response.data.statusCode === 401) {
@@ -66,22 +67,19 @@ export function getCurrentUser(token) {
         dispatch(currentUser(response.data));
       })
       .catch((error) => {
-        if (error.response.data.statusCode === 401) {
+        if (error.message.includes('401')) {
           dispatch(authFail(error));
         }
       });
 }
 
-export function editUser(email, username, password, roles, name, bio, token) {
+export function editUser(id, email, roles, name, bio, token) {
   const headers = { Authorization: `Bearer ${token}` };
-  const url = `http://localhost:8888/api/user/${username}`;
+  const url = `http://localhost:3500/users`;
 
-  return (dispatch) =>
+  return () =>
     axios
-      .put(url, { email, password, roles, name, bio }, { headers })
-      .then((response) => {
-        dispatch(getUsers(token));
-        return response;
-      })
+      .put(url, { id, email, roles, name, bio }, { headers })
+      .then((response) => response)
       .catch((error) => error.response.data);
 }
