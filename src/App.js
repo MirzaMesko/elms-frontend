@@ -35,7 +35,7 @@ function App(props) {
           <Route
             path="/manage/users"
             exact
-            render={() => <ManageUsers history={history} users={users} />}
+            render={() => <ManageUsers history={history} users={users} roles={roles} />}
           />
           <Route
             path="/"
