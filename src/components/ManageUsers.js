@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function ManageUsers(props) {
-  const { token, onGetUsers, users } = props;
+  const { token, onGetUsers, users, roles } = props;
   const classes = useStyles();
   const [openDialogue, setOpenDialogue] = React.useState(false);
   const [severity, setSeverity] = React.useState('');
@@ -43,6 +43,8 @@ function ManageUsers(props) {
   const [newUser, setNewUser] = React.useState('');
   const [searchResults, setSearchResults] = React.useState([]);
   const [search, setSearch] = React.useState('');
+
+  const isAdmin = Object.values(roles).includes('Admin');
 
   const handleOpen = () => {
     setOpenDialogue(true);
@@ -82,16 +84,18 @@ function ManageUsers(props) {
     <Box>
       <CustomizedSnackbars show={openSnackbar} severity={severity} message={newUser} />
       <div className={classes.container}>
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          className={classes.submit}
-          onClick={handleOpen}
-        >
-          <PersonAddOutlinedIcon style={{ marginRight: '15px' }} />
-          New User
-        </Button>
+        {isAdmin && (
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            className={classes.submit}
+            onClick={handleOpen}
+          >
+            <PersonAddOutlinedIcon style={{ marginRight: '15px' }} />
+            New User
+          </Button>
+        )}
         <form className={classes.search} onSubmit={(e) => e.preventDefault()}>
           <label htmlFor="search" className={classes.label}>
             Search users
@@ -122,6 +126,7 @@ ManageUsers.propTypes = {
   token: PropTypes.string.isRequired,
   onGetUsers: PropTypes.func.isRequired,
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  roles: PropTypes.objectOf(PropTypes.string).isRequired,
 };
 
 const mapStateToProps = (state) => ({
