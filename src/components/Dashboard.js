@@ -112,14 +112,15 @@ const useStyles = makeStyles((theme) => ({
 
 function Dashboard(props) {
   const classes = useStyles();
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = React.useState(false);
   const toggleDrawerOpen = () => {
     setOpen(!open);
   };
 
   const wrapper = React.createRef();
   const { onLogout, children, roles } = props;
-  const isAdmin = Object.values(roles).includes('Admin');
+  const isAdmin =
+    Object.values(roles).includes('Admin') || Object.values(roles).includes('Librarian');
 
   const logout = () => {
     onLogout();
@@ -194,7 +195,7 @@ function Dashboard(props) {
 Dashboard.propTypes = {
   onLogout: PropTypes.func.isRequired,
   children: PropTypes.element.isRequired,
-  roles: PropTypes.objectOf(PropTypes.string),
+  roles: PropTypes.arrayOf(PropTypes.string),
 };
 
 Dashboard.defaultProps = {
