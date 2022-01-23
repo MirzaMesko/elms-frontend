@@ -13,8 +13,8 @@ function currentUser(user) {
   };
 }
 
-export function addUser(email, username, password, roles, name, bio, token) {
-  const headers = { Authorization: `Bearer ${token}` };
+export function addUser(authUserRoles, email, username, password, roles, name, bio, token) {
+  const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
   return () =>
     axios
       .post(
