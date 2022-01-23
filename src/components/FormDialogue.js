@@ -25,6 +25,7 @@ function FormDialog(props) {
     user,
     onEditUser,
     onAddUser,
+    authUserRoles,
   } = props;
   const [open, setOpen] = React.useState(show);
   const [openConfirm, setOpenConfirm] = React.useState(false);
@@ -83,7 +84,16 @@ function FormDialog(props) {
       onShowSnackbar(true, 'error', 'Please fill in the required fileds!');
       return;
     }
-    onAddUser(email, username, password, roles, name, bio, token).then((response) => {
+    onAddUser(
+      Object.values(authUserRoles),
+      email,
+      username,
+      password,
+      roles,
+      name,
+      bio,
+      token
+    ).then((response) => {
       if (response.status !== 201) {
         onShowSnackbar(true, 'error', `${response.message}`);
       }
@@ -226,6 +236,7 @@ FormDialog.propTypes = {
   user: PropTypes.objectOf(PropTypes.oneOfType([PropTypes.string, PropTypes.array])),
   onEditUser: PropTypes.func.isRequired,
   onAddUser: PropTypes.func.isRequired,
+  authUserRoles: PropTypes.objectOf(PropTypes.string).isRequired,
 };
 
 FormDialog.defaultProps = {
@@ -234,14 +245,15 @@ FormDialog.defaultProps = {
 
 const mapStateToProps = (state) => ({
   token: state.token,
+  authUserRoles: state.authUser.roles,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   onEditUser: (id, email, roles, name, bio, token) =>
     dispatch(editUser(id, email, roles, name, bio, token)),
   onGetUsers: (token) => dispatch(getUsers(token)),
-  onAddUser: (email, username, password, roles, name, bio, token) =>
-    dispatch(addUser(email, username, password, roles, name, bio, token)),
+  onAddUser: (authUserRoles, email, username, password, roles, name, bio, token) =>
+    dispatch(addUser(authUserRoles, email, username, password, roles, name, bio, token)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FormDialog);
