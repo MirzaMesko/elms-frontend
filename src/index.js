@@ -7,7 +7,7 @@ import './index.css';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import reducer from './reducers/users';
+import reducer from './reducers/index';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
