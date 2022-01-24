@@ -6,6 +6,7 @@ import { Route, Switch, withRouter, Redirect } from 'react-router-dom';
 import './App.css';
 import Dashboard from './components/Dashboard';
 import ManageUsers from './components/ManageUsers';
+import ManageBooks from './components/ManageBooks';
 import { logout, authCheckState } from './actions/auth';
 import Links from './components/Links';
 import Login from './components/Login';
@@ -36,6 +37,11 @@ function App(props) {
             path="/manage/users"
             exact
             render={() => <ManageUsers history={history} users={users} roles={roles} />}
+          />
+          <Route
+            path="/manage/books"
+            exact
+            render={() => <ManageBooks history={history} users={users} roles={roles} />}
           />
           <Route
             path="/"
@@ -70,12 +76,12 @@ App.defaultProps = {
 };
 
 const mapStateToProps = (state) => ({
-  loggedIn: state.loggedIn,
-  error: state.err,
-  authUser: state.authUser.username,
-  roles: state.authUser.roles,
-  users: state.users,
-  token: state.token,
+  loggedIn: state.users.loggedIn,
+  error: state.users.err,
+  authUser: state.users.authUser.username,
+  roles: state.users.authUser.roles,
+  users: state.users.users,
+  token: state.users.token,
 });
 
 const mapDispatchToProps = (dispatch) => ({
