@@ -203,7 +203,7 @@ Dashboard.defaultProps = {
 };
 
 const mapStateToProps = (state) => ({
-  token: state.token,
+  token: state.users.token,
 });
 
 const mapDispatchToProps = (dispatch) => ({
