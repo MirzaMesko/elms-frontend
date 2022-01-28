@@ -130,8 +130,8 @@ ManageUsers.propTypes = {
 };
 
 const mapStateToProps = (state) => ({
-  token: state.token,
-  users: state.users,
+  token: state.users.token,
+  users: state.users.users,
 });
 
 const mapDispatchToProps = (dispatch) => ({
