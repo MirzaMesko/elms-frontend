@@ -12,52 +12,54 @@ const initialState = {
   users: [],
 };
 
-const reducer = (state = initialState, action) => {
-  if (action.type === SET_AUTH_USER) {
-    return {
-      ...state,
-      loggedIn: true,
-      token: action.token,
-      authUser: action.user,
-    };
+const users = (state = initialState, action) => {
+  switch (action.type) {
+    case SET_AUTH_USER:
+      return {
+        ...state,
+        loggedIn: true,
+        token: action.token,
+        authUser: action.user,
+      };
+    case CURRENT_USER_INFO: {
+      return {
+        ...state,
+        loggedIn: true,
+        authUser: action.user,
+      };
+    }
+    case SET_AUTH_FAIL: {
+      return {
+        ...state,
+        err: {
+          error: true,
+          message: action.error,
+        },
+      };
+    }
+    case LOG_OUT: {
+      return {
+        ...state,
+        loggedIn: false,
+        authUser: '',
+        error: false,
+      };
+    }
+    case RETRIEVE_USERS_SUCCESS: {
+      return {
+        ...state,
+        users: action.users,
+      };
+    }
+    case RETRIEVE_USERS_FAIL: {
+      return {
+        ...state,
+        users: action.error,
+      };
+    }
+    default:
+      return state;
   }
-  if (action.type === CURRENT_USER_INFO) {
-    return {
-      ...state,
-      loggedIn: true,
-      authUser: action.user,
-    };
-  }
-  if (action.type === SET_AUTH_FAIL) {
-    return {
-      ...state,
-      err: {
-        error: true,
-        message: action.error,
-      },
-    };
-  }
-  if (action.type === LOG_OUT) {
-    return {
-      ...state,
-      loggedIn: false,
-      authUser: '',
-      error: false,
-    };
-  }
-  if (action.type === RETRIEVE_USERS_SUCCESS) {
-    return {
-      ...state,
-      users: action.users,
-    };
-  }
-  if (action.type === RETRIEVE_USERS_FAIL) {
-    return {
-      ...state,
-      users: action.error,
-    };
-  }
-  return state;
 };
 
-export default reducer;
+export default users;
