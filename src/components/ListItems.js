@@ -3,6 +3,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import { makeStyles } from '@material-ui/core/styles';
 import GroupIcon from '@material-ui/icons/Group';
+import MenuBookIcon from '@material-ui/icons/MenuBook';
 import { history as historyPropTypes } from 'history-prop-types';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -35,6 +36,17 @@ const MainListItems = (props) => {
             <GroupIcon />
           </ListItemIcon>
           <ListItemText primary="Manage Users" />
+        </ListItem>
+        <ListItem
+          button
+          component={Link}
+          to="/manage/books"
+          selected={history.location.pathname === '/manage/books'}
+        >
+          <ListItemIcon>
+            <MenuBookIcon />
+          </ListItemIcon>
+          <ListItemText primary="Manage Books" />
         </ListItem>
       </div>
     </div>
