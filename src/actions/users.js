@@ -73,8 +73,8 @@ export function getCurrentUser(token) {
       });
 }
 
-export function editUser(id, email, roles, name, bio, token) {
-  const headers = { Authorization: `Bearer ${token}` };
+export function editUser(authUserRoles, id, email, roles, name, bio, token) {
+  const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
   const url = `http://localhost:3500/users`;
 
   return () =>

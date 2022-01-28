@@ -180,16 +180,18 @@ function FormDialog(props) {
 
   const onEdit = (event) => {
     event.preventDefault();
-    onEditUser(id, email, roles, name, bio, token).then((response) => {
-      if (response.status === 400 || response.status === 401 || response.status === 403) {
-        onShowSnackbar(true, 'error', response.message);
+    onEditUser(Object.values(authUserRoles), id, email, roles, name, bio, token).then(
+      (response) => {
+        if (response.status === 400 || response.status === 401 || response.status === 403) {
+          onShowSnackbar(true, 'error', response.message);
+        }
+        if (response.status === 200) {
+          onShowSnackbar(true, 'success', `User ${response.data.username} was edited`);
+          onGetUsers(token);
+          close();
+        }
       }
-      if (response.status === 200) {
-        onShowSnackbar(true, 'success', `User ${response.data.username} was edited`);
-        onGetUsers(token);
-        close();
-      }
-    });
+    );
   };
 
   const showConfirm = () => {
@@ -401,8 +403,8 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  onEditUser: (id, email, roles, name, bio, token) =>
-    dispatch(editUser(id, email, roles, name, bio, token)),
+  onEditUser: (authUserRoles, id, email, roles, name, bio, token) =>
+    dispatch(editUser(authUserRoles, id, email, roles, name, bio, token)),
   onGetUsers: (token) => dispatch(getUsers(token)),
   onGetBooks: (token) => dispatch(getBooks(token)),
   onAddUser: (authUserRoles, email, username, password, roles, name, bio, token) =>
