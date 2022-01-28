@@ -257,7 +257,7 @@ function EnhancedTable(props) {
                 </TableRow>
               ) : null}
               <FormDialog
-                title="Edit user"
+                title="Edit User"
                 show={showEditDialogue}
                 close={() => onEdit()}
                 user={selectedUser}
