@@ -45,3 +45,38 @@ export function addBook(authUserRoles, title, author, year, description, publish
       .then((response) => response)
       .catch((error) => error.response.data);
 }
+
+export function editBook(
+  authUserRoles,
+  id,
+  title,
+  author,
+  year,
+  description,
+  publisher,
+  serNo,
+  token
+) {
+  const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
+  const url = `http://localhost:3500/books`;
+
+  return () =>
+    axios
+      .put(url, { id, title, author, year, description, publisher, serNo }, { headers })
+      .then((response) => response)
+      .catch((error) => error.response.data);
+}
+
+export function deleteBook(authUserRoles, id, token) {
+  const config = {
+    headers: { authorization: `Bearer ${token}`, roles: authUserRoles },
+    data: { id },
+  };
+  const url = `http://localhost:3500/books`;
+
+  return () =>
+    axios
+      .delete(url, config)
+      .then((response) => response)
+      .catch((error) => error.response.data);
+}
