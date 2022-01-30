@@ -2,6 +2,7 @@ import { Typography } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
+import { connect } from 'react-redux';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -12,9 +13,12 @@ import TableRow from '@material-ui/core/TableRow';
 import Toolbar from '@material-ui/core/Toolbar';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
 import PropTypes from 'prop-types';
 import React from 'react';
 import FormDialog from './FormDialogue';
+import Confirm from './Confirm';
+import { getBooks, deleteBook } from '../actions/books';
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -126,10 +130,11 @@ function EnhancedTable(props) {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [showEditDialogue, setShowEditDialogue] = React.useState(false);
-  const [selectedUser, setSelectedUser] = React.useState();
+  const [selectedBook, setSelectedBook] = React.useState('');
   const [isHovering, setIsHovering] = React.useState({ show: false, index: 0 });
+  const [showConfirmDelete, setShowDeleteConfirm] = React.useState(false);
 
-  const { books, onShowSnackbar } = props;
+  const { books, onShowSnackbar, authUserRoles, token, onDeleteBook, onGetBooks } = props;
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -146,9 +151,28 @@ function EnhancedTable(props) {
     setPage(0);
   };
 
-  const onEdit = (user) => {
-    setSelectedUser(user);
+  const onEdit = (book) => {
+    setSelectedBook(book);
     setShowEditDialogue(!showEditDialogue);
+  };
+
+  const onConfirmDelete = (book) => {
+    setSelectedBook(book);
+    setShowDeleteConfirm(true);
+  };
+
+  const onDelete = () => {
+    // eslint-disable-next-line no-underscore-dangle
+    onDeleteBook(Object.values(authUserRoles), selectedBook._id, token).then((response) => {
+      if (response.status === 400 || response.status === 401 || response.status === 403) {
+        onShowSnackbar(true, 'error', response.message);
+      }
+      if (response.status === 200) {
+        onShowSnackbar(true, 'success', `Book deleted`);
+        setShowDeleteConfirm(false);
+        onGetBooks(token);
+      }
+    });
   };
 
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, books.length - page * rowsPerPage);
@@ -175,6 +199,21 @@ function EnhancedTable(props) {
               onRequestSort={handleRequestSort}
               rowCount={books.length}
             />
+            <Confirm
+              show={showConfirmDelete}
+              title="Are you sure?"
+              message={
+                selectedBook
+                  ? `${selectedBook.title.toUpperCase()} by ${selectedBook.author}, serial number ${
+                      selectedBook.serNo
+                    } will be deleted!`
+                  : ''
+              }
+              confirm={() => setShowDeleteConfirm(false)}
+              cancel={onDelete}
+              confirmText="delete"
+              cancelText="cancel"
+            />
             <TableBody>
               {stableSort(books, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
@@ -182,31 +221,38 @@ function EnhancedTable(props) {
                   const labelId = `enhanced-table-checkbox-${index}`;
 
                   return (
-                    <TableRow
-                      hover
-                      role="checkbox"
-                      tabIndex={-1}
-                      // eslint-disable-next-line no-underscore-dangle
-                      key={book._id}
-                      onMouseEnter={() => setIsHovering({ show: true, index })}
-                      onMouseLeave={() => setIsHovering({ show: false, index })}
-                    >
-                      <TableCell padding="checkbox">
-                        {isHovering.show && isHovering.index === index ? (
-                          <IconButton aria-label="edit" onClick={() => onEdit(book)}>
-                            <EditIcon />
-                          </IconButton>
-                        ) : null}
-                      </TableCell>
-                      <TableCell component="th" id={labelId} scope="row">
-                        {book.title}
-                      </TableCell>
-                      <TableCell align="left">{book.author}</TableCell>
-                      <TableCell align="left">{book.year}</TableCell>
-                      <TableCell align="left">{book.description.slice(0, 60)}...</TableCell>
-                      <TableCell align="left">{book.publisher}</TableCell>
-                      <TableCell align="left">{book.serNo}</TableCell>
-                    </TableRow>
+                    <>
+                      <TableRow
+                        hover
+                        role="checkbox"
+                        tabIndex={-2}
+                        // eslint-disable-next-line no-underscore-dangle
+                        key={book._id}
+                        onMouseEnter={() => setIsHovering({ show: true, index })}
+                        onMouseLeave={() => setIsHovering({ show: false, index })}
+                      >
+                        <TableCell padding="checkbox">
+                          {isHovering.show && isHovering.index === index ? (
+                            <div>
+                              <IconButton aria-label="edit" onClick={() => onEdit(book)}>
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                              <IconButton aria-label="edit" onClick={() => onConfirmDelete(book)}>
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </div>
+                          ) : null}
+                        </TableCell>
+                        <TableCell component="th" id={labelId} scope="row">
+                          {book.title}
+                        </TableCell>
+                        <TableCell align="left">{book.author}</TableCell>
+                        <TableCell align="left">{book.year}</TableCell>
+                        <TableCell align="left">{book.description.slice(0, 60)}...</TableCell>
+                        <TableCell align="left">{book.publisher}</TableCell>
+                        <TableCell align="left">{book.serNo}</TableCell>
+                      </TableRow>
+                    </>
                   );
                 })}
               {emptyRows > 0 ? (
@@ -218,7 +264,7 @@ function EnhancedTable(props) {
                 title="Edit Book"
                 show={showEditDialogue}
                 close={() => onEdit()}
-                user={selectedUser}
+                book={selectedBook}
                 onShowSnackbar={onShowSnackbar}
               />
             </TableBody>
@@ -241,6 +287,20 @@ function EnhancedTable(props) {
 EnhancedTable.propTypes = {
   books: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   onShowSnackbar: PropTypes.func.isRequired,
+  authUserRoles: PropTypes.objectOf(PropTypes.string).isRequired,
+  token: PropTypes.string.isRequired,
+  onDeleteBook: PropTypes.func.isRequired,
+  onGetBooks: PropTypes.func.isRequired,
 };
 
-export default EnhancedTable;
+const mapStateToProps = (state) => ({
+  token: state.users.token,
+  authUserRoles: state.users.authUser.roles,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  onDeleteBook: (roles, id, token) => dispatch(deleteBook(roles, id, token)),
+  onGetBooks: (token) => dispatch(getBooks(token)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(EnhancedTable);
