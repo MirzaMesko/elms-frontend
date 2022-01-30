@@ -9,7 +9,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import PropTypes from 'prop-types';
 import { addUser, editUser, getUsers } from '../actions/users';
-import { addBook, getBooks } from '../actions/books';
+import { addBook, getBooks, editBook } from '../actions/books';
 import Confirm from './Confirm';
 import MulitpleSelect from './MulitpleSelect';
 
@@ -27,6 +27,7 @@ function FormDialog(props) {
     user,
     book,
     onEditUser,
+    onEditBook,
     onAddUser,
     onAddBook,
     authUserRoles,
@@ -36,7 +37,8 @@ function FormDialog(props) {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [username, setUsername] = React.useState('');
-  const [id, setId] = React.useState('');
+  const [userId, setUserId] = React.useState('');
+  const [bookId, setBookId] = React.useState('');
   const [bio, setBio] = React.useState('');
   const [name, setName] = React.useState('');
   const [bookTitle, setBookTitle] = React.useState('');
@@ -101,7 +103,7 @@ function FormDialog(props) {
     setName('');
     setPassword('');
     setUsername('');
-    setId('');
+    setUserId('');
     setRoles([]);
     setBookTitle('');
     setAuthor('');
@@ -109,6 +111,7 @@ function FormDialog(props) {
     setDescription('');
     setPublisher('');
     setSerNo('');
+    setBookId();
   };
 
   const handleClose = () => {
@@ -178,9 +181,9 @@ function FormDialog(props) {
     });
   };
 
-  const onEdit = (event) => {
+  const onEditSingleUser = (event) => {
     event.preventDefault();
-    onEditUser(Object.values(authUserRoles), id, email, roles, name, bio, token).then(
+    onEditUser(Object.values(authUserRoles), userId, email, roles, name, bio, token).then(
       (response) => {
         if (response.status === 400 || response.status === 401 || response.status === 403) {
           onShowSnackbar(true, 'error', response.message);
@@ -192,6 +195,30 @@ function FormDialog(props) {
         }
       }
     );
+  };
+
+  const onEditSingleBook = (event) => {
+    event.preventDefault();
+    onEditBook(
+      Object.values(authUserRoles),
+      bookId,
+      bookTitle,
+      author,
+      year,
+      description,
+      publisher,
+      serNo,
+      token
+    ).then((response) => {
+      if (response.status === 400 || response.status === 401 || response.status === 403) {
+        onShowSnackbar(true, 'error', response.message);
+      }
+      if (response.status === 200) {
+        onShowSnackbar(true, 'success', `Book ${response.data.serNo} was edited`);
+        onGetBooks(token);
+        close();
+      }
+    });
   };
 
   const showConfirm = () => {
@@ -218,11 +245,21 @@ function FormDialog(props) {
       setPassword(user.password);
       setUsername(user.username);
       // eslint-disable-next-line no-underscore-dangle
-      setId(user._id);
+      setUserId(user._id);
       // eslint-disable-next-line
       if (Object.values(user.roles).includes('Admin', 'Librarian')) {
         setRoles(Object.values(user.roles));
       }
+    }
+    if (book) {
+      // eslint-disable-next-line no-underscore-dangle
+      setBookId(book._id);
+      setBookTitle(book.title);
+      setAuthor(book.author);
+      setYear(book.year);
+      setDescription(book.description);
+      setPublisher(book.publisher);
+      setSerNo(book.serNo);
     }
   }, [show, user]);
 
@@ -234,6 +271,8 @@ function FormDialog(props) {
         message="Entered input will be lost. Are you sure you want to cancel?"
         confirm={handleClose}
         cancel={() => setOpenConfirm(false)}
+        cancelText="confirm cancel"
+        confirmText="continue editing"
       />
       <DialogTitle id="form-dialog-title">{title}</DialogTitle>
       <DialogContent>
@@ -304,7 +343,6 @@ function FormDialog(props) {
               id="title"
               label="Title*"
               defaultValue={bookTitle}
-              disabled={book}
               type="text"
               fullWidth
               onChange={handleBookTitleChange}
@@ -363,11 +401,11 @@ function FormDialog(props) {
           Cancel
         </Button>
         {title.includes('User') ? (
-          <Button onClick={user ? onEdit : onAddNewUser} color="primary">
+          <Button onClick={user ? onEditSingleUser : onAddNewUser} color="primary">
             {user ? 'Save Changes' : 'Add'}
           </Button>
         ) : (
-          <Button onClick={book ? onEdit : onAddNewBook} color="primary">
+          <Button onClick={book ? onEditSingleBook : onAddNewBook} color="primary">
             {book ? 'Save Changes' : 'Add'}
           </Button>
         )}
@@ -387,6 +425,7 @@ FormDialog.propTypes = {
   user: PropTypes.objectOf(PropTypes.oneOfType([PropTypes.string, PropTypes.array])),
   book: PropTypes.objectOf(PropTypes.oneOfType([PropTypes.string, PropTypes.array])),
   onEditUser: PropTypes.func.isRequired,
+  onEditBook: PropTypes.func.isRequired,
   onAddUser: PropTypes.func.isRequired,
   onAddBook: PropTypes.func.isRequired,
   authUserRoles: PropTypes.objectOf(PropTypes.string).isRequired,
@@ -403,8 +442,12 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  onEditUser: (authUserRoles, id, email, roles, name, bio, token) =>
-    dispatch(editUser(authUserRoles, id, email, roles, name, bio, token)),
+  onEditUser: (authUserRoles, userId, email, roles, name, bio, token) =>
+    dispatch(editUser(authUserRoles, userId, email, roles, name, bio, token)),
+  onEditBook: (authUserRoles, bookId, title, author, year, description, publisher, serNo, token) =>
+    dispatch(
+      editBook(authUserRoles, bookId, title, author, year, description, publisher, serNo, token)
+    ),
   onGetUsers: (token) => dispatch(getUsers(token)),
   onGetBooks: (token) => dispatch(getBooks(token)),
   onAddUser: (authUserRoles, email, username, password, roles, name, bio, token) =>
