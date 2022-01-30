@@ -246,10 +246,7 @@ function FormDialog(props) {
       setUsername(user.username);
       // eslint-disable-next-line no-underscore-dangle
       setUserId(user._id);
-      // eslint-disable-next-line
-      if (Object.values(user.roles).includes('Admin', 'Librarian')) {
-        setRoles(Object.values(user.roles));
-      }
+      setRoles(Object.values(user.roles));
     }
     if (book) {
       // eslint-disable-next-line no-underscore-dangle
@@ -305,7 +302,7 @@ function FormDialog(props) {
               id="password"
               label="Password*"
               type="password"
-              disabled={user}
+              disabled={password.length}
               defaultValue={password}
               fullWidth
               onChange={handlePasswordChange}
@@ -422,18 +419,13 @@ FormDialog.propTypes = {
   onGetBooks: PropTypes.func.isRequired,
   onShowSnackbar: PropTypes.func.isRequired,
   title: PropTypes.string.isRequired,
-  user: PropTypes.objectOf(PropTypes.oneOfType([PropTypes.string, PropTypes.array])),
-  book: PropTypes.objectOf(PropTypes.oneOfType([PropTypes.string, PropTypes.array])),
+  user: PropTypes.objectOf(PropTypes.oneOfType([PropTypes.string, PropTypes.array])).isRequired,
+  book: PropTypes.objectOf(PropTypes.oneOfType([PropTypes.string, PropTypes.array])).isRequired,
   onEditUser: PropTypes.func.isRequired,
   onEditBook: PropTypes.func.isRequired,
   onAddUser: PropTypes.func.isRequired,
   onAddBook: PropTypes.func.isRequired,
   authUserRoles: PropTypes.objectOf(PropTypes.string).isRequired,
-};
-
-FormDialog.defaultProps = {
-  user: null,
-  book: null,
 };
 
 const mapStateToProps = (state) => ({
