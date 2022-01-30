@@ -51,7 +51,7 @@ const DialogActions = withStyles((theme) => ({
 }))(MuiDialogActions);
 
 function Confirm(props) {
-  const { show, title, message, confirm, cancel } = props;
+  const { show, title, message, confirm, cancel, cancelText, confirmText } = props;
   const [open, setOpen] = React.useState(show);
 
   React.useEffect(() => {
@@ -76,10 +76,10 @@ function Confirm(props) {
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={handleClose} color="primary">
-            Confirm Cancel
+            {cancelText}
           </Button>
           <Button onClick={cancel} color="primary">
-            Continue editing
+            {confirmText}
           </Button>
         </DialogActions>
       </Dialog>
@@ -93,11 +93,15 @@ Confirm.propTypes = {
   message: PropTypes.string.isRequired,
   confirm: PropTypes.func,
   cancel: PropTypes.func,
+  cancelText: PropTypes.string,
+  confirmText: PropTypes.string,
 };
 
 Confirm.defaultProps = {
   confirm: null,
   cancel: null,
+  confirmText: 'confirm',
+  cancelText: 'cancel',
 };
 
 export default Confirm;
