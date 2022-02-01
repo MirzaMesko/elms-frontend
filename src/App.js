@@ -10,6 +10,7 @@ import ManageBooks from './components/ManageBooks';
 import { logout, authCheckState } from './actions/auth';
 import Links from './components/Links';
 import Login from './components/Login';
+import Register from './components/SignUp';
 
 function App(props) {
   const { loggedIn, history, error, authUser, roles, onLogout, users, onTryAutoSignup } = props;
@@ -24,7 +25,7 @@ function App(props) {
         path="/login"
         render={() => <Login error={error.error} history={history} message={error.message} />}
       />
-      ;
+      <Route path="/register" render={() => <Register />} />
       <Redirect to="/login" />
     </Switch>
   );
