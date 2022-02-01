@@ -12,6 +12,7 @@ import Typography from '@material-ui/core/Typography';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { NavLink } from 'react-router-dom';
 import { login } from '../actions/auth';
 import Alert from './Alert';
 
@@ -113,9 +114,12 @@ function Login(props) {
             className={classes.submit}
             onClick={logIn}
           >
-            Sign In
+            Login
           </Button>
         </form>
+        <p>
+          Don&#39;t have an account? <NavLink to="/register">Sign up</NavLink>
+        </p>
       </div>
       <Box mt={8}>
         <Copyright />
@@ -136,8 +140,13 @@ Login.defaultProps = {
   message: '',
 };
 
+const mapStateToProps = (state) => ({
+  error: state.users.err.error,
+  message: state.users.err.message,
+});
+
 const mapDispatchToProps = (dispatch) => ({
   onLogin: (username, password) => dispatch(login(username, password)),
 });
 
-export default connect(null, mapDispatchToProps)(Login);
+export default connect(mapStateToProps, mapDispatchToProps)(Login);
