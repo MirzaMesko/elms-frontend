@@ -29,7 +29,12 @@ const useStyles = makeStyles((theme) => ({
   input: {
     border: '1px solid #3f51b5',
     padding: '0.3rem',
-    marginLeft: '0.9rem',
+    margin: ' 0 0.9rem',
+    color: '#3f51b5',
+  },
+  option: {
+    margin: ' 0 0.9rem',
+    fontSize: '20px',
     color: '#3f51b5',
   },
 }));
@@ -43,6 +48,7 @@ function ManageBooks(props) {
   const [errMessage, setErrMessage] = React.useState('');
   const [searchResults, setSearchResults] = React.useState([]);
   const [search, setSearch] = React.useState('');
+  const [searchFilter, setSearchFilter] = React.useState('');
 
   const isAdmin = Object.values(roles).includes('Admin');
 
@@ -72,13 +78,19 @@ function ManageBooks(props) {
   }, [books]);
 
   React.useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.log(`${searchFilter}`);
     const filteredResults = books.filter(
       (book) =>
-        book.title.toLowerCase().includes(search.toLowerCase()) ||
-        book.author.toLowerCase().includes(search.toLowerCase())
+        (searchFilter === 'title' && book.title.toLowerCase().includes(search.toLowerCase())) ||
+        (searchFilter === 'author' && book.author.toLowerCase().includes(search.toLowerCase())) ||
+        (searchFilter === 'year' && book.year.toLowerCase().includes(search.toLowerCase())) ||
+        (searchFilter === 'publisher' &&
+          book.publisher.toLowerCase().includes(search.toLowerCase())) ||
+        (searchFilter === 'serNo' && book.serNo.toLowerCase().includes(search.toLowerCase()))
     );
     setSearchResults(filteredResults.reverse());
-  }, [search]);
+  }, [search, searchFilter]);
 
   return (
     <Box>
@@ -98,7 +110,6 @@ function ManageBooks(props) {
         )}
         <form className={classes.search} onSubmit={(e) => e.preventDefault()}>
           <label htmlFor="search" className={classes.label}>
-            Search books
             <input
               id="search"
               type="text"
@@ -107,6 +118,22 @@ function ManageBooks(props) {
               className={classes.input}
               onChange={(e) => setSearch(e.target.value)}
             />
+            Search books by
+          </label>
+        </form>
+        <form className={classes.search} onSubmit={(e) => e.preventDefault()}>
+          <label htmlFor="search" className={classes.label}>
+            <select
+              className={classes.option}
+              selected={searchFilter}
+              onChange={(e) => setSearchFilter(e.target.value)}
+            >
+              <option value="title">title</option>
+              <option value="author">author</option>
+              <option value="year">year</option>
+              <option value="publisher">publisher</option>
+              <option value="serNo">serial no</option>
+            </select>
           </label>
         </form>
       </div>
