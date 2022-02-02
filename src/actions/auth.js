@@ -6,6 +6,7 @@ const axios = require('axios');
 export const SET_AUTH_USER = 'SET_AUTH_USER';
 export const SET_AUTH_FAIL = 'SET_AUTH_FAIL';
 export const LOG_OUT = 'LOG_OUT';
+export const DISMISS_ALERT = 'DISMISS_ALERT';
 
 export function authSuccess(token, user) {
   return {
@@ -19,6 +20,11 @@ export function authFail(error) {
   return {
     type: SET_AUTH_FAIL,
     error,
+  };
+}
+export function dismissAlert() {
+  return {
+    type: DISMISS_ALERT,
   };
 }
 
@@ -79,4 +85,12 @@ export function login(username, password) {
           dispatch(authFail('Incorrect username / password.'));
         }
       });
+}
+
+export function register(email, username, password) {
+  return () =>
+    axios
+      .post('http://localhost:3500/register', { email, username, password })
+      .then((response) => response)
+      .catch((error) => error.response.data);
 }
