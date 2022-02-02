@@ -3,6 +3,8 @@ import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import { connect } from 'react-redux';
 import Container from '@material-ui/core/Container';
+import IconButton from '@material-ui/core/IconButton';
+import InputAdornment from '@material-ui/core/InputAdornment';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Link from '@material-ui/core/Link';
 import { history as historyPropTypes } from 'history-prop-types';
@@ -12,8 +14,11 @@ import Typography from '@material-ui/core/Typography';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import VisibilityIcon from '@material-ui/icons/Visibility';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import { FormControl, OutlinedInput, InputLabel } from '@material-ui/core';
 import { NavLink } from 'react-router-dom';
-import { login } from '../actions/auth';
+import { login, dismissAlert } from '../actions/auth';
 import Alert from './Alert';
 
 function Copyright() {
@@ -51,6 +56,7 @@ const useStyles = makeStyles((theme) => ({
 function Login(props) {
   const [username, setUsername] = useState();
   const [password, setPassword] = useState();
+  const [showPassword, setShowPassword] = useState(true);
   const classes = useStyles();
 
   const handleUsernameChange = (event) => {
@@ -61,7 +67,15 @@ function Login(props) {
     setPassword(event.target.value);
   };
 
-  const { error, history, message } = props;
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
+
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const { error, history, message, onDismissAlert } = props;
 
   const logIn = (event) => {
     event.preventDefault();
@@ -72,7 +86,7 @@ function Login(props) {
 
   return (
     <Container component="main" maxWidth="xs">
-      <Alert show={error} title="Error" message={message} />
+      <Alert show={error} title="Error" message={message} onClose={onDismissAlert} />
       <CssBaseline />
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
@@ -87,28 +101,45 @@ function Login(props) {
             margin="normal"
             required
             fullWidth
-            id="username"
             label="Username"
             name="username"
             autoComplete="username"
             autoFocus
             onChange={handleUsernameChange}
           />
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            name="password"
-            label="Password"
-            type="password"
-            id="password"
-            autoComplete="current-password"
-            onChange={handlePasswordChange}
-          />
+          <FormControl fullWidth>
+            <InputLabel
+              htmlFor="outlined-adornment-password"
+              required
+              margin="dense"
+              variant="outlined"
+              autoComplete="current-password"
+            >
+              Password
+            </InputLabel>
+            <OutlinedInput
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              id="outlined-adornment-password"
+              onChange={handlePasswordChange}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <VisibilityIcon />}
+                  </IconButton>
+                </InputAdornment>
+              }
+            />
+          </FormControl>
           <Button
             type="submit"
             fullWidth
+            disabled={!username || !password}
             variant="contained"
             color="primary"
             className={classes.submit}
@@ -130,6 +161,7 @@ function Login(props) {
 
 Login.propTypes = {
   onLogin: PropTypes.func.isRequired,
+  onDismissAlert: PropTypes.func.isRequired,
   error: PropTypes.bool,
   message: PropTypes.string,
   history: PropTypes.shape(historyPropTypes).isRequired,
@@ -147,6 +179,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   onLogin: (username, password) => dispatch(login(username, password)),
+  onDismissAlert: () => dispatch(dismissAlert()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);
