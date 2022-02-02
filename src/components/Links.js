@@ -96,10 +96,7 @@ export default function Links(props) {
           xs={12}
           md={4}
           style={{
-            display:
-              Object.values(roles).includes('Admin') || Object.values(roles).includes('Librarian')
-                ? 'flex'
-                : 'none',
+            display: Object.values(roles).includes('Admin') ? 'flex' : 'none',
             marginLeft: '16px',
             marginTop: '30px',
           }}
@@ -115,8 +112,24 @@ export default function Links(props) {
           xs={12}
           md={4}
           style={{
+            display: Object.values(roles).includes('Librarian') ? 'flex' : 'none',
+            marginLeft: '16px',
+            marginTop: '30px',
+          }}
+        >
+          <RouterLink to="/manage/books" className={classes.link && classes.linkActive}>
+            <Paper className={fixedHeightPaper}>
+              <Card title="Manage Books " text="Add, edit or remove books from Elms" />
+            </Paper>
+          </RouterLink>
+        </Grid>
+        <Grid
+          item
+          xs={12}
+          md={4}
+          style={{
             display:
-              Object.values(roles).includes('Admin') || Object.values(roles).includes('Librarian')
+              !Object.values(roles).includes('Admin') && !Object.values(roles).includes('Librarian')
                 ? 'flex'
                 : 'none',
             marginLeft: '16px',
@@ -125,7 +138,7 @@ export default function Links(props) {
         >
           <RouterLink to="/manage/books" className={classes.link && classes.linkActive}>
             <Paper className={fixedHeightPaper}>
-              <Card title="Manage Books " text="Add, edit or remove books from Elms" />
+              <Card title="Search books & more " text="Find the book you're looking for" />
             </Paper>
           </RouterLink>
         </Grid>
