@@ -25,7 +25,10 @@ function App(props) {
         path="/login"
         render={() => <Login error={error.error} history={history} message={error.message} />}
       />
-      <Route path="/register" render={() => <Register />} />
+      <Route
+        path="/register"
+        render={() => <Register error={error.error} history={history} message={error.message} />}
+      />
       <Redirect to="/login" />
     </Switch>
   );
