@@ -51,7 +51,7 @@ const DialogActions = withStyles((theme) => ({
 }))(MuiDialogActions);
 
 function Alert(props) {
-  const { show, title, message } = props;
+  const { show, title, message, onClose } = props;
   const [open, setOpen] = React.useState(show);
 
   React.useEffect(() => {
@@ -60,6 +60,7 @@ function Alert(props) {
 
   const handleClose = () => {
     setOpen(false);
+    onClose();
   };
 
   return (
@@ -85,11 +86,13 @@ Alert.propTypes = {
   show: PropTypes.bool,
   title: PropTypes.string.isRequired,
   message: PropTypes.string,
+  onClose: PropTypes.func,
 };
 
 Alert.defaultProps = {
   message: 'Something went wrong. Try again .',
   show: false,
+  onClose: () => this.state.setOpen(false),
 };
 
 export default Alert;
