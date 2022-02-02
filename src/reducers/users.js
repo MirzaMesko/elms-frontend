@@ -1,4 +1,4 @@
-import { SET_AUTH_FAIL, SET_AUTH_USER, LOG_OUT } from '../actions/auth';
+import { SET_AUTH_FAIL, SET_AUTH_USER, LOG_OUT, DISMISS_ALERT } from '../actions/auth';
 import { RETRIEVE_USERS_SUCCESS, RETRIEVE_USERS_FAIL, CURRENT_USER_INFO } from '../actions/users';
 
 const initialState = {
@@ -55,6 +55,15 @@ const users = (state = initialState, action) => {
       return {
         ...state,
         users: action.error,
+      };
+    }
+    case DISMISS_ALERT: {
+      return {
+        ...state,
+        err: {
+          error: false,
+          message: '',
+        },
       };
     }
     default:
