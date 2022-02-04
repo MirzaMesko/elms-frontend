@@ -19,8 +19,8 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'row',
   },
   search: {
-    margin: theme.spacing(3, 3, 2),
-    padding: '0.4rem',
+    margin: theme.spacing(3, 0, 2),
+    padding: '0.1rem',
   },
   label: {
     fontSize: '20px',
@@ -28,12 +28,12 @@ const useStyles = makeStyles((theme) => ({
   },
   input: {
     border: '1px solid #3f51b5',
-    padding: '0.3rem',
-    margin: ' 0 0.9rem',
+    padding: '0.3rem 0.3rem',
+    marginRight: '0.5rem',
     color: '#3f51b5',
   },
   option: {
-    margin: ' 0 0.9rem',
+    margin: ' 0 0.2rem',
     fontSize: '20px',
     color: '#3f51b5',
   },
@@ -48,7 +48,7 @@ function ManageBooks(props) {
   const [errMessage, setErrMessage] = React.useState('');
   const [searchResults, setSearchResults] = React.useState([]);
   const [search, setSearch] = React.useState('');
-  const [searchFilter, setSearchFilter] = React.useState('');
+  const [searchFilter, setSearchFilter] = React.useState('title');
 
   const isAdmin = Object.values(roles).includes('Admin');
 
@@ -78,13 +78,11 @@ function ManageBooks(props) {
   }, [books]);
 
   React.useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.log(`${searchFilter}`);
     const filteredResults = books.filter(
       (book) =>
         (searchFilter === 'title' && book.title.toLowerCase().includes(search.toLowerCase())) ||
         (searchFilter === 'author' && book.author.toLowerCase().includes(search.toLowerCase())) ||
-        (searchFilter === 'year' && book.year.toLowerCase().includes(search.toLowerCase())) ||
+        (searchFilter === 'year' && book.year.toString().includes(search)) ||
         (searchFilter === 'publisher' &&
           book.publisher.toLowerCase().includes(search.toLowerCase())) ||
         (searchFilter === 'serNo' && book.serNo.toLowerCase().includes(search.toLowerCase()))
