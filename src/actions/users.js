@@ -83,3 +83,17 @@ export function editUser(authUserRoles, id, email, roles, name, bio, token) {
       .then((response) => response)
       .catch((error) => error.response.data);
 }
+
+export function deleteUser(authUserRoles, id, token) {
+  const config = {
+    headers: { authorization: `Bearer ${token}`, roles: authUserRoles },
+    data: { id },
+  };
+  const url = `http://localhost:3500/users`;
+
+  return () =>
+    axios
+      .delete(url, config)
+      .then((response) => response)
+      .catch((error) => error.response.data);
+}
