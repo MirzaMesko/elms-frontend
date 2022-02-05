@@ -128,7 +128,7 @@ function EnhancedTable(props) {
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('username');
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [showEditDialogue, setShowEditDialogue] = React.useState(false);
   const [selectedBook, setSelectedBook] = React.useState();
   const [isHovering, setIsHovering] = React.useState({ show: false, index: 0 });
@@ -281,7 +281,7 @@ function EnhancedTable(props) {
           </TableContainer>
         )}
         <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
+          rowsPerPageOptions={[10, 15, 25]}
           component="div"
           count={books.length}
           rowsPerPage={rowsPerPage}
