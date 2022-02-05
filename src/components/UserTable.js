@@ -15,11 +15,14 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
 import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 import PropTypes from 'prop-types';
 import React from 'react';
-// import { connect } from 'react-redux';
+import { connect } from 'react-redux';
 import FormDialog from './FormDialogue';
+import Confirm from './Confirm';
+import { getUsers, deleteUser } from '../actions/users';
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -131,8 +134,9 @@ function EnhancedTable(props) {
   const [showEditDialogue, setShowEditDialogue] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState();
   const [isHovering, setIsHovering] = React.useState({ show: false, index: 0 });
+  const [showConfirmDelete, setShowDeleteConfirm] = React.useState(false);
 
-  const { users, onShowSnackbar } = props;
+  const { users, onShowSnackbar, roles, token, onDeleteUser, onGetUsers } = props;
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -174,6 +178,25 @@ function EnhancedTable(props) {
     setShowEditDialogue(!showEditDialogue);
   };
 
+  const onConfirmDelete = (user) => {
+    setSelectedUser(user);
+    setShowDeleteConfirm(true);
+  };
+
+  const onDelete = () => {
+    // eslint-disable-next-line no-underscore-dangle
+    onDeleteUser(Object.values(roles), selectedUser._id, token).then((response) => {
+      if (response.status === 400 || response.status === 401 || response.status === 403) {
+        onShowSnackbar(true, 'error', response.message);
+      }
+      if (response.status === 200) {
+        onShowSnackbar(true, 'success', `User deleted`);
+        setShowDeleteConfirm(false);
+        onGetUsers(token);
+      }
+    });
+  };
+
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, users.length - page * rowsPerPage);
 
   return (
@@ -198,6 +221,20 @@ function EnhancedTable(props) {
               onRequestSort={handleRequestSort}
               rowCount={users.length}
             />
+            <Confirm
+              show={showConfirmDelete}
+              title="Are you sure?"
+              message={
+                selectedUser
+                  ? `User ${selectedUser.username.toUpperCase()} 
+                     will be deleted!`
+                  : ''
+              }
+              confirm={() => setShowDeleteConfirm(false)}
+              cancel={onDelete}
+              confirmText="delete"
+              cancelText="cancel"
+            />
             <TableBody>
               {stableSort(users, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
@@ -214,11 +251,17 @@ function EnhancedTable(props) {
                       onMouseLeave={() => setIsHovering({ show: false, index })}
                     >
                       <TableCell padding="checkbox">
-                        {isHovering.show && isHovering.index === index ? (
-                          <IconButton aria-label="edit" onClick={() => onEdit(user)}>
-                            <EditIcon />
-                          </IconButton>
-                        ) : null}
+                        {Object.values(roles).includes('Admin') &&
+                          (isHovering.show && isHovering.index === index ? (
+                            <div>
+                              <IconButton aria-label="edit" onClick={() => onEdit(user)}>
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                              <IconButton aria-label="edit" onClick={() => onConfirmDelete(user)}>
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </div>
+                          ) : null)}
                       </TableCell>
                       <TableCell component="th" id={labelId} scope="row">
                         {user.username}
@@ -283,6 +326,20 @@ function EnhancedTable(props) {
 EnhancedTable.propTypes = {
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   onShowSnackbar: PropTypes.func.isRequired,
+  roles: PropTypes.objectOf(PropTypes.string).isRequired,
+  token: PropTypes.string.isRequired,
+  onDeleteUser: PropTypes.func.isRequired,
+  onGetUsers: PropTypes.func.isRequired,
 };
 
-export default EnhancedTable;
+const mapStateToProps = (state) => ({
+  token: state.users.token,
+  roles: state.users.authUser.roles,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  onDeleteUser: (roles, id, token) => dispatch(deleteUser(roles, id, token)),
+  onGetUsers: (token) => dispatch(getUsers(token)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(EnhancedTable);
