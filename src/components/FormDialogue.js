@@ -365,7 +365,8 @@ function FormDialog(props) {
             />
             <TextField
               margin="dense"
-              id="description"
+              id="outlined-multiline-flexible"
+              multiline
               label="Description"
               type="text"
               defaultValue={description}
