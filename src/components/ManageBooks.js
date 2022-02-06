@@ -2,6 +2,7 @@ import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
+import { history as historyPropTypes } from 'history-prop-types';
 import PropTypes from 'prop-types';
 import React from 'react';
 import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
@@ -17,6 +18,7 @@ const useStyles = makeStyles((theme) => ({
   container: {
     display: 'flex',
     flexDirection: 'row',
+    margin: theme.spacing(0, 3, 0),
   },
   search: {
     margin: theme.spacing(3, 0, 2),
@@ -40,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function ManageBooks(props) {
-  const { token, onGetBooks, books, roles } = props;
+  const { token, onGetBooks, books, roles, history } = props;
   const classes = useStyles();
   const [openDialogue, setOpenDialogue] = React.useState(false);
   const [severity, setSeverity] = React.useState('');
@@ -136,7 +138,7 @@ function ManageBooks(props) {
         </form>
       </div>
 
-      <BookTable books={searchResults} onShowSnackbar={showSnackbar} />
+      <BookTable books={searchResults} onShowSnackbar={showSnackbar} history={history} />
       <FormDialogue
         show={openDialogue}
         close={handleClose}
@@ -152,6 +154,7 @@ ManageBooks.propTypes = {
   onGetBooks: PropTypes.func.isRequired,
   books: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   roles: PropTypes.objectOf(PropTypes.string).isRequired,
+  history: PropTypes.shape(historyPropTypes).isRequired,
 };
 
 const mapStateToProps = (state) => ({
