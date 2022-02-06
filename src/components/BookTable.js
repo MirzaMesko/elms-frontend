@@ -3,6 +3,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
+import { history as historyPropTypes } from 'history-prop-types';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -53,10 +54,11 @@ const headCells = [
   { id: 'description', numeric: false, disablePadding: false, label: 'Description' },
   { id: 'publisher', numeric: false, disablePadding: false, label: 'Publisher' },
   { id: 'serNo', numeric: false, disablePadding: false, label: 'Serial No' },
+  { id: 'actions', numeric: true, disablePadding: false, label: 'Actions' },
 ];
 
 function EnhancedTableHead(props) {
-  const { classes, order, orderBy, onRequestSort } = props;
+  const { classes, order, orderBy, onRequestSort, isLibrarian } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -64,28 +66,29 @@ function EnhancedTableHead(props) {
   return (
     <TableHead>
       <TableRow>
-        <TableCell>{null}</TableCell>
-        {headCells.map((headCell) => (
-          <TableCell
-            key={headCell.id}
-            align={headCell.numeric ? 'left' : 'left'}
-            padding={headCell.disablePadding ? 'none' : 'default'}
-            sortDirection={orderBy === headCell.id ? order : false}
-          >
-            <TableSortLabel
-              active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : 'asc'}
-              onClick={createSortHandler(headCell.id)}
+        {headCells.map((headCell) =>
+          !isLibrarian && headCell.id === 'actions' ? null : (
+            <TableCell
+              key={headCell.id}
+              align={headCell.numeric ? 'center' : 'left'}
+              padding={headCell.disablePadding ? 'none' : 'default'}
+              sortDirection={orderBy === headCell.id ? order : false}
             >
-              {headCell.label}
-              {orderBy === headCell.id ? (
-                <span className={classes.visuallyHidden}>
-                  {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                </span>
-              ) : null}
-            </TableSortLabel>
-          </TableCell>
-        ))}
+              <TableSortLabel
+                active={orderBy === headCell.id}
+                direction={orderBy === headCell.id ? order : 'asc'}
+                onClick={createSortHandler(headCell.id)}
+              >
+                {headCell.label}
+                {orderBy === headCell.id ? (
+                  <span className={classes.visuallyHidden}>
+                    {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                  </span>
+                ) : null}
+              </TableSortLabel>
+            </TableCell>
+          )
+        )}
       </TableRow>
     </TableHead>
   );
@@ -96,6 +99,7 @@ EnhancedTableHead.propTypes = {
   onRequestSort: PropTypes.func.isRequired,
   order: PropTypes.oneOf(['asc', 'desc']).isRequired,
   orderBy: PropTypes.string.isRequired,
+  isLibrarian: PropTypes.bool.isRequired,
 };
 
 const useStyles = makeStyles((theme) => ({
@@ -131,10 +135,9 @@ function EnhancedTable(props) {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [showEditDialogue, setShowEditDialogue] = React.useState(false);
   const [selectedBook, setSelectedBook] = React.useState();
-  const [isHovering, setIsHovering] = React.useState({ show: false, index: 0 });
   const [showConfirmDelete, setShowDeleteConfirm] = React.useState(false);
 
-  const { books, onShowSnackbar, roles, token, onDeleteBook, onGetBooks } = props;
+  const { books, onShowSnackbar, roles, token, onDeleteBook, onGetBooks, history } = props;
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -195,7 +198,8 @@ function EnhancedTable(props) {
               className={classes.table}
               aria-labelledby="tableTitle"
               size="medium"
-              aria-label="enhanced table"
+              aria-label="sticky table"
+              stickyHeader
             >
               <EnhancedTableHead
                 classes={classes}
@@ -203,6 +207,7 @@ function EnhancedTable(props) {
                 orderBy={orderBy}
                 onRequestSort={handleRequestSort}
                 rowCount={books.length}
+                isLibrarian={Object.values(roles).includes('Librarian')}
               />
               <Confirm
                 show={showConfirmDelete}
@@ -230,29 +235,16 @@ function EnhancedTable(props) {
                         <TableRow
                           hover
                           role="checkbox"
-                          tabIndex={-1}
+                          tabIndex={0}
                           // eslint-disable-next-line no-underscore-dangle
                           key={book._id}
-                          onMouseEnter={() => setIsHovering({ show: true, index })}
-                          onMouseLeave={() => setIsHovering({ show: false, index })}
                         >
-                          <TableCell padding="checkbox">
-                            {Object.values(roles).includes('Librarian') &&
-                              (isHovering.show && isHovering.index === index ? (
-                                <div>
-                                  <IconButton aria-label="edit" onClick={() => onEdit(book)}>
-                                    <EditIcon fontSize="small" />
-                                  </IconButton>
-                                  <IconButton
-                                    aria-label="edit"
-                                    onClick={() => onConfirmDelete(book)}
-                                  >
-                                    <DeleteIcon fontSize="small" />
-                                  </IconButton>
-                                </div>
-                              ) : null)}
-                          </TableCell>
-                          <TableCell component="th" id={labelId} scope="row">
+                          <TableCell
+                            id={labelId}
+                            // eslint-disable-next-line no-underscore-dangle
+                            onClick={() => history.push(`/books/${book.title}by${book.author}`)}
+                            style={{ cursor: 'grab' }}
+                          >
                             {book.title}
                           </TableCell>
                           <TableCell align="left">{book.author}</TableCell>
@@ -260,6 +252,23 @@ function EnhancedTable(props) {
                           <TableCell align="left">{book.description.slice(0, 60)}...</TableCell>
                           <TableCell align="left">{book.publisher}</TableCell>
                           <TableCell align="left">{book.serNo}</TableCell>
+                          {Object.values(roles).includes('Librarian') && (
+                            <TableCell align="centre">
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  flexDirection: 'row',
+                                }}
+                              >
+                                <IconButton aria-label="edit" onClick={() => onEdit(book)}>
+                                  <EditIcon fontSize="xs" />
+                                </IconButton>
+                                <IconButton aria-label="edit" onClick={() => onConfirmDelete(book)}>
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                              </div>
+                            </TableCell>
+                          )}
                         </TableRow>
                       </>
                     );
@@ -301,6 +310,7 @@ EnhancedTable.propTypes = {
   token: PropTypes.string.isRequired,
   onDeleteBook: PropTypes.func.isRequired,
   onGetBooks: PropTypes.func.isRequired,
+  history: PropTypes.shape(historyPropTypes).isRequired,
 };
 
 const mapStateToProps = (state) => ({
