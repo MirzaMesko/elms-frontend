@@ -130,7 +130,7 @@ function EnhancedTable(props) {
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('username');
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [showEditDialogue, setShowEditDialogue] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState();
   const [isHovering, setIsHovering] = React.useState({ show: false, index: 0 });
@@ -185,7 +185,7 @@ function EnhancedTable(props) {
 
   const onDelete = () => {
     // eslint-disable-next-line no-underscore-dangle
-    onDeleteUser(Object.values(roles), selectedUser._id, token).then((response) => {
+    onDeleteUser(roles, selectedUser._id, token).then((response) => {
       if (response.status === 400 || response.status === 401 || response.status === 403) {
         onShowSnackbar(true, 'error', response.message);
       }
@@ -251,16 +251,16 @@ function EnhancedTable(props) {
                       onMouseLeave={() => setIsHovering({ show: false, index })}
                     >
                       <TableCell padding="checkbox">
-                        {Object.values(roles).includes('Admin') &&
+                        {roles.includes('Admin') &&
                           (isHovering.show && isHovering.index === index ? (
-                            <div>
+                            <>
                               <IconButton aria-label="edit" onClick={() => onEdit(user)}>
                                 <EditIcon fontSize="small" />
                               </IconButton>
                               <IconButton aria-label="edit" onClick={() => onConfirmDelete(user)}>
                                 <DeleteIcon fontSize="small" />
                               </IconButton>
-                            </div>
+                            </>
                           ) : null)}
                       </TableCell>
                       <TableCell component="th" id={labelId} scope="row">
@@ -269,10 +269,11 @@ function EnhancedTable(props) {
                       <TableCell align="left">{user.email}</TableCell>
                       <TableCell align="left">{user.name}</TableCell>
                       <TableCell align="left">
-                        {user.roles ? (
+                        {Object.values(user.roles) ? (
                           Object.values(user.roles).map((item) => (
                             <Chip
-                              key={item}
+                              // eslint-disable-next-line no-underscore-dangle
+                              key={item + user._id}
                               icon={setIcon(item)}
                               size="small"
                               label={item}
@@ -326,7 +327,7 @@ function EnhancedTable(props) {
 EnhancedTable.propTypes = {
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   onShowSnackbar: PropTypes.func.isRequired,
-  roles: PropTypes.objectOf(PropTypes.string).isRequired,
+  roles: PropTypes.arrayOf(PropTypes.string).isRequired,
   token: PropTypes.string.isRequired,
   onDeleteUser: PropTypes.func.isRequired,
   onGetUsers: PropTypes.func.isRequired,

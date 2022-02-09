@@ -119,8 +119,7 @@ function Dashboard(props) {
 
   const wrapper = React.createRef();
   const { onLogout, children, roles } = props;
-  const isAdmin =
-    Object.values(roles).includes('Admin') || Object.values(roles).includes('Librarian');
+  const isAdmin = roles.includes('Admin') || roles.includes('Librarian');
 
   const logout = () => {
     onLogout();

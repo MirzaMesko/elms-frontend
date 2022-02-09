@@ -96,7 +96,7 @@ export default function Links(props) {
           xs={12}
           md={4}
           style={{
-            display: Object.values(roles).includes('Admin') ? 'flex' : 'none',
+            display: roles.includes('Admin') ? 'flex' : 'none',
             marginLeft: '16px',
             marginTop: '30px',
           }}
@@ -112,7 +112,7 @@ export default function Links(props) {
           xs={12}
           md={4}
           style={{
-            display: Object.values(roles).includes('Librarian') ? 'flex' : 'none',
+            display: roles.includes('Librarian') ? 'flex' : 'none',
             marginLeft: '16px',
             marginTop: '30px',
           }}
@@ -129,7 +129,7 @@ export default function Links(props) {
           md={4}
           style={{
             display:
-              !Object.values(roles).includes('Admin') && !Object.values(roles).includes('Librarian')
+              !roles.includes('Admin') && !Object.values(roles).includes('Librarian')
                 ? 'flex'
                 : 'none',
             marginLeft: '16px',
@@ -148,6 +148,6 @@ export default function Links(props) {
 }
 
 Links.propTypes = {
-  roles: PropTypes.objectOf(PropTypes.string).isRequired,
+  roles: PropTypes.arrayOf(PropTypes.string).isRequired,
   user: PropTypes.string.isRequired,
 };
