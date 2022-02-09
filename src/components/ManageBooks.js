@@ -49,10 +49,22 @@ function ManageBooks(props) {
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [errMessage, setErrMessage] = React.useState('');
   const [searchResults, setSearchResults] = React.useState([]);
+  const [categorySearchResults, setCategorySearchResults] = React.useState([]);
   const [search, setSearch] = React.useState('');
   const [searchFilter, setSearchFilter] = React.useState('title');
+  const [roleFilter, setRoleFilter] = React.useState('');
 
-  const isAdmin = Object.values(roles).includes('Admin');
+  const isAdmin = roles.includes('Admin');
+  const categories = [
+    'All books',
+    'Politics',
+    'History',
+    'Romance',
+    'Science Fiction & Fantasy',
+    'Biographies',
+    'Classics',
+    'Course books',
+  ];
 
   const handleOpen = () => {
     setOpenDialogue(true);
@@ -79,8 +91,29 @@ function ManageBooks(props) {
     setSearchResults(books);
   }, [books]);
 
-  React.useEffect(() => {
+  const filterByCategorie = () => {
+    if (roleFilter === 'All books') {
+      setCategorySearchResults(books);
+      return;
+    }
     const filteredResults = books.filter(
+      (book) =>
+        (roleFilter === 'Classics' && book.categorie?.toLowerCase() === roleFilter.toLowerCase()) ||
+        (roleFilter === 'Politics' && book.categorie?.toLowerCase() === roleFilter.toLowerCase()) ||
+        (roleFilter === 'History' && book.categorie?.toLowerCase() === roleFilter.toLowerCase()) ||
+        (roleFilter === 'History' && book.categorie?.toLowerCase() === roleFilter.toLowerCase()) ||
+        (roleFilter === 'Course books' &&
+          book.categorie?.toLowerCase() === roleFilter.toLowerCase()) ||
+        (roleFilter === 'Biographies' &&
+          book.categorie?.toLowerCase() === roleFilter.toLowerCase()) ||
+        (roleFilter === 'Science Fiction & Fantasy' &&
+          book.categorie?.toLowerCase() === roleFilter.toLowerCase())
+    );
+    setCategorySearchResults(filteredResults.reverse());
+  };
+
+  React.useEffect(() => {
+    const filteredResults = categorySearchResults.filter(
       (book) =>
         (searchFilter === 'title' && book.title.toLowerCase().includes(search.toLowerCase())) ||
         (searchFilter === 'author' && book.author.toLowerCase().includes(search.toLowerCase())) ||
@@ -90,7 +123,11 @@ function ManageBooks(props) {
         (searchFilter === 'serNo' && book.serNo.toLowerCase().includes(search.toLowerCase()))
     );
     setSearchResults(filteredResults.reverse());
-  }, [search, searchFilter]);
+  }, [search, searchFilter, categorySearchResults]);
+
+  React.useEffect(() => {
+    filterByCategorie();
+  }, [roleFilter]);
 
   return (
     <Box>
@@ -118,11 +155,11 @@ function ManageBooks(props) {
               className={classes.input}
               onChange={(e) => setSearch(e.target.value)}
             />
-            Search books by
           </label>
         </form>
         <form className={classes.search} onSubmit={(e) => e.preventDefault()}>
           <label htmlFor="search" className={classes.label}>
+            Search by
             <select
               className={classes.option}
               selected={searchFilter}
@@ -132,10 +169,29 @@ function ManageBooks(props) {
               <option value="author">author</option>
               <option value="year">year</option>
               <option value="publisher">publisher</option>
-              <option value="serNo">serial no</option>
+              {roles !== 'Member' && <option value="serNo">serial no</option>}
+              {roles === 'Member' && <option value="category">category</option>}
             </select>
           </label>
         </form>
+        <div style={{ marginLeft: '4rem' }}>
+          <form className={classes.search} onSubmit={(e) => e.preventDefault()}>
+            <label htmlFor="search" className={classes.label}>
+              Showing
+              <select
+                className={classes.option}
+                selected={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+              >
+                {categories.map((categorie) => (
+                  <option value={categorie} key={categorie}>
+                    {categorie}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </form>
+        </div>
       </div>
 
       <BookTable books={searchResults} onShowSnackbar={showSnackbar} history={history} />
@@ -153,7 +209,7 @@ ManageBooks.propTypes = {
   token: PropTypes.string.isRequired,
   onGetBooks: PropTypes.func.isRequired,
   books: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  roles: PropTypes.objectOf(PropTypes.string).isRequired,
+  roles: PropTypes.arrayOf(PropTypes.string).isRequired,
   history: PropTypes.shape(historyPropTypes).isRequired,
 };
 
