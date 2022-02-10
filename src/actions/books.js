@@ -33,13 +33,23 @@ export function getBooks(token) {
       });
 }
 
-export function addBook(authUserRoles, title, author, year, description, publisher, serNo, token) {
+export function addBook(
+  authUserRoles,
+  title,
+  author,
+  year,
+  description,
+  category,
+  publisher,
+  serNo,
+  token
+) {
   const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
   return () =>
     axios
       .post(
         'http://localhost:3500/books',
-        { title, author, year, description, publisher, serNo },
+        { title, author, year, description, category, publisher, serNo },
         { headers }
       )
       .then((response) => response)
@@ -53,6 +63,7 @@ export function editBook(
   author,
   year,
   description,
+  category,
   publisher,
   serNo,
   token
@@ -62,7 +73,7 @@ export function editBook(
 
   return () =>
     axios
-      .put(url, { id, title, author, year, description, publisher, serNo }, { headers })
+      .put(url, { id, title, author, year, description, category, publisher, serNo }, { headers })
       .then((response) => response)
       .catch((error) => error.response.data);
 }
