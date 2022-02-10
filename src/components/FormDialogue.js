@@ -12,8 +12,19 @@ import { addUser, editUser, getUsers } from '../actions/users';
 import { addBook, getBooks, editBook } from '../actions/books';
 import Confirm from './Confirm';
 import MulitpleSelect from './MulitpleSelect';
+import BasicSelect from './Select';
 
 const roleOptions = ['Admin', 'Librarian', 'Member'];
+const categoryOptions = [
+  'All books',
+  'Politics',
+  'History',
+  'Romance',
+  'Science Fiction & Fantasy',
+  'Biographies',
+  'Classics',
+  'Course books',
+];
 
 function FormDialog(props) {
   const {
@@ -48,6 +59,7 @@ function FormDialog(props) {
   const [publisher, setPublisher] = React.useState('');
   const [serNo, setSerNo] = React.useState('');
   const [roles, setRoles] = React.useState([]);
+  const [category, setCategory] = React.useState('');
 
   const handleUsernameChange = (event) => {
     setUsername(event.target.value);
@@ -71,6 +83,10 @@ function FormDialog(props) {
 
   const handleRoleChange = (selectedRoles) => {
     setRoles(selectedRoles);
+  };
+
+  const handleCategoryChange = (selectedCategory) => {
+    setCategory(selectedCategory);
   };
 
   const handleBookTitleChange = (event) => {
@@ -105,6 +121,7 @@ function FormDialog(props) {
     setUsername('');
     setUserId('');
     setRoles([]);
+    setCategory('');
     setBookTitle('');
     setAuthor('');
     setYear('');
@@ -127,26 +144,19 @@ function FormDialog(props) {
       onShowSnackbar(true, 'error', 'Please fill in the required fileds!');
       return;
     }
-    onAddUser(
-      Object.values(authUserRoles),
-      email,
-      username,
-      password,
-      roles,
-      name,
-      bio,
-      token
-    ).then((response) => {
-      if (response.status !== 201) {
-        onShowSnackbar(true, 'error', `${response.message}`);
+    onAddUser(authUserRoles, email, username, password, roles, name, bio, token).then(
+      (response) => {
+        if (response.status !== 201) {
+          onShowSnackbar(true, 'error', `${response.message}`);
+        }
+        if (response.status === 201) {
+          onShowSnackbar(true, 'success', `User ${response.data.username} was created`);
+          onGetUsers(token);
+          close();
+          resetInput();
+        }
       }
-      if (response.status === 201) {
-        onShowSnackbar(true, 'success', `User ${response.data.username} was created`);
-        onGetUsers(token);
-        close();
-        resetInput();
-      }
-    });
+    );
   };
 
   const onAddNewBook = (event) => {
@@ -156,11 +166,12 @@ function FormDialog(props) {
       return;
     }
     onAddBook(
-      Object.values(authUserRoles),
+      authUserRoles,
       bookTitle,
       author,
       year,
       description,
+      category,
       publisher,
       serNo,
       token
@@ -183,29 +194,28 @@ function FormDialog(props) {
 
   const onEditSingleUser = (event) => {
     event.preventDefault();
-    onEditUser(Object.values(authUserRoles), userId, email, roles, name, bio, token).then(
-      (response) => {
-        if (response.status === 400 || response.status === 401 || response.status === 403) {
-          onShowSnackbar(true, 'error', response.message);
-        }
-        if (response.status === 200) {
-          onShowSnackbar(true, 'success', `User ${response.data.username} was edited`);
-          onGetUsers(token);
-          close();
-        }
+    onEditUser(authUserRoles, userId, email, roles, name, bio, token).then((response) => {
+      if (response.status === 400 || response.status === 401 || response.status === 403) {
+        onShowSnackbar(true, 'error', response.message);
       }
-    );
+      if (response.status === 200) {
+        onShowSnackbar(true, 'success', `User ${response.data.username} was edited`);
+        onGetUsers(token);
+        close();
+      }
+    });
   };
 
   const onEditSingleBook = (event) => {
     event.preventDefault();
     onEditBook(
-      Object.values(authUserRoles),
+      authUserRoles,
       bookId,
       bookTitle,
       author,
       year,
       description,
+      category,
       publisher,
       serNo,
       token
@@ -238,7 +248,7 @@ function FormDialog(props) {
 
   React.useEffect(() => {
     setOpen(show);
-    if (user) {
+    if (user.username) {
       setEmail(user.email);
       setBio(user.bio);
       setName(user.name);
@@ -248,7 +258,7 @@ function FormDialog(props) {
       setUserId(user._id);
       setRoles(Object.values(user.roles));
     }
-    if (book) {
+    if (book.title) {
       // eslint-disable-next-line no-underscore-dangle
       setBookId(book._id);
       setBookTitle(book.title);
@@ -257,8 +267,9 @@ function FormDialog(props) {
       setDescription(book.description);
       setPublisher(book.publisher);
       setSerNo(book.serNo);
+      setCategory(book.category);
     }
-  }, [show, user]);
+  }, [show, user, book]);
 
   return (
     <Dialog open={open} onClose={showConfirm} aria-labelledby="form-dialog-title">
@@ -282,7 +293,7 @@ function FormDialog(props) {
               id="username"
               label="Username*"
               defaultValue={username}
-              disabled={user}
+              disabled={user.username?.length > 1}
               type="username"
               fullWidth
               onChange={handleUsernameChange}
@@ -302,7 +313,7 @@ function FormDialog(props) {
               id="password"
               label="Password*"
               type="password"
-              disabled={password.length}
+              disabled={password.length > 1}
               defaultValue={password}
               fullWidth
               onChange={handlePasswordChange}
@@ -373,6 +384,12 @@ function FormDialog(props) {
               fullWidth
               onChange={handleDescriptionChange}
             />
+            <BasicSelect
+              onChange={handleCategoryChange}
+              selected={category || 'All books'}
+              options={categoryOptions}
+              label="Category"
+            />
             <TextField
               margin="dense"
               id="publisher"
@@ -399,12 +416,18 @@ function FormDialog(props) {
           Cancel
         </Button>
         {title.includes('User') ? (
-          <Button onClick={user ? onEditSingleUser : onAddNewUser} color="primary">
-            {user ? 'Save Changes' : 'Add'}
+          <Button
+            onClick={title.includes('Edit') ? onEditSingleUser : onAddNewUser}
+            color="primary"
+          >
+            {title.includes('Edit') ? 'Save Changes' : 'Add'}
           </Button>
         ) : (
-          <Button onClick={book ? onEditSingleBook : onAddNewBook} color="primary">
-            {book ? 'Save Changes' : 'Add'}
+          <Button
+            onClick={title.includes('Edit') ? onEditSingleBook : onAddNewBook}
+            color="primary"
+          >
+            {title.includes('Edit') ? 'Save Changes' : 'Add'}
           </Button>
         )}
       </DialogActions>
@@ -420,13 +443,27 @@ FormDialog.propTypes = {
   onGetBooks: PropTypes.func.isRequired,
   onShowSnackbar: PropTypes.func.isRequired,
   title: PropTypes.string.isRequired,
-  user: PropTypes.objectOf(PropTypes.oneOfType([PropTypes.string, PropTypes.array])).isRequired,
-  book: PropTypes.objectOf(PropTypes.oneOfType([PropTypes.string, PropTypes.array])).isRequired,
+  user: PropTypes.objectOf(
+    PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.array,
+      PropTypes.objectOf(PropTypes.string),
+      PropTypes.objectOf({}),
+    ])
+  ),
+  book: PropTypes.objectOf(
+    PropTypes.oneOfType([PropTypes.string, PropTypes.array, PropTypes.number])
+  ),
   onEditUser: PropTypes.func.isRequired,
   onEditBook: PropTypes.func.isRequired,
   onAddUser: PropTypes.func.isRequired,
   onAddBook: PropTypes.func.isRequired,
-  authUserRoles: PropTypes.objectOf(PropTypes.string).isRequired,
+  authUserRoles: PropTypes.arrayOf(PropTypes.string).isRequired,
+};
+
+FormDialog.defaultProps = {
+  book: {},
+  user: {},
 };
 
 const mapStateToProps = (state) => ({
@@ -437,16 +474,40 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
   onEditUser: (authUserRoles, userId, email, roles, name, bio, token) =>
     dispatch(editUser(authUserRoles, userId, email, roles, name, bio, token)),
-  onEditBook: (authUserRoles, bookId, title, author, year, description, publisher, serNo, token) =>
+  onEditBook: (
+    authUserRoles,
+    bookId,
+    title,
+    author,
+    year,
+    description,
+    category,
+    publisher,
+    serNo,
+    token
+  ) =>
     dispatch(
-      editBook(authUserRoles, bookId, title, author, year, description, publisher, serNo, token)
+      editBook(
+        authUserRoles,
+        bookId,
+        title,
+        author,
+        year,
+        description,
+        category,
+        publisher,
+        serNo,
+        token
+      )
     ),
   onGetUsers: (token) => dispatch(getUsers(token)),
   onGetBooks: (token) => dispatch(getBooks(token)),
   onAddUser: (authUserRoles, email, username, password, roles, name, bio, token) =>
     dispatch(addUser(authUserRoles, email, username, password, roles, name, bio, token)),
-  onAddBook: (authUserRoles, title, author, year, description, publisher, serNo, token) =>
-    dispatch(addBook(authUserRoles, title, author, year, description, publisher, serNo, token)),
+  onAddBook: (authUserRoles, title, author, year, description, category, publisher, serNo, token) =>
+    dispatch(
+      addBook(authUserRoles, title, author, year, description, category, publisher, serNo, token)
+    ),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FormDialog);
