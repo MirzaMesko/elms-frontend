@@ -207,109 +207,115 @@ function EnhancedTable(props) {
             Users
           </Typography>
         </Toolbar>
-        <TableContainer>
-          <Table
-            className={classes.table}
-            aria-labelledby="tableTitle"
-            size="medium"
-            aria-label="enhanced table"
-          >
-            <EnhancedTableHead
-              classes={classes}
-              order={order}
-              orderBy={orderBy}
-              onRequestSort={handleRequestSort}
-              rowCount={users.length}
-            />
-            <Confirm
-              show={showConfirmDelete}
-              title="Are you sure?"
-              message={
-                selectedUser
-                  ? `User ${selectedUser.username.toUpperCase()} 
+        {!users.length ? (
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <p>No matches for your search</p>
+          </div>
+        ) : (
+          <TableContainer>
+            <Table
+              className={classes.table}
+              aria-labelledby="tableTitle"
+              size="medium"
+              aria-label="enhanced table"
+            >
+              <EnhancedTableHead
+                classes={classes}
+                order={order}
+                orderBy={orderBy}
+                onRequestSort={handleRequestSort}
+                rowCount={users.length}
+              />
+              <Confirm
+                show={showConfirmDelete}
+                title="Are you sure?"
+                message={
+                  selectedUser
+                    ? `User ${selectedUser.username.toUpperCase()} 
                      will be deleted!`
-                  : ''
-              }
-              confirm={() => setShowDeleteConfirm(false)}
-              cancel={onDelete}
-              confirmText="delete"
-              cancelText="cancel"
-            />
-            <TableBody>
-              {stableSort(users, getComparator(order, orderBy))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((user, index) => {
-                  const labelId = `enhanced-table-checkbox-${index}`;
+                    : ''
+                }
+                confirm={() => setShowDeleteConfirm(false)}
+                cancel={onDelete}
+                confirmText="delete"
+                cancelText="cancel"
+              />
+              <TableBody>
+                {stableSort(users, getComparator(order, orderBy))
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((user, index) => {
+                    const labelId = `enhanced-table-checkbox-${index}`;
 
-                  return (
-                    <TableRow
-                      hover
-                      role="checkbox"
-                      tabIndex={-1}
-                      key={user.username}
-                      onMouseEnter={() => setIsHovering({ show: true, index })}
-                      onMouseLeave={() => setIsHovering({ show: false, index })}
-                    >
-                      <TableCell padding="checkbox">
-                        {roles.includes('Admin') &&
-                          (isHovering.show && isHovering.index === index ? (
-                            <>
-                              <IconButton aria-label="edit" onClick={() => onEdit(user)}>
-                                <EditIcon fontSize="small" />
-                              </IconButton>
-                              <IconButton aria-label="edit" onClick={() => onConfirmDelete(user)}>
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
-                            </>
-                          ) : null)}
-                      </TableCell>
-                      <TableCell component="th" id={labelId} scope="row">
-                        {user.username}
-                      </TableCell>
-                      <TableCell align="left">{user.email}</TableCell>
-                      <TableCell align="left">{user.name}</TableCell>
-                      <TableCell align="left">
-                        {Object.values(user.roles) ? (
-                          Object.values(user.roles).map((item) => (
+                    return (
+                      <TableRow
+                        hover
+                        role="checkbox"
+                        tabIndex={-1}
+                        key={user.username}
+                        onMouseEnter={() => setIsHovering({ show: true, index })}
+                        onMouseLeave={() => setIsHovering({ show: false, index })}
+                      >
+                        <TableCell padding="checkbox">
+                          {roles.includes('Admin') &&
+                            (isHovering.show && isHovering.index === index ? (
+                              <>
+                                <IconButton aria-label="edit" onClick={() => onEdit(user)}>
+                                  <EditIcon fontSize="small" />
+                                </IconButton>
+                                <IconButton aria-label="edit" onClick={() => onConfirmDelete(user)}>
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                              </>
+                            ) : null)}
+                        </TableCell>
+                        <TableCell component="th" id={labelId} scope="row">
+                          {user.username}
+                        </TableCell>
+                        <TableCell align="left">{user.email}</TableCell>
+                        <TableCell align="left">{user.name}</TableCell>
+                        <TableCell align="left">
+                          {Object.values(user.roles) ? (
+                            Object.values(user.roles).map((item) => (
+                              <Chip
+                                // eslint-disable-next-line no-underscore-dangle
+                                key={item + user._id}
+                                icon={setIcon(item)}
+                                size="small"
+                                label={item}
+                                color={roleColor(item)}
+                                style={{ margin: '3px' }}
+                              />
+                            ))
+                          ) : (
                             <Chip
-                              // eslint-disable-next-line no-underscore-dangle
-                              key={item + user._id}
-                              icon={setIcon(item)}
+                              key="Member"
+                              icon={setIcon('Member')}
                               size="small"
-                              label={item}
-                              color={roleColor(item)}
+                              label="Member"
+                              color={roleColor('Member')}
                               style={{ margin: '3px' }}
                             />
-                          ))
-                        ) : (
-                          <Chip
-                            key="Member"
-                            icon={setIcon('Member')}
-                            size="small"
-                            label="Member"
-                            color={roleColor('Member')}
-                            style={{ margin: '3px' }}
-                          />
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              {emptyRows > 0 ? (
-                <TableRow style={{ height: 53 * emptyRows }}>
-                  <TableCell colSpan={6} />
-                </TableRow>
-              ) : null}
-              <FormDialog
-                title="Edit User"
-                show={showEditDialogue}
-                close={() => onEdit()}
-                user={selectedUser}
-                onShowSnackbar={onShowSnackbar}
-              />
-            </TableBody>
-          </Table>
-        </TableContainer>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                {emptyRows > 0 ? (
+                  <TableRow style={{ height: 53 * emptyRows }}>
+                    <TableCell colSpan={6} />
+                  </TableRow>
+                ) : null}
+                <FormDialog
+                  title="Edit User"
+                  show={showEditDialogue}
+                  close={() => onEdit()}
+                  user={selectedUser}
+                  onShowSnackbar={onShowSnackbar}
+                />
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
