@@ -13,7 +13,17 @@ import Login from './components/Login';
 import Register from './components/SignUp';
 
 function App(props) {
-  const { loggedIn, history, error, authUser, roles, onLogout, users, onTryAutoSignup } = props;
+  const {
+    loggedIn,
+    history,
+    error,
+    authUser,
+    roles,
+    onLogout,
+    users,
+    onTryAutoSignup,
+    books,
+  } = props;
 
   React.useEffect(() => {
     onTryAutoSignup();
@@ -50,7 +60,9 @@ function App(props) {
           <Route
             path="/"
             exact
-            render={() => <Links history={history} roles={roles} user={authUser} />}
+            render={() => (
+              <Links history={history} roles={roles} user={authUser} users={users} books={books} />
+            )}
           />
           <Redirect to="/" />
         </Switch>
@@ -68,14 +80,16 @@ App.propTypes = {
   authUser: PropTypes.string,
   onLogout: PropTypes.func.isRequired,
   onTryAutoSignup: PropTypes.func.isRequired,
-  roles: PropTypes.objectOf(PropTypes.string).isRequired,
+  roles: PropTypes.arrayOf(PropTypes.string).isRequired,
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  books: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   token: PropTypes.string.isRequired,
 };
 
 App.defaultProps = {
   roles: [],
   users: [],
+  books: [],
   authUser: '',
 };
 
@@ -86,6 +100,7 @@ const mapStateToProps = (state) => ({
   roles: state.users.authUser.roles,
   users: state.users.users,
   token: state.users.token,
+  books: state.books.books,
 });
 
 const mapDispatchToProps = (dispatch) => ({
