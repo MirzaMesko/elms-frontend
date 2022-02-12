@@ -40,6 +40,7 @@ export function addBook(
   year,
   description,
   category,
+  image,
   publisher,
   serNo,
   token
@@ -49,7 +50,7 @@ export function addBook(
     axios
       .post(
         'http://localhost:3500/books',
-        { title, author, year, description, category, publisher, serNo },
+        { title, author, year, description, category, image, publisher, serNo },
         { headers }
       )
       .then((response) => response)
@@ -64,6 +65,7 @@ export function editBook(
   year,
   description,
   category,
+  image,
   publisher,
   serNo,
   token
@@ -73,7 +75,11 @@ export function editBook(
 
   return () =>
     axios
-      .put(url, { id, title, author, year, description, category, publisher, serNo }, { headers })
+      .put(
+        url,
+        { id, title, author, year, description, category, image, publisher, serNo },
+        { headers }
+      )
       .then((response) => response)
       .catch((error) => error.response.data);
 }
