@@ -13,13 +13,13 @@ function currentUser(user) {
   };
 }
 
-export function addUser(authUserRoles, email, username, password, roles, name, bio, token) {
+export function addUser(authUserRoles, email, username, password, roles, name, image, bio, token) {
   const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
   return () =>
     axios
       .post(
         'http://localhost:3500/users',
-        { email, username, password, roles, name, bio },
+        { email, username, password, roles, name, image, bio },
         { headers }
       )
       .then((response) => response)
@@ -73,13 +73,13 @@ export function getCurrentUser(token) {
       });
 }
 
-export function editUser(authUserRoles, id, email, roles, name, bio, token) {
+export function editUser(authUserRoles, id, email, roles, name, image, bio, token) {
   const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
   const url = `http://localhost:3500/users`;
 
   return () =>
     axios
-      .put(url, { id, email, roles, name, bio }, { headers })
+      .put(url, { id, email, roles, name, image, bio }, { headers })
       .then((response) => response)
       .catch((error) => error.response.data);
 }
