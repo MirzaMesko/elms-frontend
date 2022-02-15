@@ -11,6 +11,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import Toolbar from '@material-ui/core/Toolbar';
+import Avatar from '@material-ui/core/Avatar';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
@@ -22,7 +23,37 @@ import React from 'react';
 import { connect } from 'react-redux';
 import FormDialog from './FormDialogue';
 import Confirm from './Confirm';
+import UserDetails from './User';
 import { getUsers, deleteUser } from '../actions/users';
+
+function stringToColor(string) {
+  let hash = 0;
+  let i;
+
+  /* eslint-disable no-bitwise */
+  for (i = 0; i < string.length; i += 1) {
+    hash = string.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  let color = '#';
+
+  for (i = 0; i < 3; i += 1) {
+    const value = (hash >> (i * 8)) & 0xff;
+    color += `00${value.toString(16)}`.substr(-2);
+  }
+  /* eslint-enable no-bitwise */
+
+  return color;
+}
+
+function stringAvatar(name) {
+  return {
+    sx: {
+      bgcolor: stringToColor(name),
+    },
+    children: `${name.split(' ')[0][0]}${name.split(' ')[1][0]}`,
+  };
+}
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -55,6 +86,7 @@ const headCells = [
   { id: 'email', numeric: false, disablePadding: false, label: 'Email' },
   { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
   { id: 'roles', numeric: false, disablePadding: false, label: 'Roles' },
+  { id: 'actions', numeric: false, disablePadding: false, label: 'Actions' },
 ];
 
 function EnhancedTableHead(props) {
@@ -66,7 +98,7 @@ function EnhancedTableHead(props) {
   return (
     <TableHead>
       <TableRow>
-        <TableCell>{null}</TableCell>
+        <TableCell> </TableCell>
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
@@ -133,8 +165,9 @@ function EnhancedTable(props) {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [showEditDialogue, setShowEditDialogue] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState();
-  const [isHovering, setIsHovering] = React.useState({ show: false, index: 0 });
   const [showConfirmDelete, setShowDeleteConfirm] = React.useState(false);
+  const [openUserDetails, setOpenUserDetails] = React.useState(false);
+  const [chosenUser, setChosenUser] = React.useState({});
 
   const { users, onShowSnackbar, roles, token, onDeleteUser, onGetUsers } = props;
 
@@ -197,6 +230,11 @@ function EnhancedTable(props) {
     });
   };
 
+  const onShowUserDetails = (user) => {
+    setOpenUserDetails(true);
+    setChosenUser(user);
+  };
+
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, users.length - page * rowsPerPage);
 
   return (
@@ -230,7 +268,7 @@ function EnhancedTable(props) {
                 show={showConfirmDelete}
                 title="Are you sure?"
                 message={
-                  selectedUser
+                  selectedUser?.username?.length
                     ? `User ${selectedUser.username.toUpperCase()} 
                      will be deleted!`
                     : ''
@@ -247,33 +285,47 @@ function EnhancedTable(props) {
                     const labelId = `enhanced-table-checkbox-${index}`;
 
                     return (
-                      <TableRow
-                        hover
-                        role="checkbox"
-                        tabIndex={-1}
-                        key={user.username}
-                        onMouseEnter={() => setIsHovering({ show: true, index })}
-                        onMouseLeave={() => setIsHovering({ show: false, index })}
-                      >
-                        <TableCell padding="checkbox">
-                          {roles.includes('Admin') &&
-                            (isHovering.show && isHovering.index === index ? (
-                              <>
-                                <IconButton aria-label="edit" onClick={() => onEdit(user)}>
-                                  <EditIcon fontSize="small" />
-                                </IconButton>
-                                <IconButton aria-label="edit" onClick={() => onConfirmDelete(user)}>
-                                  <DeleteIcon fontSize="small" />
-                                </IconButton>
-                              </>
-                            ) : null)}
+                      <TableRow hover role="checkbox" tabIndex={-1} key={user.username}>
+                        <TableCell
+                          onClick={() => onShowUserDetails(user)}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          <Avatar
+                            src={user.image}
+                            alt={user.username}
+                            {...stringAvatar(`${user.username} ${user.name}`)}
+                          >
+                            {user.username.slice(0, 1)}
+                          </Avatar>
                         </TableCell>
-                        <TableCell component="th" id={labelId} scope="row">
+                        <TableCell
+                          component="th"
+                          id={labelId}
+                          scope="row"
+                          onClick={() => onShowUserDetails(user)}
+                          style={{ cursor: 'pointer' }}
+                        >
                           {user.username}
                         </TableCell>
-                        <TableCell align="left">{user.email}</TableCell>
-                        <TableCell align="left">{user.name}</TableCell>
-                        <TableCell align="left">
+                        <TableCell
+                          align="left"
+                          onClick={() => onShowUserDetails(user)}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          {user.email}
+                        </TableCell>
+                        <TableCell
+                          align="left"
+                          onClick={() => onShowUserDetails(user)}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          {user.name}
+                        </TableCell>
+                        <TableCell
+                          align="left"
+                          onClick={() => onShowUserDetails(user)}
+                          style={{ cursor: 'pointer' }}
+                        >
                           {Object.values(user.roles) ? (
                             Object.values(user.roles).map((item) => (
                               <Chip
@@ -297,6 +349,18 @@ function EnhancedTable(props) {
                             />
                           )}
                         </TableCell>
+                        <TableCell padding="checkbox">
+                          {roles.includes('Admin') && (
+                            <>
+                              <IconButton aria-label="edit" onClick={() => onEdit(user)}>
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                              <IconButton aria-label="edit" onClick={() => onConfirmDelete(user)}>
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </>
+                          )}
+                        </TableCell>
                       </TableRow>
                     );
                   })}
@@ -305,6 +369,11 @@ function EnhancedTable(props) {
                     <TableCell colSpan={6} />
                   </TableRow>
                 ) : null}
+                <UserDetails
+                  open={openUserDetails}
+                  handleClose={() => setOpenUserDetails(false)}
+                  user={chosenUser}
+                />
                 <FormDialog
                   title="Edit User"
                   show={showEditDialogue}
