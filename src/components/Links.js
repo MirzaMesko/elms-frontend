@@ -1,6 +1,8 @@
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
+import Avatar from '@material-ui/core/Avatar';
+import AvatarGroup from '@material-ui/lab/AvatarGroup';
 import PropTypes from 'prop-types';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
@@ -62,6 +64,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     overflow: 'auto',
     flexDirection: 'column',
+    justifyContent: 'space-between',
     '&:hover': { backgroundColor: '#abc' },
   },
   fixedHeight: {
@@ -82,7 +85,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Links(props) {
-  const { roles, user } = props;
+  const { roles, user, users, books } = props;
   const classes = useStyles();
 
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
@@ -104,6 +107,11 @@ export default function Links(props) {
           <RouterLink to="/manage/users" className={classes.link && classes.linkActive}>
             <Paper className={fixedHeightPaper}>
               <Card title="Manage Users " text="Add, edit or remove users from Elms" />
+              <AvatarGroup total={users.length} max={8}>
+                {users.map((u) => (
+                  <Avatar src={u.image}>{u.username.slice(0, 1)}</Avatar>
+                ))}
+              </AvatarGroup>
             </Paper>
           </RouterLink>
         </Grid>
@@ -120,6 +128,11 @@ export default function Links(props) {
           <RouterLink to="/manage/books" className={classes.link && classes.linkActive}>
             <Paper className={fixedHeightPaper}>
               <Card title="Manage Books " text="Add, edit or remove books from Elms" />
+              <AvatarGroup total={books.length} max={8}>
+                {books.map((u) => (
+                  <Avatar src={u.image}>{u.title.slice(0, 1)}</Avatar>
+                ))}
+              </AvatarGroup>
             </Paper>
           </RouterLink>
         </Grid>
@@ -139,6 +152,11 @@ export default function Links(props) {
           <RouterLink to="/manage/books" className={classes.link && classes.linkActive}>
             <Paper className={fixedHeightPaper}>
               <Card title="Search books & more " text="Find the book you're looking for" />
+              <AvatarGroup total={books.length} max={8}>
+                {books.map((u) => (
+                  <Avatar src={u.image}>{u.title.slice(0, 1)}</Avatar>
+                ))}
+              </AvatarGroup>
             </Paper>
           </RouterLink>
         </Grid>
@@ -150,4 +168,6 @@ export default function Links(props) {
 Links.propTypes = {
   roles: PropTypes.arrayOf(PropTypes.string).isRequired,
   user: PropTypes.string.isRequired,
+  users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  books: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
