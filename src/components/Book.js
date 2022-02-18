@@ -64,5 +64,5 @@ export default function BookDetails(props) {
 BookDetails.propTypes = {
   open: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
-  book: PropTypes.objectOf(PropTypes.string).isRequired,
+  book: PropTypes.objectOf(PropTypes.string, PropTypes.number).isRequired,
 };
