@@ -3,7 +3,6 @@ import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
-import { history as historyPropTypes } from 'history-prop-types';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -12,12 +11,14 @@ import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import Toolbar from '@material-ui/core/Toolbar';
+import Avatar from '@material-ui/core/Avatar';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import PropTypes from 'prop-types';
 import React from 'react';
 import FormDialog from './FormDialogue';
+import BookDetails from './Book';
 import Confirm from './Confirm';
 import { getBooks, deleteBook } from '../actions/books';
 
@@ -66,8 +67,9 @@ function EnhancedTableHead(props) {
   return (
     <TableHead>
       <TableRow>
+        <TableCell> </TableCell>
         {headCells.map((headCell) =>
-          !isLibrarian && headCell.id === 'actions' ? null : (
+          !isLibrarian && (headCell.id === 'actions' || headCell.id === 'serNo') ? null : (
             <TableCell
               key={headCell.id}
               align={headCell.numeric ? 'center' : 'left'}
@@ -136,8 +138,10 @@ function EnhancedTable(props) {
   const [showEditDialogue, setShowEditDialogue] = React.useState(false);
   const [selectedBook, setSelectedBook] = React.useState();
   const [showConfirmDelete, setShowDeleteConfirm] = React.useState(false);
+  const [openBookDetails, setOpenBookDetails] = React.useState(false);
+  const [chosenBook, setChosenBook] = React.useState({});
 
-  const { books, onShowSnackbar, roles, token, onDeleteBook, onGetBooks, history } = props;
+  const { books, onShowSnackbar, roles, token, onDeleteBook, onGetBooks } = props;
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -166,7 +170,7 @@ function EnhancedTable(props) {
 
   const onDelete = () => {
     // eslint-disable-next-line no-underscore-dangle
-    onDeleteBook(Object.values(roles), selectedBook._id, token).then((response) => {
+    onDeleteBook(roles, selectedBook._id, token).then((response) => {
       if (response.status === 400 || response.status === 401 || response.status === 403) {
         onShowSnackbar(true, 'error', response.message);
       }
@@ -176,6 +180,11 @@ function EnhancedTable(props) {
         onGetBooks(token);
       }
     });
+  };
+
+  const onShowBookDetails = (book) => {
+    setOpenBookDetails(true);
+    setChosenBook(book);
   };
 
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, books.length - page * rowsPerPage);
@@ -207,7 +216,7 @@ function EnhancedTable(props) {
                 orderBy={orderBy}
                 onRequestSort={handleRequestSort}
                 rowCount={books.length}
-                isLibrarian={Object.values(roles).includes('Librarian')}
+                isLibrarian={roles.includes('Librarian')}
               />
               <Confirm
                 show={showConfirmDelete}
@@ -240,20 +249,64 @@ function EnhancedTable(props) {
                           key={book._id}
                         >
                           <TableCell
+                            onClick={() => onShowBookDetails(book)}
+                            style={{ cursor: 'pointer' }}
+                          >
+                            <Avatar
+                              src={book.image}
+                              alt={book.title}
+                              variant="square"
+                              sx={{ width: 56, height: 56 }}
+                            >
+                              {book.title.slice(0, 1)}
+                            </Avatar>
+                          </TableCell>
+                          <TableCell
                             id={labelId}
-                            // eslint-disable-next-line no-underscore-dangle
-                            onClick={() => history.push(`/books/${book.title}by${book.author}`)}
-                            style={{ cursor: 'grab' }}
+                            onClick={() => onShowBookDetails(book)}
+                            style={{ cursor: 'pointer' }}
                           >
                             {book.title}
                           </TableCell>
-                          <TableCell align="left">{book.author}</TableCell>
-                          <TableCell align="left">{book.year}</TableCell>
-                          <TableCell align="left">{book.description.slice(0, 60)}...</TableCell>
-                          <TableCell align="left">{book.publisher}</TableCell>
-                          <TableCell align="left">{book.serNo}</TableCell>
-                          {Object.values(roles).includes('Librarian') && (
-                            <TableCell align="centre">
+                          <TableCell
+                            align="left"
+                            onClick={() => onShowBookDetails(book)}
+                            style={{ cursor: 'pointer' }}
+                          >
+                            {book.author}
+                          </TableCell>
+                          <TableCell
+                            align="left"
+                            onClick={() => onShowBookDetails(book)}
+                            style={{ cursor: 'pointer' }}
+                          >
+                            {book.year}
+                          </TableCell>
+                          <TableCell
+                            align="left"
+                            onClick={() => onShowBookDetails(book)}
+                            style={{ cursor: 'pointer' }}
+                          >
+                            {book.description.slice(0, 60)}...
+                          </TableCell>
+                          <TableCell
+                            align="left"
+                            onClick={() => onShowBookDetails(book)}
+                            style={{ cursor: 'pointer' }}
+                          >
+                            {book.publisher}
+                          </TableCell>
+                          {roles.length === 1 && roles[0] === 'Member' ? null : (
+                            <TableCell
+                              align="left"
+                              onClick={() => onShowBookDetails(book)}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              {book.serNo}
+                            </TableCell>
+                          )}
+                          {roles.includes('Librarian') && (
+                            <TableCell align="center">
                               <div
                                 style={{
                                   display: 'flex',
@@ -261,7 +314,7 @@ function EnhancedTable(props) {
                                 }}
                               >
                                 <IconButton aria-label="edit" onClick={() => onEdit(book)}>
-                                  <EditIcon fontSize="xs" />
+                                  <EditIcon fontSize="small" />
                                 </IconButton>
                                 <IconButton aria-label="edit" onClick={() => onConfirmDelete(book)}>
                                   <DeleteIcon fontSize="small" />
@@ -278,6 +331,11 @@ function EnhancedTable(props) {
                     <TableCell colSpan={6} />
                   </TableRow>
                 ) : null}
+                <BookDetails
+                  open={openBookDetails}
+                  handleClose={() => setOpenBookDetails(false)}
+                  book={chosenBook}
+                />
                 <FormDialog
                   title="Edit Book"
                   show={showEditDialogue}
@@ -306,11 +364,10 @@ function EnhancedTable(props) {
 EnhancedTable.propTypes = {
   books: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   onShowSnackbar: PropTypes.func.isRequired,
-  roles: PropTypes.objectOf(PropTypes.string).isRequired,
+  roles: PropTypes.arrayOf(PropTypes.string).isRequired,
   token: PropTypes.string.isRequired,
   onDeleteBook: PropTypes.func.isRequired,
   onGetBooks: PropTypes.func.isRequired,
-  history: PropTypes.shape(historyPropTypes).isRequired,
 };
 
 const mapStateToProps = (state) => ({
