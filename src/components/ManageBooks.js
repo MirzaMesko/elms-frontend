@@ -97,17 +97,7 @@ function ManageBooks(props) {
       return;
     }
     const filteredResults = books.filter(
-      (book) =>
-        (roleFilter === 'Classics' && book.categorie?.toLowerCase() === roleFilter.toLowerCase()) ||
-        (roleFilter === 'Politics' && book.categorie?.toLowerCase() === roleFilter.toLowerCase()) ||
-        (roleFilter === 'History' && book.categorie?.toLowerCase() === roleFilter.toLowerCase()) ||
-        (roleFilter === 'History' && book.categorie?.toLowerCase() === roleFilter.toLowerCase()) ||
-        (roleFilter === 'Course books' &&
-          book.categorie?.toLowerCase() === roleFilter.toLowerCase()) ||
-        (roleFilter === 'Biographies' &&
-          book.categorie?.toLowerCase() === roleFilter.toLowerCase()) ||
-        (roleFilter === 'Science Fiction & Fantasy' &&
-          book.categorie?.toLowerCase() === roleFilter.toLowerCase())
+      (book) => book.category?.toLowerCase() === roleFilter.toLowerCase()
     );
     setCategorySearchResults(filteredResults.reverse());
   };
@@ -183,9 +173,9 @@ function ManageBooks(props) {
                 selected={roleFilter}
                 onChange={(e) => setRoleFilter(e.target.value)}
               >
-                {categories.map((categorie) => (
-                  <option value={categorie} key={categorie}>
-                    {categorie}
+                {categories.map((category) => (
+                  <option value={category} key={category}>
+                    {category}
                   </option>
                 ))}
               </select>
