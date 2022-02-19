@@ -3,6 +3,7 @@ import Chip from '@material-ui/core/Chip';
 import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
+import { useHistory } from 'react-router-dom';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -17,6 +18,7 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
+import CompareArrowsIcon from '@material-ui/icons/CompareArrows';
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -85,8 +87,8 @@ const headCells = [
   { id: 'username', numeric: false, disablePadding: false, label: 'Username' },
   { id: 'email', numeric: false, disablePadding: false, label: 'Email' },
   { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
-  { id: 'roles', numeric: false, disablePadding: false, label: 'Roles' },
-  { id: 'actions', numeric: false, disablePadding: false, label: 'Actions' },
+  { id: 'roles', numeric: true, disablePadding: false, label: 'Roles' },
+  { id: 'actions', numeric: true, disablePadding: false, label: 'Actions' },
 ];
 
 function EnhancedTableHead(props) {
@@ -102,7 +104,7 @@ function EnhancedTableHead(props) {
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
-            align={headCell.numeric ? 'right' : 'left'}
+            align={headCell.numeric ? 'center' : 'left'}
             padding={headCell.disablePadding ? 'none' : 'default'}
             sortDirection={orderBy === headCell.id ? order : false}
           >
@@ -170,6 +172,7 @@ function EnhancedTable(props) {
   const [chosenUser, setChosenUser] = React.useState({});
 
   const { users, onShowSnackbar, roles, token, onDeleteUser, onGetUsers } = props;
+  const history = useHistory();
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -349,9 +352,16 @@ function EnhancedTable(props) {
                             />
                           )}
                         </TableCell>
-                        <TableCell padding="checkbox">
+                        <TableCell>
                           {roles.includes('Admin') && (
                             <>
+                              <IconButton
+                                aria-label="edit"
+                                // eslint-disable-next-line no-underscore-dangle
+                                onClick={() => history.push(`/users/lend&return/${user._id}`)}
+                              >
+                                <CompareArrowsIcon fontSize="small" />
+                              </IconButton>
                               <IconButton aria-label="edit" onClick={() => onEdit(user)}>
                                 <EditIcon fontSize="small" />
                               </IconButton>
