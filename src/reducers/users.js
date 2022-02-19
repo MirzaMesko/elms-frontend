@@ -19,7 +19,11 @@ const users = (state = initialState, action) => {
         ...state,
         loggedIn: true,
         token: action.token,
-        authUser: action.user,
+        authUser: {
+          username: action.user.username,
+          roles: action.user.roles,
+          image: action.user.image,
+        },
       };
     case CURRENT_USER_INFO: {
       return {
