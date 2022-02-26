@@ -1,3 +1,6 @@
+/* eslint-disable no-underscore-dangle */
+// import { editUser } from './users';
+
 const axios = require('axios');
 
 export const RETRIEVE_BOOKS_SUCCESS = 'RETRIEVE_BOOKS_SUCCESS';
@@ -77,7 +80,17 @@ export function editBook(
     axios
       .put(
         url,
-        { id, title, author, year, description, category, image, publisher, serNo },
+        {
+          id,
+          title,
+          author,
+          year,
+          description,
+          category,
+          image,
+          publisher,
+          serNo,
+        },
         { headers }
       )
       .then((response) => response)
@@ -96,4 +109,103 @@ export function deleteBook(authUserRoles, id, token) {
       .delete(url, config)
       .then((response) => response)
       .catch((error) => error.response.data);
+}
+
+export function lendBook(book, user, authUserRoles, token) {
+  const owed = user.owedBooks;
+  owed.push(book._id);
+  const timeOfLending = new Date().getTime() + 1000 * 3600 * 168;
+  const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
+  const url = `http://localhost:3500/users`;
+
+  return () =>
+    axios
+      .put(
+        url,
+        {
+          id: user._id,
+          email: user.email,
+          roles: Object.values(user.roles),
+          name: user.name,
+          image: user.image,
+          bio: user.bio,
+          newOwedBooks: owed,
+        },
+        { headers }
+      )
+      .then((response) => {
+        if (response) {
+          axios
+            .put(
+              `http://localhost:3500/books`,
+              {
+                authUserRoles,
+                id: book._id,
+                title: book.title,
+                author: book.author,
+                year: book.year,
+                description: book.description,
+                category: book.category,
+                image: book.image,
+                publisher: book.publisher,
+                serNo: book.serNo,
+                available: 'false',
+                owedBy: { userId: user._id, dueDate: new Date(timeOfLending).toDateString() },
+                token,
+              },
+              { headers }
+            )
+            .then((resp) => resp)
+            .catch((error) => error.response.data);
+        }
+        return response;
+      });
+}
+
+export function returnBook(book, user, newOwedBooks, authUserRoles, token) {
+  const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
+  const url = `http://localhost:3500/users`;
+
+  return () =>
+    axios
+      .put(
+        url,
+        {
+          id: user._id,
+          email: user.email,
+          roles: Object.values(user.roles),
+          name: user.name,
+          image: user.image,
+          bio: user.bio,
+          newOwedBooks,
+        },
+        { headers }
+      )
+      .then((response) => {
+        if (response) {
+          axios
+            .put(
+              `http://localhost:3500/books`,
+              {
+                authUserRoles,
+                id: book._id,
+                title: book.title,
+                author: book.author,
+                year: book.year,
+                description: book.description,
+                category: book.category,
+                image: book.image,
+                publisher: book.publisher,
+                serNo: book.serNo,
+                available: 'true',
+                owedBy: { userId: '', dueDate: '' },
+                token,
+              },
+              { headers }
+            )
+            .then((resp) => resp)
+            .catch((error) => error.response.data);
+        }
+        return response;
+      });
 }
