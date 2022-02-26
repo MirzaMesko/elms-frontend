@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
@@ -30,6 +31,8 @@ export default function UserDetails(props) {
   const { open, handleClose, user } = props;
   const classes = useStyles();
   const image = user?.image ? user.image : profilePlaceholder;
+
+  const history = useHistory();
 
   const roleColor = (item) => {
     if (item === 'Admin') {
@@ -103,6 +106,11 @@ export default function UserDetails(props) {
         <DialogActions>
           <Button autoFocus onClick={handleClose}>
             back to users
+          </Button>
+          {
+            // eslint-disable-next-line
+          }<Button autoFocus onClick={() => history.push(`/users/lend&return/${user._id}`)}>
+            go to lend & return
           </Button>
         </DialogActions>
       </Dialog>
