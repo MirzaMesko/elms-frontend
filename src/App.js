@@ -11,7 +11,7 @@ import { logout, authCheckState } from './actions/auth';
 import Links from './components/Links';
 import Login from './components/Login';
 import Register from './components/SignUp';
-import LendOrReturn from './components/Lend&Return';
+import LendOrReturn from './components/LendOrReturn';
 
 function App(props) {
   const {
