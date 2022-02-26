@@ -1,8 +1,10 @@
+/* eslint-disable react/jsx-no-comment-textnodes */
 import React from 'react';
 import Button from '@material-ui/core/Button';
 import { connect } from 'react-redux';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
+import Typography from '@material-ui/core/Typography';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
@@ -13,6 +15,8 @@ import { addBook, getBooks, editBook } from '../actions/books';
 import Confirm from './Confirm';
 import MulitpleSelect from './MulitpleSelect';
 import BasicSelect from './Select';
+import editionPlaceholder from '../utils/edition_placeholder2.png';
+import profilePlaceholder from '../utils/profile-picture-default-png.png';
 
 const roleOptions = ['Admin', 'Librarian', 'Member'];
 const categoryOptions = [
@@ -55,6 +59,9 @@ function FormDialog(props) {
   const [bookTitle, setBookTitle] = React.useState('');
   const [author, setAuthor] = React.useState('');
   const [year, setYear] = React.useState('');
+  const [image, setImage] = React.useState(
+    title.includes('User') ? profilePlaceholder : editionPlaceholder
+  );
   const [description, setDescription] = React.useState('');
   const [publisher, setPublisher] = React.useState('');
   const [serNo, setSerNo] = React.useState('');
@@ -113,6 +120,10 @@ function FormDialog(props) {
     setSerNo(event.target.value);
   };
 
+  const handleImageChange = (event) => {
+    setImage(event.target.value);
+  };
+
   const resetInput = () => {
     setEmail('');
     setBio('');
@@ -144,7 +155,7 @@ function FormDialog(props) {
       onShowSnackbar(true, 'error', 'Please fill in the required fileds!');
       return;
     }
-    onAddUser(authUserRoles, email, username, password, roles, name, bio, token).then(
+    onAddUser(authUserRoles, email, username, password, roles, name, image, bio, token).then(
       (response) => {
         if (response.status !== 201) {
           onShowSnackbar(true, 'error', `${response.message}`);
@@ -172,6 +183,7 @@ function FormDialog(props) {
       year,
       description,
       category,
+      image,
       publisher,
       serNo,
       token
@@ -194,7 +206,7 @@ function FormDialog(props) {
 
   const onEditSingleUser = (event) => {
     event.preventDefault();
-    onEditUser(authUserRoles, userId, email, roles, name, bio, token).then((response) => {
+    onEditUser(authUserRoles, userId, email, roles, name, image, bio, token).then((response) => {
       if (response.status === 400 || response.status === 401 || response.status === 403) {
         onShowSnackbar(true, 'error', response.message);
       }
@@ -216,6 +228,7 @@ function FormDialog(props) {
       year,
       description,
       category,
+      image,
       publisher,
       serNo,
       token
@@ -257,6 +270,7 @@ function FormDialog(props) {
       // eslint-disable-next-line no-underscore-dangle
       setUserId(user._id);
       setRoles(Object.values(user.roles));
+      setImage(user.image || profilePlaceholder);
     }
     if (book.title) {
       // eslint-disable-next-line no-underscore-dangle
@@ -268,6 +282,7 @@ function FormDialog(props) {
       setPublisher(book.publisher);
       setSerNo(book.serNo);
       setCategory(book.category);
+      setImage(book.image || editionPlaceholder);
     }
   }, [show, user, book]);
 
@@ -287,52 +302,97 @@ function FormDialog(props) {
         <DialogContentText>Please fill in the following information.</DialogContentText>
         {title.includes('User') ? (
           <>
+            <div style={{ display: 'flex' }}>
+              <div>
+                <input
+                  type="image"
+                  id="image"
+                  alt="Login"
+                  src={image}
+                  style={{
+                    height: '250px',
+                    width: '300px',
+                    objectFit: 'cover',
+                    display: 'block',
+                    paddingRight: '1rem',
+                  }}
+                />
+              </div>
+              <div>
+                <TextField
+                  margin="dense"
+                  autoComplete="off"
+                  label="Username*"
+                  defaultValue={username}
+                  disabled={user.username?.length > 1}
+                  type="username"
+                  fullWidth
+                  onChange={handleUsernameChange}
+                />
+                <TextField
+                  margin="dense"
+                  autoComplete="off"
+                  label="Password*"
+                  type="password"
+                  disabled={user.password?.length > 1}
+                  defaultValue={password}
+                  fullWidth
+                  onChange={handlePasswordChange}
+                />
+                <MulitpleSelect
+                  onChange={handleRoleChange}
+                  selected={roles}
+                  options={roleOptions}
+                  label="Roles"
+                />
+                <TextField
+                  focus="true"
+                  margin="dense"
+                  id="email"
+                  defaultValue={email}
+                  label="Email Address*"
+                  type="email"
+                  fullWidth
+                  onChange={handleEmailChange}
+                />
+                <TextField
+                  margin="dense"
+                  id="name"
+                  label="Name"
+                  type="name"
+                  defaultValue={name}
+                  fullWidth
+                  onChange={handleNameChange}
+                />
+              </div>
+            </div>
             <TextField
-              autoFocus
               margin="dense"
-              id="username"
-              label="Username*"
-              defaultValue={username}
-              disabled={user.username?.length > 1}
-              type="username"
+              id="image"
+              label="Image Url"
+              type="text"
+              defaultValue={image}
               fullWidth
-              onChange={handleUsernameChange}
+              onChange={handleImageChange}
             />
-            <TextField
-              focus="true"
-              margin="dense"
-              id="email"
-              defaultValue={email}
-              label="Email Address*"
-              type="email"
-              fullWidth
-              onChange={handleEmailChange}
-            />
-            <TextField
-              margin="dense"
-              id="password"
-              label="Password*"
-              type="password"
-              disabled={password.length > 1}
-              defaultValue={password}
-              fullWidth
-              onChange={handlePasswordChange}
-            />
-            <MulitpleSelect
-              onChange={handleRoleChange}
-              selected={roles}
-              options={roleOptions}
-              label="Roles"
-            />
-            <TextField
-              margin="dense"
-              id="name"
-              label="Name"
-              type="name"
-              defaultValue={name}
-              fullWidth
-              onChange={handleNameChange}
-            />
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Typography>or</Typography>
+              <label htmlFor="raised-button-file">
+                <input
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  id="raised-button-file"
+                  multiple
+                  type="file"
+                  hidden
+                  onChange={(event) => handleImageChange(event)}
+                />
+                <Button variant="outlined" component="span">
+                  Upload image
+                </Button>
+              </label>
+            </div>
+
             <TextField
               margin="dense"
               id="bio"
@@ -340,40 +400,110 @@ function FormDialog(props) {
               type="bio"
               defaultValue={bio}
               fullWidth
+              multiline
               onChange={handleBioChange}
             />
           </>
         ) : (
           <>
+            <div style={{ display: 'flex' }}>
+              <div>
+                <input
+                  type="image"
+                  id="image"
+                  alt="Login"
+                  src={image}
+                  style={{
+                    height: '320px',
+                    display: 'block',
+                    paddingRight: '1rem',
+                  }}
+                />
+              </div>
+              <div>
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  id="title"
+                  label="Title*"
+                  defaultValue={bookTitle}
+                  type="text"
+                  fullWidth
+                  onChange={handleBookTitleChange}
+                />
+                <TextField
+                  focus="true"
+                  margin="dense"
+                  id="author"
+                  defaultValue={author}
+                  label="Author*"
+                  type="text"
+                  fullWidth
+                  onChange={handleAuthorChange}
+                />
+                <TextField
+                  margin="dense"
+                  id="year"
+                  label="Year"
+                  type="year"
+                  defaultValue={year}
+                  fullWidth
+                  onChange={handleYearChange}
+                />
+                <BasicSelect
+                  onChange={handleCategoryChange}
+                  selected={category || 'All books'}
+                  options={categoryOptions}
+                  label="Category"
+                />
+                <TextField
+                  margin="dense"
+                  id="publisher"
+                  label="Publisher"
+                  type="text"
+                  defaultValue={publisher}
+                  fullWidth
+                  onChange={handlePublisherChange}
+                />
+                <TextField
+                  margin="dense"
+                  id="serNo"
+                  label="Serial No*"
+                  type="text"
+                  defaultValue={serNo}
+                  fullWidth
+                  onChange={handleSerialNumberChange}
+                />
+              </div>
+            </div>
+
             <TextField
-              autoFocus
               margin="dense"
-              id="title"
-              label="Title*"
-              defaultValue={bookTitle}
+              id="image"
+              label="Image Url"
               type="text"
+              defaultValue={image}
               fullWidth
-              onChange={handleBookTitleChange}
+              onChange={handleImageChange}
             />
-            <TextField
-              focus="true"
-              margin="dense"
-              id="author"
-              defaultValue={author}
-              label="Author*"
-              type="text"
-              fullWidth
-              onChange={handleAuthorChange}
-            />
-            <TextField
-              margin="dense"
-              id="year"
-              label="Year*"
-              type="year"
-              defaultValue={year}
-              fullWidth
-              onChange={handleYearChange}
-            />
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Typography>or</Typography>
+              <label htmlFor="raised-button-file">
+                <input
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  id="raised-button-file"
+                  multiple
+                  type="file"
+                  hidden
+                  onChange={(event) => handleImageChange(event)}
+                />
+                <Button variant="outlined" component="span">
+                  Upload image
+                </Button>
+              </label>
+            </div>
+
             <TextField
               margin="dense"
               id="outlined-multiline-flexible"
@@ -383,30 +513,6 @@ function FormDialog(props) {
               defaultValue={description}
               fullWidth
               onChange={handleDescriptionChange}
-            />
-            <BasicSelect
-              onChange={handleCategoryChange}
-              selected={category || 'All books'}
-              options={categoryOptions}
-              label="Category"
-            />
-            <TextField
-              margin="dense"
-              id="publisher"
-              label="Publisher"
-              type="text"
-              defaultValue={publisher}
-              fullWidth
-              onChange={handlePublisherChange}
-            />
-            <TextField
-              margin="dense"
-              id="serNo"
-              label="Serial No"
-              type="text"
-              defaultValue={serNo}
-              fullWidth
-              onChange={handleSerialNumberChange}
             />
           </>
         )}
@@ -452,7 +558,12 @@ FormDialog.propTypes = {
     ])
   ),
   book: PropTypes.objectOf(
-    PropTypes.oneOfType([PropTypes.string, PropTypes.array, PropTypes.number])
+    PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.array,
+      PropTypes.number,
+      PropTypes.objectOf({}),
+    ])
   ),
   onEditUser: PropTypes.func.isRequired,
   onEditBook: PropTypes.func.isRequired,
@@ -472,8 +583,8 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  onEditUser: (authUserRoles, userId, email, roles, name, bio, token) =>
-    dispatch(editUser(authUserRoles, userId, email, roles, name, bio, token)),
+  onEditUser: (authUserRoles, userId, email, roles, name, image, bio, token) =>
+    dispatch(editUser(authUserRoles, userId, email, roles, name, image, bio, token)),
   onEditBook: (
     authUserRoles,
     bookId,
@@ -482,6 +593,7 @@ const mapDispatchToProps = (dispatch) => ({
     year,
     description,
     category,
+    image,
     publisher,
     serNo,
     token
@@ -495,6 +607,7 @@ const mapDispatchToProps = (dispatch) => ({
         year,
         description,
         category,
+        image,
         publisher,
         serNo,
         token
@@ -502,11 +615,33 @@ const mapDispatchToProps = (dispatch) => ({
     ),
   onGetUsers: (token) => dispatch(getUsers(token)),
   onGetBooks: (token) => dispatch(getBooks(token)),
-  onAddUser: (authUserRoles, email, username, password, roles, name, bio, token) =>
-    dispatch(addUser(authUserRoles, email, username, password, roles, name, bio, token)),
-  onAddBook: (authUserRoles, title, author, year, description, category, publisher, serNo, token) =>
+  onAddUser: (authUserRoles, email, username, password, roles, name, image, bio, token) =>
+    dispatch(addUser(authUserRoles, email, username, password, roles, name, image, bio, token)),
+  onAddBook: (
+    authUserRoles,
+    title,
+    author,
+    year,
+    description,
+    category,
+    image,
+    publisher,
+    serNo,
+    token
+  ) =>
     dispatch(
-      addBook(authUserRoles, title, author, year, description, category, publisher, serNo, token)
+      addBook(
+        authUserRoles,
+        title,
+        author,
+        year,
+        description,
+        category,
+        image,
+        publisher,
+        serNo,
+        token
+      )
     ),
 });
 
