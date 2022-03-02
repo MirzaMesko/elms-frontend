@@ -12,6 +12,7 @@ import Links from './components/Links';
 import Login from './components/Login';
 import Register from './components/SignUp';
 import LendOrReturn from './components/LendOrReturn';
+import Settings from './components/Settings';
 
 function App(props) {
   const {
@@ -64,6 +65,7 @@ function App(props) {
               <LendOrReturn user={authUser} history={history} books={books} users={users} />
             )}
           />
+          <Route path="/users/settings/:id" render={() => <Settings authUser={authUser} />} />
           <Route
             path="/"
             exact
