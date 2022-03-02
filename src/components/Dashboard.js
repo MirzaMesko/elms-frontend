@@ -8,20 +8,18 @@ import Drawer from '@material-ui/core/Drawer';
 import IconButton from '@material-ui/core/IconButton';
 import Link from '@material-ui/core/Link';
 import List from '@material-ui/core/List';
-import Avatar from '@material-ui/core/Avatar';
 import { makeStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import MenuIcon from '@material-ui/icons/Menu';
 import NotificationsIcon from '@material-ui/icons/Notifications';
-// import PersonIcon from '@material-ui/icons/Person';
-import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { NavLink as RouterLink } from 'react-router-dom';
 import MainListItems from './ListItems';
 import { getCurrentUser } from '../actions/users';
+import BasicMenu from './Menu';
 
 function Copyright() {
   return (
@@ -78,12 +76,12 @@ const useStyles = makeStyles((theme) => ({
   appBarSpacer: theme.mixins.toolbar,
   content: {
     flexGrow: 1,
-    height: '100vh',
+    minHeight: '100vh',
     overflow: 'auto',
   },
   container: {
     paddingTop: theme.spacing(0),
-    paddingBottom: theme.spacing(1),
+    paddingBottom: theme.spacing(0),
     paddingLeft: '0px',
     paddingRight: '0px',
   },
@@ -119,7 +117,7 @@ function Dashboard(props) {
   };
 
   const wrapper = React.createRef();
-  const { onLogout, children, roles, userAvatar } = props;
+  const { onLogout, children, roles, userAvatar, username } = props;
   const isAdmin = roles.includes('Admin') || roles.includes('Librarian');
 
   const logout = () => {
@@ -156,16 +154,7 @@ function Dashboard(props) {
               <NotificationsIcon />
             </Badge>
           </IconButton>
-          <IconButton color="inherit">
-            <Badge color="secondary">
-              <Avatar src={userAvatar} />
-            </Badge>
-          </IconButton>
-          <IconButton color="inherit" edge="end" onClick={logout}>
-            <Badge color="secondary">
-              <PowerSettingsNewIcon />
-            </Badge>
-          </IconButton>
+          <BasicMenu userAvatar={userAvatar} onLogout={logout} username={username} />
         </Toolbar>
       </AppBar>
       <Drawer
@@ -197,6 +186,7 @@ Dashboard.propTypes = {
   children: PropTypes.element.isRequired,
   roles: PropTypes.arrayOf(PropTypes.string),
   userAvatar: PropTypes.string.isRequired,
+  username: PropTypes.string.isRequired,
 };
 
 Dashboard.defaultProps = {
@@ -206,6 +196,7 @@ Dashboard.defaultProps = {
 const mapStateToProps = (state) => ({
   token: state.users.token,
   userAvatar: state.users.authUser.image,
+  username: state.users.authUser.username,
 });
 
 const mapDispatchToProps = (dispatch) => ({
