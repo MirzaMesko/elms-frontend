@@ -91,7 +91,7 @@ const ConciseBook = (props) => {
 };
 
 ConciseBook.propTypes = {
-  book: PropTypes.objectOf(PropTypes.String).isRequired,
+  book: PropTypes.objectOf(PropTypes.objectOf(PropTypes.string), PropTypes.String).isRequired,
   onReturnBook: PropTypes.func.isRequired,
   lend: PropTypes.func.isRequired,
 };
