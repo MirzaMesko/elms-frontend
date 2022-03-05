@@ -114,6 +114,8 @@ export function deleteBook(authUserRoles, id, token) {
 export function lendBook(book, user, authUserRoles, token) {
   const owed = user.owedBooks;
   owed.push(book._id);
+  const history = user.readingHistory;
+  history.push(book._id);
   const timeOfLending = new Date().getTime() + 1000 * 3600 * 168;
   const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
   const url = `http://localhost:3500/users`;
@@ -130,6 +132,7 @@ export function lendBook(book, user, authUserRoles, token) {
           image: user.image,
           bio: user.bio,
           newOwedBooks: owed,
+          readingHistory: history,
         },
         { headers }
       )
@@ -178,6 +181,7 @@ export function returnBook(book, user, newOwedBooks, authUserRoles, token) {
           image: user.image,
           bio: user.bio,
           newOwedBooks,
+          readingHistory: user.readingHistory,
         },
         { headers }
       )
