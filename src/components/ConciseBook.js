@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
+import NotificationsIcon from '@material-ui/icons/Notifications';
 import Button from '@material-ui/core/Button';
 import editionPlaceholder from '../utils/edition_placeholder.png';
 
@@ -40,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const ConciseBook = (props) => {
-  const { onReturnBook, book, lend } = props;
+  const { onReturnBook, book, lend, onNotifyUser } = props;
   const classes = useStyles();
 
   if (!book) {
@@ -54,15 +55,27 @@ const ConciseBook = (props) => {
         <div style={{ marginLeft: '2rem', width: '100%' }}>
           <div className={classes.firstRow}>
             <Typography variant="h6">{book.serNo}</Typography>
-            {book.available === 'false' ? (
-              <Button variant="outlined" color="primary" onClick={() => onReturnBook(book)}>
-                <ArrowBackIcon style={{ marginRight: '0.5rem' }} /> Return
-              </Button>
-            ) : (
-              <Button variant="outlined" color="primary" onClick={() => lend(book)}>
-                Lend <ArrowForwardIcon style={{ marginLeft: '0.5rem' }} />
-              </Button>
-            )}
+            {lend || onReturnBook ? (
+              <div>
+                {book.available === 'false' ? (
+                  <div>
+                    {onReturnBook ? (
+                      <Button variant="outlined" color="primary" onClick={() => onReturnBook(book)}>
+                        <ArrowBackIcon style={{ marginRight: '0.5rem' }} /> Return
+                      </Button>
+                    ) : (
+                      <Button variant="outlined" color="primary" onClick={() => onNotifyUser(book)}>
+                        <NotificationsIcon style={{ marginRight: '0.5rem' }} /> set notification
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  <Button variant="outlined" color="primary" onClick={() => lend(book)}>
+                    Lend <ArrowForwardIcon style={{ marginLeft: '0.5rem' }} />
+                  </Button>
+                )}
+              </div>
+            ) : null}
           </div>
           <div className={classes.firstRow}>
             <div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -72,7 +85,7 @@ const ConciseBook = (props) => {
               </Typography>
             </div>
 
-            {book.owedBy?.dueDate.length > 1 && (
+            {(lend || onReturnBook) && book.owedBy?.dueDate.length > 1 && (
               <Typography
                 style={{
                   padding: '0.3rem 1rem',
@@ -92,8 +105,15 @@ const ConciseBook = (props) => {
 
 ConciseBook.propTypes = {
   book: PropTypes.objectOf(PropTypes.objectOf(PropTypes.string), PropTypes.String).isRequired,
-  onReturnBook: PropTypes.func.isRequired,
-  lend: PropTypes.func.isRequired,
+  onReturnBook: PropTypes.func,
+  lend: PropTypes.func,
+  onNotifyUser: PropTypes.func,
+};
+
+ConciseBook.defaultProps = {
+  onReturnBook: null,
+  lend: null,
+  onNotifyUser: null,
 };
 
 export default ConciseBook;
