@@ -1,5 +1,4 @@
 import AppBar from '@material-ui/core/AppBar';
-import Badge from '@material-ui/core/Badge';
 import Box from '@material-ui/core/Box';
 import { connect } from 'react-redux';
 import Container from '@material-ui/core/Container';
@@ -12,14 +11,13 @@ import { makeStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import MenuIcon from '@material-ui/icons/Menu';
-import NotificationsIcon from '@material-ui/icons/Notifications';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { NavLink as RouterLink } from 'react-router-dom';
 import MainListItems from './ListItems';
-import { getCurrentUser } from '../actions/users';
 import BasicMenu from './Menu';
+import NotificationsMenu from './NotificationsMenu';
 
 function Copyright() {
   return (
@@ -112,17 +110,32 @@ const useStyles = makeStyles((theme) => ({
 function Dashboard(props) {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
+  const [newNotifications, setNewNotifications] = React.useState(0);
   const toggleDrawerOpen = () => {
     setOpen(!open);
   };
 
   const wrapper = React.createRef();
-  const { onLogout, children, roles, userAvatar, username } = props;
+  const { onLogout, children, roles, userAvatar, username, users } = props;
   const isAdmin = roles.includes('Admin') || roles.includes('Librarian');
+
+  const currentUser = users.filter((u) => u.username === username);
 
   const logout = () => {
     onLogout();
   };
+
+  const seeNotifications = () => {
+    setNewNotifications(0);
+  };
+
+  React.useEffect(() => {
+    const notSeenNotifications = currentUser[0]?.notifications.filter((n) => n.seen === 'false');
+    if (notSeenNotifications) {
+      setNewNotifications(notSeenNotifications);
+    }
+  }, [users]);
+
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -149,11 +162,14 @@ function Dashboard(props) {
               Elms
             </RouterLink>
           </Typography>
-          <IconButton color="inherit">
-            <Badge badgeContent={0} color="secondary">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
+          <NotificationsMenu
+            badgeContent={newNotifications?.length}
+            notifications={currentUser[0]?.notifications
+              .slice(currentUser[0]?.notifications.length - 3)
+              .reverse()}
+            username={username}
+            resetBadge={seeNotifications}
+          />
           <BasicMenu userAvatar={userAvatar} onLogout={logout} username={username} />
         </Toolbar>
       </AppBar>
@@ -187,6 +203,7 @@ Dashboard.propTypes = {
   roles: PropTypes.arrayOf(PropTypes.string),
   userAvatar: PropTypes.string.isRequired,
   username: PropTypes.string.isRequired,
+  users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 Dashboard.defaultProps = {
@@ -197,10 +214,7 @@ const mapStateToProps = (state) => ({
   token: state.users.token,
   userAvatar: state.users.authUser.image,
   username: state.users.authUser.username,
+  users: state.users.users,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  onGetCurrentUser: (token) => dispatch(getCurrentUser(token)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);
+export default connect(mapStateToProps)(Dashboard);
