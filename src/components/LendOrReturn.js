@@ -16,8 +16,8 @@ import { makeStyles, styled } from '@material-ui/core/styles';
 import CustomizedSnackbars from './Snackbar';
 import ConciseBook from './ConciseBook';
 import Profile from './Profile';
-import { getBooks, lendBook, returnBook } from '../actions/books';
-import { getUsers } from '../actions/users';
+import { getBooks, lendBook, returnBook, setNotification } from '../actions/books';
+import { getUsers, notifyUser } from '../actions/users';
 
 const BootstrapInput = styled(InputBase)(({ theme }) => ({
   'label + &': {
@@ -97,6 +97,8 @@ function LendOrReturn(props) {
     onGetUsers,
     onLendBook,
     onReturnBook,
+    onSetNotification,
+    onNotifyUser,
   } = props;
   const classes = useStyles();
   const [search, setSearch] = React.useState('');
@@ -154,12 +156,21 @@ function LendOrReturn(props) {
 
   const returnABook = (book) => {
     const newOwedBooks = owedBooks.filter((i) => i !== book._id);
-    onReturnBook(book, user, newOwedBooks, authUserRoles, token).then((resp) => {
+    onReturnBook(token, authUserRoles, book, user, newOwedBooks).then((resp) => {
       if (resp.status !== 200) {
         showSnackbar(true, 'error', resp.message);
       }
       if (resp.status === 200) {
         showSnackbar(true, 'success', `Book ${book.title} was returned`);
+        onNotifyUser(
+          token,
+          authUserRoles,
+          book.reservedBy[0],
+          `${book.title} by ${book.author} is now available.`
+        ).then((response) => {
+          // eslint-disable-next-line no-console
+          console.log(response);
+        });
         onGetBooks(token);
         onGetUsers(token);
       }
@@ -173,6 +184,23 @@ function LendOrReturn(props) {
       }
       if (resp.status === 200) {
         showSnackbar(true, 'success', `Book ${book.title} was lent to ${user.username}`);
+        onGetBooks(token);
+        onGetUsers(token);
+      }
+    });
+  };
+
+  const setNewNotification = (book) => {
+    onSetNotification(token, authUserRoles, book, user._id).then((resp) => {
+      if (resp.status !== 200) {
+        showSnackbar(true, 'error', resp.message);
+      }
+      if (resp.status === 200) {
+        showSnackbar(
+          true,
+          'success',
+          `User ${user.username} will be notified when ${book.title} by ${book.author} is available.`
+        );
         onGetBooks(token);
         onGetUsers(token);
       }
@@ -204,7 +232,7 @@ function LendOrReturn(props) {
           searchResults.map((bookId) => {
             const match = books.filter((book) => book === bookId);
             return match.map((b) => (
-              <ConciseBook book={b} onReturnBook={returnABook} lend={lend} key={b._id} />
+              <ConciseBook book={b} lend={lend} onNotifyUser={setNewNotification} key={b._id} />
             ));
           })
         )}
@@ -217,9 +245,7 @@ function LendOrReturn(props) {
   ) : (
     owedBooks.map((bookId) => {
       const match = books.filter((book) => book._id === bookId);
-      return match.map((owedBook) => (
-        <ConciseBook book={owedBook} onReturnBook={returnABook} lend={lend} />
-      ));
+      return match.map((owedBook) => <ConciseBook book={owedBook} onReturnBook={returnABook} />);
     })
   );
 
@@ -263,6 +289,8 @@ LendOrReturn.propTypes = {
   authUserRoles: PropTypes.arrayOf(PropTypes.string).isRequired,
   onGetUsers: PropTypes.func.isRequired,
   onReturnBook: PropTypes.func.isRequired,
+  onSetNotification: PropTypes.func.isRequired,
+  onNotifyUser: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -275,9 +303,13 @@ const mapDispatchToProps = (dispatch) => ({
   onGetBooks: (token) => dispatch(getBooks(token)),
   onLendBook: (book, user, authUserRoles, token) =>
     dispatch(lendBook(book, user, authUserRoles, token)),
-  onReturnBook: (book, user, newOwedBooks, authUserRoles, token) =>
-    dispatch(returnBook(book, user, newOwedBooks, authUserRoles, token)),
+  onReturnBook: (token, authUserRoles, book, user, newOwedBooks) =>
+    dispatch(returnBook(token, authUserRoles, book, user, newOwedBooks)),
   onGetUsers: (token) => dispatch(getUsers(token)),
+  onSetNotification: (token, authUserRoles, book, userId) =>
+    dispatch(setNotification(token, authUserRoles, book, userId)),
+  onNotifyUser: (token, authUserRoles, userId, message) =>
+    dispatch(notifyUser(token, authUserRoles, userId, message)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(LendOrReturn);
