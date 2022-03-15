@@ -41,7 +41,7 @@ function NotificationsMenu(props) {
   };
 
   const goToNotifications = () => {
-    history.push(`/users/settings/${username}`);
+    history.push(`/users/settings/${username}/notifications`);
     handleClose();
   };
 
