@@ -28,7 +28,7 @@ function BasicMenu(props) {
   };
 
   const goToSettings = () => {
-    history.push(`/users/settings/${username}`);
+    history.push(`/users/settings/${username}/profile`);
     handleClose();
   };
 
