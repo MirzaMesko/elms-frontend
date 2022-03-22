@@ -20,6 +20,7 @@ import { FormControl, OutlinedInput, InputLabel } from '@material-ui/core';
 import { NavLink } from 'react-router-dom';
 import { login, dismissAlert } from '../actions/auth';
 import Alert from './Alert';
+import logo from '../utils/logo.png';
 
 function Copyright() {
   return (
@@ -89,6 +90,7 @@ function Login(props) {
       <Alert show={error} title="Error" message={message} onClose={onDismissAlert} />
       <CssBaseline />
       <div className={classes.paper}>
+        <img src={logo} alt="logo" style={{ marginBottom: '2rem' }} />
         <Avatar className={classes.avatar}>
           <LockOutlinedIcon />
         </Avatar>
