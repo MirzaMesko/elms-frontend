@@ -55,7 +55,8 @@ export function authCheckState() {
       if (expirationDate >= new Date()) {
         const username = localStorage.getItem('username');
         const roles = localStorage.getItem('roles').split(',');
-        dispatch(authSuccess(token, { username, roles }));
+        const image = localStorage.getItem('userImage');
+        dispatch(authSuccess(token, { username, roles, image }));
         dispatch(checkAuthTimeout((expirationDate.getTime() - new Date().getTime()) / 1000));
       } else {
         dispatch(logout());
@@ -81,6 +82,7 @@ export function login(username, password) {
         };
         localStorage.setItem('username', decoded.UserInfo.username);
         localStorage.setItem('roles', Object.values(decoded.UserInfo.roles));
+        localStorage.setItem('userImage', decoded.UserInfo.image);
         dispatch(authSuccess(response.data.accessToken, user));
       })
       .catch((error) => {
