@@ -342,6 +342,7 @@ function FormDialog(props) {
                 <MulitpleSelect
                   onChange={handleRoleChange}
                   selected={roles}
+                  disabled={!roles.includes('Admin')}
                   options={roleOptions}
                   label="Roles"
                 />
