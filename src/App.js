@@ -8,6 +8,8 @@ import Dashboard from './components/Dashboard';
 import ManageUsers from './components/ManageUsers';
 import ManageBooks from './components/ManageBooks';
 import { logout, authCheckState } from './actions/auth';
+import { getBooks } from './actions/books';
+import { getUsers } from './actions/users';
 import Links from './components/Links';
 import Login from './components/Login';
 import Register from './components/SignUp';
@@ -25,11 +27,19 @@ function App(props) {
     users,
     onTryAutoSignup,
     books,
+    onGetBooks,
+    onGetUsers,
+    token,
   } = props;
 
   React.useEffect(() => {
     onTryAutoSignup();
   }, []);
+
+  React.useEffect(() => {
+    onGetBooks(token);
+    onGetUsers(token);
+  }, [token]);
 
   let routes = (
     <Switch>
@@ -65,7 +75,10 @@ function App(props) {
               <LendOrReturn user={authUser} history={history} books={books} users={users} />
             )}
           />
-          <Route path="/users/settings/:id" render={() => <Settings authUser={authUser} />} />
+          <Route
+            path="/users/settings/:id"
+            render={() => <Settings authUser={authUser} users={users} books={books} />}
+          />
           <Route
             path="/"
             exact
@@ -93,6 +106,8 @@ App.propTypes = {
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   books: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   token: PropTypes.string.isRequired,
+  onGetBooks: PropTypes.func.isRequired,
+  onGetUsers: PropTypes.func.isRequired,
 };
 
 App.defaultProps = {
@@ -115,6 +130,8 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
   onLogout: () => dispatch(logout()),
   onTryAutoSignup: () => dispatch(authCheckState()),
+  onGetBooks: (token) => dispatch(getBooks(token)),
+  onGetUsers: (token) => dispatch(getUsers(token)),
 });
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(App));
