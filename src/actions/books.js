@@ -165,7 +165,7 @@ export function lendBook(book, user, authUserRoles, token) {
       });
 }
 
-export function returnBook(book, user, newOwedBooks, authUserRoles, token) {
+export function returnBook(token, authUserRoles, book, user, newOwedBooks) {
   const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
   const url = `http://localhost:3500/users`;
 
@@ -175,13 +175,7 @@ export function returnBook(book, user, newOwedBooks, authUserRoles, token) {
         url,
         {
           id: user._id,
-          email: user.email,
-          roles: Object.values(user.roles),
-          name: user.name,
-          image: user.image,
-          bio: user.bio,
           newOwedBooks,
-          readingHistory: user.readingHistory,
         },
         { headers }
       )
@@ -191,19 +185,9 @@ export function returnBook(book, user, newOwedBooks, authUserRoles, token) {
             .put(
               `http://localhost:3500/books`,
               {
-                authUserRoles,
                 id: book._id,
-                title: book.title,
-                author: book.author,
-                year: book.year,
-                description: book.description,
-                category: book.category,
-                image: book.image,
-                publisher: book.publisher,
-                serNo: book.serNo,
                 available: 'true',
                 owedBy: { userId: '', dueDate: '' },
-                token,
               },
               { headers }
             )
@@ -212,4 +196,24 @@ export function returnBook(book, user, newOwedBooks, authUserRoles, token) {
         }
         return response;
       });
+}
+
+export function setNotification(token, authUserRoles, book, userId) {
+  const { reservedBy } = book;
+  reservedBy.push(userId);
+  const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
+  const url = `http://localhost:3500/books`;
+
+  return () =>
+    axios
+      .put(
+        url,
+        {
+          id: book._id,
+          reservedBy,
+        },
+        { headers }
+      )
+      .then((resp) => resp)
+      .catch((error) => error.response.data);
 }
