@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -109,7 +110,9 @@ export default function Links(props) {
               <Card title="Manage Users " text="Add, edit or remove users from Elms" />
               <AvatarGroup total={users.length} max={8}>
                 {users.map((u) => (
-                  <Avatar src={u.image}>{u.username.slice(0, 1)}</Avatar>
+                  <Avatar src={u.image} key={u._id}>
+                    {u.username.slice(0, 1)}
+                  </Avatar>
                 ))}
               </AvatarGroup>
             </Paper>
@@ -130,7 +133,9 @@ export default function Links(props) {
               <Card title="Manage Books " text="Add, edit or remove books from Elms" />
               <AvatarGroup total={books.length} max={8}>
                 {books.map((u) => (
-                  <Avatar src={u.image}>{u.title.slice(0, 1)}</Avatar>
+                  <Avatar src={u.image} key={u._id}>
+                    {u.title.slice(0, 1)}
+                  </Avatar>
                 ))}
               </AvatarGroup>
             </Paper>
@@ -154,7 +159,9 @@ export default function Links(props) {
               <Card title="Search books & more " text="Find the book you're looking for" />
               <AvatarGroup total={books.length} max={8}>
                 {books.map((u) => (
-                  <Avatar src={u.image}>{u.title.slice(0, 1)}</Avatar>
+                  <Avatar src={u.image} key={u._id}>
+                    {u.title.slice(0, 1)}
+                  </Avatar>
                 ))}
               </AvatarGroup>
             </Paper>
