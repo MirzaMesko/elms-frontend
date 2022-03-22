@@ -97,3 +97,25 @@ export function deleteUser(authUserRoles, id, token) {
       .then((response) => response)
       .catch((error) => error.response.data);
 }
+
+export function notifyUser(token, authUserRoles, userId, message) {
+  const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
+  const url = `http://localhost:3500/users`;
+
+  return () =>
+    axios
+      .put(url, { id: userId, newNotification: message, seen: 'false' }, { headers })
+      .then((response) => response)
+      .catch((error) => error.response.data);
+}
+
+export function updateNotifications(token, roles, userId, notifications) {
+  const headers = { Authorization: `Bearer ${token}`, roles };
+  const url = `http://localhost:3500/users`;
+
+  return () =>
+    axios
+      .put(url, { id: userId, notifications }, { headers })
+      .then((response) => response)
+      .catch((error) => error.response.data);
+}
