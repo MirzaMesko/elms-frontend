@@ -22,6 +22,7 @@ import { FormControl, OutlinedInput, FormHelperText, InputLabel } from '@materia
 import { login, register, dismissAlert } from '../actions/auth';
 import Alert from './Alert';
 import CustomizedSnackbars from './Snackbar';
+import logo from '../utils/logo.png';
 
 function Copyright() {
   return (
@@ -161,6 +162,7 @@ function Register(props) {
       <CustomizedSnackbars show={openSnackbar} severity={severity} message={errMessage} />
       <CssBaseline />
       <div className={classes.paper}>
+        <img src={logo} alt="logo" style={{ marginBottom: '2rem' }} />
         <Avatar className={classes.avatar}>
           <LockOutlinedIcon />
         </Avatar>
@@ -238,6 +240,7 @@ function Register(props) {
             type="submit"
             fullWidth
             variant="contained"
+            disabled={!username || !password || !email}
             color="primary"
             className={classes.submit}
             onClick={signUp}
