@@ -1,13 +1,15 @@
 /* eslint-disable no-underscore-dangle */
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 import Chip from '@material-ui/core/Chip';
 import Tabs from '@material-ui/core/Tabs';
+import Box from '@material-ui/core/Box';
 import Tab from '@material-ui/core/Tab';
 import EditIcon from '@material-ui/icons/Edit';
 import Button from '@material-ui/core/Button';
@@ -16,6 +18,8 @@ import Typography from '@material-ui/core/Typography';
 import FormDialog from './FormDialogue';
 import CustomizedSnackbars from './Snackbar';
 import ConciseBook from './ConciseBook';
+import Notification from './Notification';
+import { updateNotifications } from '../actions/users';
 
 const useStyles = makeStyles(() => ({
   image: {
@@ -39,7 +43,36 @@ const useStyles = makeStyles(() => ({
     justifyContent: 'center',
     margin: '5rem 1rem',
   },
+  notification: {
+    display: 'flex',
+    flexDirection: 'column',
+    maxWidth: '600px',
+    margin: '1rem auto',
+    borderBottom: '1px solid #CCC',
+  },
 }));
+
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`nav-tabpanel-${index}`}
+      aria-labelledby={`nav-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box p={3}>{children}</Box>}
+    </div>
+  );
+}
+
+TabPanel.propTypes = {
+  children: PropTypes.node.isRequired,
+  index: PropTypes.number.isRequired,
+  value: PropTypes.number.isRequired,
+};
 
 const Settings = (props) => {
   const [user, setUser] = React.useState({});
@@ -51,8 +84,21 @@ const Settings = (props) => {
   const [newUser, setNewUser] = React.useState('');
 
   const classes = useStyles();
-  const { users, books } = props;
+  const history = useHistory();
+  const { users, books, onSetNotificationsSeen, token, roles, onDismissNotification } = props;
   const { id } = useParams();
+
+  React.useEffect(() => {
+    if (window.location.href.includes('profile') && value !== 1) {
+      setValue(1);
+    }
+    if (window.location.href.includes('notifications') && value !== 0) {
+      setValue(0);
+    }
+    if (window.location.href.includes('history') && value !== 2) {
+      setValue(0);
+    }
+  }, [window.location.href]);
 
   const showSnackbar = (show, status, message) => {
     setSeverity(status);
@@ -92,8 +138,25 @@ const Settings = (props) => {
     setShowEditDialogue(!showEditDialogue);
   };
 
-  React.useEffect(() => {
+  const dismissNotification = (notification) => {
+    const newNotifications = user.notifications.filter(
+      (n) => n.timestamp !== notification.timestamp
+    );
+    onDismissNotification(token, roles, user._id, newNotifications).then((response) => {
+      if (response) {
+        setUser({ ...user, notifications: newNotifications });
+      }
+    });
+  };
+
+  React.useEffect(async () => {
     const result = users.filter((u) => u.username === id);
+    const notificationsSeen = await result[0].notifications.map((n) => ({
+      message: n.message,
+      timestamp: n.timestamp,
+      seen: 'true',
+    }));
+    onSetNotificationsSeen(token, roles, result[0]._id, notificationsSeen);
     setUser(result[0]);
   }, [users]);
 
@@ -119,7 +182,6 @@ const Settings = (props) => {
         {user.roles ? (
           Object.values(user.roles).map((item) => (
             <Chip
-              // eslint-disable-next-line no-underscore-dangle
               key={item + user._id}
               icon={setIcon(item)}
               size="small"
@@ -130,7 +192,7 @@ const Settings = (props) => {
           ))
         ) : (
           <Chip
-            key="Member"
+            key={user._id}
             icon={setIcon('Member')}
             size="small"
             label="Member"
@@ -163,11 +225,48 @@ const Settings = (props) => {
   const readingHistory = !user.readingHistory?.length ? (
     <Typography className={classes.centered}>No reaading history for this user.</Typography>
   ) : (
-    user.readingHistory.map((bookId) => {
-      const match = books.filter((book) => book._id === bookId);
-      return match.map((owedBook) => <ConciseBook book={owedBook} />);
-    })
+    user.readingHistory
+      .map((bookId) => {
+        const match = books.filter((book) => book._id === bookId);
+        return match.map((owedBook) => <ConciseBook book={owedBook} />);
+      })
+      .reverse()
   );
+
+  const notifications = !user.notifications?.length ? (
+    <Typography className={classes.centered}>Nothing to show here yet.</Typography>
+  ) : (
+    user.notifications
+      .map((n) => <Notification notification={n} dismiss={dismissNotification} key={n.timestamp} />)
+      .reverse()
+  );
+
+  function a11yProps(index) {
+    return {
+      id: `nav-tab-${index}`,
+      'aria-controls': `nav-tabpanel-${index}`,
+    };
+  }
+
+  // eslint-disable-next-line no-shadow
+  function LinkTab(props) {
+    return (
+      <Tab
+        component="a"
+        onClick={(event) => {
+          event.preventDefault();
+          if (!window.history.href?.includes(`${props.href}`)) {
+            history.push(`/users/settings/${user.username}/${props.href}`);
+          }
+        }}
+        {...props}
+      />
+    );
+  }
+
+  LinkTab.propTypes = {
+    href: PropTypes.string.isRequired,
+  };
 
   return (
     <div>
@@ -178,15 +277,19 @@ const Settings = (props) => {
         textColor="primary"
         indicatorColor="primary"
       >
-        <Tab label="My Profile" />
-        <Tab label="reading history" />
-        <Tab label="notifications" />
+        <LinkTab label="notifications" href="notifications" {...a11yProps(0)} />
+        <LinkTab label="profile" href="profile" {...a11yProps(1)} />
+        <LinkTab label="reading history" href="reading history" {...a11yProps(2)} />
       </Tabs>
-      <div style={{ paddingTop: '2rem' }}>
-        {value === 0 && profile}
-        {value === 1 && readingHistory}
-        {value === 2 && <p className={classes.centered}>Nothing to show here yet.</p>}
-      </div>
+      <TabPanel value={value} index={0}>
+        {notifications}
+      </TabPanel>
+      <TabPanel value={value} index={1}>
+        {profile}
+      </TabPanel>
+      <TabPanel value={value} index={2}>
+        {readingHistory}
+      </TabPanel>
     </div>
   );
 };
@@ -194,6 +297,22 @@ const Settings = (props) => {
 Settings.propTypes = {
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   books: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  onSetNotificationsSeen: PropTypes.func.isRequired,
+  onDismissNotification: PropTypes.func.isRequired,
+  roles: PropTypes.arrayOf(PropTypes.string).isRequired,
+  token: PropTypes.string.isRequired,
 };
 
-export default Settings;
+const mapStateToProps = (state) => ({
+  roles: state.users.authUser.roles,
+  token: state.users.token,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  onSetNotificationsSeen: (token, authUserRoles, userId, notifications) =>
+    dispatch(updateNotifications(token, authUserRoles, userId, notifications)),
+  onDismissNotification: (token, authUserRoles, userId, notifications) =>
+    dispatch(updateNotifications(token, authUserRoles, userId, notifications)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Settings);
