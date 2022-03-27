@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
+import WarningIcon from '@material-ui/icons/Warning';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import Button from '@material-ui/core/Button';
 import editionPlaceholder from '../utils/edition_placeholder.png';
@@ -41,8 +42,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const ConciseBook = (props) => {
-  const { onReturnBook, book, lend, onNotifyUser } = props;
+  const { onReturnBook, book, lend, onNotifyUser, sendOverdueReminder } = props;
   const classes = useStyles();
+
+  const isOverdue = new Date(book.owedBy?.dueDate).getTime() < new Date().getTime();
 
   if (!book) {
     return <Typography className={classes.centered}>Nothing to show here.</Typography>;
@@ -60,9 +63,25 @@ const ConciseBook = (props) => {
                 {book.available === 'false' ? (
                   <div>
                     {onReturnBook ? (
-                      <Button variant="outlined" color="primary" onClick={() => onReturnBook(book)}>
-                        <ArrowBackIcon style={{ marginRight: '0.5rem' }} /> Return
-                      </Button>
+                      <>
+                        {isOverdue && (
+                          <Button
+                            variant="outlined"
+                            color="primary"
+                            style={{ marginRight: '0.5rem' }}
+                            onClick={() => sendOverdueReminder(book)}
+                          >
+                            <WarningIcon style={{ marginRight: '0.5rem' }} /> send overdue reminder
+                          </Button>
+                        )}
+                        <Button
+                          variant="outlined"
+                          color="primary"
+                          onClick={() => onReturnBook(book)}
+                        >
+                          <ArrowBackIcon style={{ marginRight: '0.5rem' }} /> Return
+                        </Button>
+                      </>
                     ) : (
                       <Button variant="outlined" color="primary" onClick={() => onNotifyUser(book)}>
                         <NotificationsIcon style={{ marginRight: '0.5rem' }} /> set notification
@@ -90,7 +109,7 @@ const ConciseBook = (props) => {
                 style={{
                   padding: '0.3rem 1rem',
                   fontStyle: 'italic',
-                  color: '#3f51b5',
+                  color: isOverdue ? 'red' : '#3f51b5',
                 }}
               >
                 Due on {book.owedBy.dueDate}
@@ -108,12 +127,14 @@ ConciseBook.propTypes = {
   onReturnBook: PropTypes.func,
   lend: PropTypes.func,
   onNotifyUser: PropTypes.func,
+  sendOverdueReminder: PropTypes.func,
 };
 
 ConciseBook.defaultProps = {
   onReturnBook: null,
   lend: null,
   onNotifyUser: null,
+  sendOverdueReminder: null,
 };
 
 export default ConciseBook;
