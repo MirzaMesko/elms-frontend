@@ -163,7 +163,7 @@ function Dashboard(props) {
             </RouterLink>
           </Typography>
           <NotificationsMenu
-            badgeContent={newNotifications?.length}
+            badgeContent={newNotifications?.length || 0}
             notifications={currentUser[0]?.notifications
               .slice(currentUser[0]?.notifications.length - 3)
               .reverse()}
@@ -188,7 +188,7 @@ function Dashboard(props) {
         <div className={classes.appBarSpacer} />
         <Container maxWidth="lg" className={classes.container}>
           <div ref={wrapper}>{children}</div>
-          <Box pt={28}>
+          <Box pt={18}>
             <Copyright />
           </Box>
         </Container>
