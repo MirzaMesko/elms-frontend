@@ -177,6 +177,27 @@ function LendOrReturn(props) {
     });
   };
 
+  const sendReminder = (book) => {
+    onNotifyUser(
+      token,
+      authUserRoles,
+      book.owedBy.userId,
+      `"${book.title}" by "${book.author}" is overdue. Please return it as soon as possible!`
+    ).then((response) => {
+      if (response.status !== 200) {
+        showSnackbar(true, 'error', response.message);
+      }
+      if (response.status === 200) {
+        showSnackbar(
+          true,
+          'success',
+          `A reminder that "${book.title}" by "${book.author}" is overdue was sent to ${user.username}.`
+        );
+        onGetUsers(token);
+      }
+    });
+  };
+
   const lend = (book) => {
     onLendBook(book, user, authUserRoles, token).then((resp) => {
       if (resp.status !== 200) {
@@ -245,7 +266,13 @@ function LendOrReturn(props) {
   ) : (
     owedBooks.map((bookId) => {
       const match = books.filter((book) => book._id === bookId);
-      return match.map((owedBook) => <ConciseBook book={owedBook} onReturnBook={returnABook} />);
+      return match.map((owedBook) => (
+        <ConciseBook
+          book={owedBook}
+          onReturnBook={returnABook}
+          sendOverdueReminder={sendReminder}
+        />
+      ));
     })
   );
 
