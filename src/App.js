@@ -7,6 +7,7 @@ import './App.css';
 import Dashboard from './components/Dashboard';
 import ManageUsers from './components/ManageUsers';
 import ManageBooks from './components/ManageBooks';
+import ManageOverdueBooks from './components/ManageOverdueBooks';
 import { logout, authCheckState } from './actions/auth';
 import { getBooks } from './actions/books';
 import { getUsers } from './actions/users';
@@ -68,6 +69,11 @@ function App(props) {
             path="/manage/books"
             exact
             render={() => <ManageBooks history={history} users={users} roles={roles} />}
+          />
+          <Route
+            path="/manage/overdue books"
+            exact
+            render={() => <ManageOverdueBooks history={history} users={users} roles={roles} />}
           />
           <Route
             path="/users/lend&return/:id"
