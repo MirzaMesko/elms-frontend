@@ -4,6 +4,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import { makeStyles } from '@material-ui/core/styles';
 import GroupIcon from '@material-ui/icons/Group';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
+import WarningIcon from '@material-ui/icons/Warning';
 import { history as historyPropTypes } from 'history-prop-types';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -47,6 +48,17 @@ const MainListItems = (props) => {
             <MenuBookIcon />
           </ListItemIcon>
           <ListItemText primary="Manage Books" />
+        </ListItem>
+        <ListItem
+          button
+          component={Link}
+          to="/manage/overdue books"
+          selected={history.location.pathname === '/manage/overdue books'}
+        >
+          <ListItemIcon>
+            <WarningIcon />
+          </ListItemIcon>
+          <ListItemText primary="Manage Overdues" />
         </ListItem>
       </div>
     </div>
