@@ -10,6 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import clsx from 'clsx';
 import { NavLink as RouterLink } from 'react-router-dom';
 import Card from './Card';
+import background from '../utils/row-of-books.png';
 
 const drawerWidth = 240;
 
@@ -83,6 +84,15 @@ const useStyles = makeStyles((theme) => ({
     color: 'red',
     textDecoration: 'none',
   },
+  divider: {
+    height: '150px',
+    backgroundImage: `url(${background})`,
+    backgroundPosition: 'center',
+    backgroundSize: 'cover',
+    backgroundRepeat: 'repeat',
+    width: '100%',
+    padding: '20px',
+  },
 }));
 
 export default function Links(props) {
@@ -91,7 +101,7 @@ export default function Links(props) {
 
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
   return (
-    <div style={{ height: '150px', backgroundColor: 'lightBlue', width: '100%', padding: '20px' }}>
+    <div className={classes.divider}>
       <Typography className={classes.title}>Hello {user}</Typography>
       <Grid container spacing={3}>
         {/* Chart */}
