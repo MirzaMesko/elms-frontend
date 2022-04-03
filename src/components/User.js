@@ -1,9 +1,13 @@
+/* eslint-disable no-underscore-dangle */
 import * as React from 'react';
 import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import Chip from '@material-ui/core/Chip';
+import { connect } from 'react-redux';
+import IconButton from '@material-ui/core/IconButton';
+import EmailIcon from '@material-ui/icons/Email';
 import DialogContent from '@material-ui/core/DialogContent';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
@@ -11,6 +15,10 @@ import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 import DialogActions from '@material-ui/core/DialogActions';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
+import { notifyUser } from '../actions/users';
+import CustomizedSnackbars from './Snackbar';
+import EmailDialogue from './EmailDialogue';
+import { sendEmail } from '../actions/email';
 import profilePlaceholder from '../utils/profile-picture-default-png.png';
 
 const useStyles = makeStyles(() => ({
@@ -25,10 +33,21 @@ const useStyles = makeStyles(() => ({
     maxHeight: '500px',
     padding: '1rem',
   },
+  firstRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: '0.3rem',
+  },
 }));
 
-export default function UserDetails(props) {
-  const { open, handleClose, user } = props;
+function UserDetails(props) {
+  // eslint-disable-next-line no-unused-vars
+  const { open, handleClose, user, onNotifyUser, onSendEmail, token, roles } = props;
+  const [showEmailDialogue, setShowEmailDialogue] = React.useState(false);
+  const [severity, setSeverity] = React.useState('');
+  const [openSnackbar, setOpenSnackbar] = React.useState(false);
+  const [errMessage, setErrMessage] = React.useState('');
   const classes = useStyles();
   const image = user?.image ? user.image : profilePlaceholder;
 
@@ -54,8 +73,38 @@ export default function UserDetails(props) {
     return <AccountCircleIcon />;
   };
 
+  const showSnackbar = (show, status, message) => {
+    setSeverity(status);
+    setErrMessage(message);
+    setOpenSnackbar(show);
+    setTimeout(() => {
+      setOpenSnackbar(false);
+    }, 6000);
+  };
+
+  const handleSendEmail = (email, subject, text) => {
+    onSendEmail(token, roles, email, subject, text).then((resp) => {
+      if (resp.status !== 200) {
+        showSnackbar(true, 'error', resp.message);
+      }
+      if (resp.status === 200) {
+        setShowEmailDialogue(false);
+        showSnackbar(true, 'success', `An email  was sent to ${user.username}.`);
+      }
+    });
+  };
+
   return (
     <div>
+      <CustomizedSnackbars show={openSnackbar} severity={severity} message={errMessage} />
+      <EmailDialogue
+        show={showEmailDialogue}
+        close={() => setShowEmailDialogue(false)}
+        emailSubject=""
+        emailText=""
+        sendEmail={handleSendEmail}
+        recepientsEmail={user.email}
+      />
       <Dialog
         onClose={handleClose}
         aria-labelledby="customized-dialog-title"
@@ -65,13 +114,17 @@ export default function UserDetails(props) {
         <div className={classes.container}>
           <img src={image} alt="" className={classes.image} />
           <DialogContent>
-            <Typography gutterBottom variant="h4">
-              {user.username}
-            </Typography>
+            <div className={classes.firstRow}>
+              <Typography gutterBottom variant="h4">
+                {user.username}
+              </Typography>
+              <IconButton aria-label="edit" onClick={() => setShowEmailDialogue(true)}>
+                <EmailIcon fontSize="large" />
+              </IconButton>
+            </div>
             {user.roles ? (
               Object.values(user.roles).map((item) => (
                 <Chip
-                  // eslint-disable-next-line no-underscore-dangle
                   key={item + user._id}
                   icon={setIcon(item)}
                   size="small"
@@ -105,11 +158,9 @@ export default function UserDetails(props) {
 
         <DialogActions>
           <Button autoFocus onClick={handleClose}>
-            back to users
+            back
           </Button>
-          {
-            // eslint-disable-next-line
-          }<Button autoFocus onClick={() => history.push(`/users/lend&return/${user._id}`)}>
+          <Button autoFocus onClick={() => history.push(`/users/lend&return/${user._id}`)}>
             go to lend & return
           </Button>
         </DialogActions>
@@ -122,4 +173,22 @@ UserDetails.propTypes = {
   open: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
   user: PropTypes.objectOf(PropTypes.string, PropTypes.objectOf(PropTypes.string)).isRequired,
+  onNotifyUser: PropTypes.func.isRequired,
+  onSendEmail: PropTypes.func.isRequired,
+  roles: PropTypes.arrayOf(PropTypes.string).isRequired,
+  token: PropTypes.string.isRequired,
 };
+
+const mapStateToProps = (state) => ({
+  token: state.users.token,
+  roles: state.users.authUser.roles,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  onSendEmail: (token, authUserRoles, email, subject, text) =>
+    dispatch(sendEmail(token, authUserRoles, email, subject, text)),
+  onNotifyUser: (token, authUserRoles, userId, message) =>
+    dispatch(notifyUser(token, authUserRoles, userId, message)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(UserDetails);
