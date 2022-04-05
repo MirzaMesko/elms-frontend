@@ -1,7 +1,7 @@
 import { Typography } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
-import { makeStyles } from '@material-ui/core/styles';
+import { withStyles, makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -12,6 +12,8 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import Toolbar from '@material-ui/core/Toolbar';
 import Avatar from '@material-ui/core/Avatar';
+import Tooltip from '@material-ui/core/Tooltip';
+import Fade from '@material-ui/core/Fade';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -128,6 +130,15 @@ const useStyles = makeStyles((theme) => ({
     width: 1,
   },
 }));
+
+const LightTooltip = withStyles((theme) => ({
+  tooltip: {
+    backgroundColor: theme.palette.common.white,
+    color: '#3f51b5',
+    boxShadow: theme.shadows[1],
+    fontSize: 11,
+  },
+}))(Tooltip);
 
 function EnhancedTable(props) {
   const classes = useStyles();
@@ -313,12 +324,28 @@ function EnhancedTable(props) {
                                   flexDirection: 'row',
                                 }}
                               >
-                                <IconButton aria-label="edit" onClick={() => onEdit(book)}>
-                                  <EditIcon fontSize="small" />
-                                </IconButton>
-                                <IconButton aria-label="edit" onClick={() => onConfirmDelete(book)}>
-                                  <DeleteIcon fontSize="small" />
-                                </IconButton>
+                                <LightTooltip
+                                  TransitionComponent={Fade}
+                                  TransitionProps={{ timeout: 600 }}
+                                  title="Edit book"
+                                >
+                                  <IconButton aria-label="edit" onClick={() => onEdit(book)}>
+                                    <EditIcon fontSize="small" />
+                                  </IconButton>
+                                </LightTooltip>
+
+                                <LightTooltip
+                                  TransitionComponent={Fade}
+                                  TransitionProps={{ timeout: 600 }}
+                                  title="Delete book"
+                                >
+                                  <IconButton
+                                    aria-label="edit"
+                                    onClick={() => onConfirmDelete(book)}
+                                  >
+                                    <DeleteIcon fontSize="small" />
+                                  </IconButton>
+                                </LightTooltip>
                               </div>
                             </TableCell>
                           )}

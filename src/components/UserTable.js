@@ -2,7 +2,7 @@ import { Typography } from '@material-ui/core';
 import Chip from '@material-ui/core/Chip';
 import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
-import { makeStyles } from '@material-ui/core/styles';
+import { withStyles, makeStyles } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -17,6 +17,8 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
 import EditIcon from '@material-ui/icons/Edit';
+import Tooltip from '@material-ui/core/Tooltip';
+import Fade from '@material-ui/core/Fade';
 import DeleteIcon from '@material-ui/icons/Delete';
 import CompareArrowsIcon from '@material-ui/icons/CompareArrows';
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
@@ -158,6 +160,15 @@ const useStyles = makeStyles((theme) => ({
     width: 1,
   },
 }));
+
+const LightTooltip = withStyles((theme) => ({
+  tooltip: {
+    backgroundColor: theme.palette.common.white,
+    color: '#3f51b5',
+    boxShadow: theme.shadows[1],
+    fontSize: 11,
+  },
+}))(Tooltip);
 
 function EnhancedTable(props) {
   const classes = useStyles();
@@ -355,19 +366,37 @@ function EnhancedTable(props) {
                         <TableCell>
                           {roles.includes('Admin') && (
                             <>
-                              <IconButton
-                                aria-label="edit"
-                                // eslint-disable-next-line no-underscore-dangle
-                                onClick={() => history.push(`/users/lend&return/${user._id}`)}
+                              <LightTooltip
+                                TransitionComponent={Fade}
+                                TransitionProps={{ timeout: 600 }}
+                                title="Lend or return books"
                               >
-                                <CompareArrowsIcon fontSize="small" />
-                              </IconButton>
-                              <IconButton aria-label="edit" onClick={() => onEdit(user)}>
-                                <EditIcon fontSize="small" />
-                              </IconButton>
-                              <IconButton aria-label="edit" onClick={() => onConfirmDelete(user)}>
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
+                                <IconButton
+                                  aria-label="edit"
+                                  // eslint-disable-next-line no-underscore-dangle
+                                  onClick={() => history.push(`/users/lend&return/${user._id}`)}
+                                >
+                                  <CompareArrowsIcon fontSize="small" />
+                                </IconButton>
+                              </LightTooltip>
+                              <LightTooltip
+                                TransitionComponent={Fade}
+                                TransitionProps={{ timeout: 600 }}
+                                title="Edit user"
+                              >
+                                <IconButton aria-label="edit" onClick={() => onEdit(user)}>
+                                  <EditIcon fontSize="small" />
+                                </IconButton>
+                              </LightTooltip>
+                              <LightTooltip
+                                TransitionComponent={Fade}
+                                TransitionProps={{ timeout: 600 }}
+                                title="Delete user"
+                              >
+                                <IconButton aria-label="edit" onClick={() => onConfirmDelete(user)}>
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                              </LightTooltip>
                             </>
                           )}
                         </TableCell>
