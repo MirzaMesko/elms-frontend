@@ -53,7 +53,7 @@ export default function BookDetails(props) {
 
         <DialogActions>
           <Button autoFocus onClick={handleClose}>
-            back to books
+            back
           </Button>
         </DialogActions>
       </Dialog>
