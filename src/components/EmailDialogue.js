@@ -51,13 +51,20 @@ function EmailDialog(props) {
   };
 
   const onSendEmail = () => {
-    if (!email || !subject || !text) return;
+    if (!subject) {
+      setSubjectWarning('Subject must not be empty');
+      return;
+    }
+    if (!text) {
+      setTextWarning('This filed must not be empty');
+      return;
+    }
     sendEmail(email, subject, text);
   };
 
   return (
     <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-      <DialogTitle id="form-dialog-title">Send reminder email</DialogTitle>
+      <DialogTitle id="form-dialog-title">Compose email</DialogTitle>
       <DialogContent>
         <div style={{ display: 'flex', height: '20rem' }}>
           <div>
