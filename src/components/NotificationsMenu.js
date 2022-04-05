@@ -74,7 +74,7 @@ function NotificationsMenu(props) {
           </MenuItem>
         ) : (
           notifications.map((notification) => (
-            <MenuItem onClick={goToNotifications}>
+            <MenuItem onClick={goToNotifications} key={notification.timestamp}>
               <div className={classes.notification}>
                 <Typography>{notification.message}</Typography>
                 <Typography variant="subtitle1" style={{ color: '#AAA' }}>
