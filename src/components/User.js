@@ -14,10 +14,14 @@ import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 import DialogActions from '@material-ui/core/DialogActions';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
+import { withStyles, makeStyles } from '@material-ui/core/styles';
+import Tooltip from '@material-ui/core/Tooltip';
+import Fade from '@material-ui/core/Fade';
+import NotificationsIcon from '@material-ui/icons/Notifications';
 import { notifyUser } from '../actions/users';
 import CustomizedSnackbars from './Snackbar';
 import EmailDialogue from './EmailDialogue';
+import NotificationDialogue from './NotificationDialogue';
 import { sendEmail } from '../actions/email';
 import profilePlaceholder from '../utils/profile-picture-default-png.png';
 
@@ -41,10 +45,19 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+const LightTooltip = withStyles((theme) => ({
+  tooltip: {
+    backgroundColor: theme.palette.common.white,
+    color: '#3f51b5',
+    boxShadow: theme.shadows[1],
+    fontSize: 11,
+  },
+}))(Tooltip);
+
 function UserDetails(props) {
-  // eslint-disable-next-line no-unused-vars
   const { open, handleClose, user, onNotifyUser, onSendEmail, token, roles } = props;
   const [showEmailDialogue, setShowEmailDialogue] = React.useState(false);
+  const [showNotificationDialogue, setShowNotificationDialogue] = React.useState(false);
   const [severity, setSeverity] = React.useState('');
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [errMessage, setErrMessage] = React.useState('');
@@ -94,6 +107,18 @@ function UserDetails(props) {
     });
   };
 
+  const handleSendNotification = (text) => {
+    onNotifyUser(token, roles, user._id, text).then((resp) => {
+      if (resp.status !== 200) {
+        showSnackbar(true, 'error', resp.message);
+      }
+      if (resp.status === 200) {
+        setShowNotificationDialogue(false);
+        showSnackbar(true, 'success', `Notification was sent to ${user.username}.`);
+      }
+    });
+  };
+
   return (
     <div>
       <CustomizedSnackbars show={openSnackbar} severity={severity} message={errMessage} />
@@ -104,6 +129,11 @@ function UserDetails(props) {
         emailText=""
         sendEmail={handleSendEmail}
         recepientsEmail={user.email}
+      />
+      <NotificationDialogue
+        show={showNotificationDialogue}
+        close={() => setShowNotificationDialogue(false)}
+        sendNotification={handleSendNotification}
       />
       <Dialog
         onClose={handleClose}
@@ -118,9 +148,34 @@ function UserDetails(props) {
               <Typography gutterBottom variant="h4">
                 {user.username}
               </Typography>
-              <IconButton aria-label="edit" onClick={() => setShowEmailDialogue(true)}>
-                <EmailIcon fontSize="large" />
-              </IconButton>
+              <div>
+                <LightTooltip
+                  TransitionComponent={Fade}
+                  TransitionProps={{ timeout: 600 }}
+                  title={`Send ${user.username} a notification`}
+                >
+                  <IconButton
+                    aria-label="edit"
+                    onClick={() => setShowNotificationDialogue(true)}
+                    color="primary"
+                  >
+                    <NotificationsIcon fontSize="large" />
+                  </IconButton>
+                </LightTooltip>
+                <LightTooltip
+                  TransitionComponent={Fade}
+                  TransitionProps={{ timeout: 600 }}
+                  title={`Send ${user.username} an email`}
+                >
+                  <IconButton
+                    aria-label="edit"
+                    onClick={() => setShowEmailDialogue(true)}
+                    color="primary"
+                  >
+                    <EmailIcon fontSize="large" />
+                  </IconButton>
+                </LightTooltip>
+              </div>
             </div>
             {user.roles ? (
               Object.values(user.roles).map((item) => (
