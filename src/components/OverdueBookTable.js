@@ -2,7 +2,7 @@
 import { Typography } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
-import { makeStyles } from '@material-ui/core/styles';
+import { withStyles, makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -13,6 +13,8 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import Toolbar from '@material-ui/core/Toolbar';
 import Avatar from '@material-ui/core/Avatar';
+import Tooltip from '@material-ui/core/Tooltip';
+import Fade from '@material-ui/core/Fade';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import EmailIcon from '@material-ui/icons/Email';
@@ -132,6 +134,15 @@ const useStyles = makeStyles((theme) => ({
     width: 1,
   },
 }));
+
+const LightTooltip = withStyles((theme) => ({
+  tooltip: {
+    backgroundColor: theme.palette.common.white,
+    color: '#3f51b5',
+    boxShadow: theme.shadows[1],
+    fontSize: 11,
+  },
+}))(Tooltip);
 
 function EnhancedTable(props) {
   const classes = useStyles();
@@ -379,20 +390,35 @@ function EnhancedTable(props) {
                                   flexDirection: 'row',
                                 }}
                               >
-                                <IconButton
-                                  aria-label="edit"
-                                  onClick={() =>
-                                    setEmailInfo(
-                                      book,
-                                      users?.filter((u) => u._id === book.owedBy.userId)
-                                    )
-                                  }
+                                <LightTooltip
+                                  TransitionComponent={Fade}
+                                  TransitionProps={{ timeout: 600 }}
+                                  title="Send e-mail"
                                 >
-                                  <EmailIcon fontSize="small" />
-                                </IconButton>
-                                <IconButton aria-label="edit" onClick={() => onConfirmNotify(book)}>
-                                  <NotificationsIcon fontSize="small" />
-                                </IconButton>
+                                  <IconButton
+                                    aria-label="edit"
+                                    onClick={() =>
+                                      setEmailInfo(
+                                        book,
+                                        users?.filter((u) => u._id === book.owedBy.userId)
+                                      )
+                                    }
+                                  >
+                                    <EmailIcon fontSize="small" />
+                                  </IconButton>
+                                </LightTooltip>
+                                <LightTooltip
+                                  TransitionComponent={Fade}
+                                  TransitionProps={{ timeout: 600 }}
+                                  title="Send notification"
+                                >
+                                  <IconButton
+                                    aria-label="edit"
+                                    onClick={() => onConfirmNotify(book)}
+                                  >
+                                    <NotificationsIcon fontSize="small" />
+                                  </IconButton>
+                                </LightTooltip>
                                 <EmailDialogue
                                   show={showEmailDialogue}
                                   close={() => setShowEmailDialogue(false)}
