@@ -15,7 +15,7 @@ const useStyles = makeStyles(() => ({
   notification: {
     display: 'flex',
     flexDirection: 'column',
-    maxWidth: '100%',
+    width: '90%',
   },
   centered: {
     display: 'flex',
@@ -67,6 +67,7 @@ function NotificationsMenu(props) {
         MenuListProps={{
           'aria-labelledby': 'basic-button',
         }}
+        style={{ maxWidth: '50%' }}
       >
         {!notifications?.length ? (
           <MenuItem onClick={handleClose}>
@@ -76,7 +77,10 @@ function NotificationsMenu(props) {
           notifications.map((notification) => (
             <MenuItem onClick={goToNotifications} key={notification.timestamp}>
               <div className={classes.notification}>
-                <Typography>{notification.message}</Typography>
+                <Typography>
+                  {notification.message.slice(0, 70)}
+                  {notification.message.length > 70 && '...'}
+                </Typography>
                 <Typography variant="subtitle1" style={{ color: '#AAA' }}>
                   {new Date(notification.timestamp).toDateString()},{' '}
                   {new Date(notification.timestamp).getUTCHours()}:
