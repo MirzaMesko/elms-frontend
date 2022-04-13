@@ -238,3 +238,24 @@ export function addNewRating(token, authUserRoles, bookId, userId, newRating) {
       .then((resp) => resp)
       .catch((error) => error.response.data);
 }
+
+export function addReview(token, authUserRoles, bookId, userId, newReview) {
+  const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
+  const url = `http://localhost:3500/books`;
+
+  return () =>
+    axios
+      .put(
+        url,
+        {
+          id: bookId,
+          newReview: {
+            userId,
+            review: newReview,
+          },
+        },
+        { headers }
+      )
+      .then((resp) => resp)
+      .catch((error) => error.response.data);
+}
