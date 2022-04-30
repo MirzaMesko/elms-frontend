@@ -69,7 +69,11 @@ function Ratings(props) {
 Ratings.propTypes = {
   name: PropTypes.string.isRequired,
   onClick: PropTypes.func.isRequired,
-  currentRating: PropTypes.string.isRequired,
+  currentRating: PropTypes.number,
+};
+
+Ratings.defaultProps = {
+  currentRating: 0,
 };
 
 export default Ratings;

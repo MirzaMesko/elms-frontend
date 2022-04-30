@@ -11,10 +11,9 @@ import { connect } from 'react-redux';
 import { history as historyPropTypes } from 'history-prop-types';
 import PropTypes from 'prop-types';
 import React from 'react';
-import CustomizedSnackbars from './Snackbar';
-import FormDialogue from './FormDialogue';
+import CustomizedSnackbars from '../Helpers/Snackbar';
 import OverdueBookTable from './OverdueBookTable';
-import { getBooks } from '../actions/books';
+import { getBooks } from '../../actions/books';
 
 const BootstrapInput = styled(InputBase)(({ theme }) => ({
   'label + &': {
@@ -92,7 +91,6 @@ const useStyles = makeStyles((theme) => ({
 function ManageOverdueBooks(props) {
   const { token, onGetBooks, books, roles, history } = props;
   const classes = useStyles();
-  const [openDialogue, setOpenDialogue] = React.useState(false);
   const [severity, setSeverity] = React.useState('');
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [errMessage, setErrMessage] = React.useState('');
@@ -112,15 +110,6 @@ function ManageOverdueBooks(props) {
     'Classics',
     'Course books',
   ];
-
-  // eslint-disable-next-line no-unused-vars
-  const handleOpen = () => {
-    setOpenDialogue(true);
-  };
-
-  const handleClose = () => {
-    setOpenDialogue(false);
-  };
 
   const showSnackbar = (show, status, message) => {
     setSeverity(status);
@@ -219,12 +208,6 @@ function ManageOverdueBooks(props) {
       </div>
 
       <OverdueBookTable books={searchResults} onShowSnackbar={showSnackbar} history={history} />
-      <FormDialogue
-        show={openDialogue}
-        close={handleClose}
-        onShowSnackbar={showSnackbar}
-        title="Add New Book"
-      />
     </Box>
   );
 }

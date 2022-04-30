@@ -10,7 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import clsx from 'clsx';
 import { NavLink as RouterLink } from 'react-router-dom';
 import Card from './Card';
-import background from '../utils/row-of-books.png';
+import background from '../../utils/row-of-books.png';
 
 const drawerWidth = 240;
 

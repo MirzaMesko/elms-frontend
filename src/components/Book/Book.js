@@ -14,12 +14,12 @@ import Typography from '@material-ui/core/Typography';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import Fade from '@material-ui/core/Fade';
-import editionPlaceholder from '../utils/edition_placeholder2.png';
-import Ratings from './Rating';
-import CustomizedSnackbars from './Snackbar';
-import ReviewsContainer from './ReviewsContainer';
-import ReviewDialog from './ReviewDialogue';
-import { getBooks, addNewRating, addReview } from '../actions/books';
+import editionPlaceholder from '../../utils/edition_placeholder2.png';
+import Ratings from '../Helpers/Rating';
+import CustomizedSnackbars from '../Helpers/Snackbar';
+import ReviewsContainer from '../Review/ReviewsContainer';
+import ReviewDialog from '../Dialogues/ReviewDialogue';
+import { getBooks, addNewRating, addReview } from '../../actions/books';
 
 const useStyles = makeStyles(() => ({
   image: {

@@ -8,7 +8,7 @@ import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import WarningIcon from '@material-ui/icons/Warning';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import Button from '@material-ui/core/Button';
-import editionPlaceholder from '../utils/edition_placeholder.png';
+import editionPlaceholder from '../../utils/edition_placeholder.png';
 
 const useStyles = makeStyles((theme) => ({
   image: {

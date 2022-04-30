@@ -15,9 +15,9 @@ import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { NavLink as RouterLink } from 'react-router-dom';
-import MainListItems from './ListItems';
+import MainListItems from './Helpers/ListItems';
 import BasicMenu from './Menu';
-import NotificationsMenu from './NotificationsMenu';
+import NotificationsMenu from './Notfication/NotificationsMenu';
 
 function Copyright() {
   return (

@@ -13,11 +13,11 @@ import Tabs from '@material-ui/core/Tabs';
 import InputBase from '@material-ui/core/InputBase';
 import Tab from '@material-ui/core/Tab';
 import { makeStyles, styled } from '@material-ui/core/styles';
-import CustomizedSnackbars from './Snackbar';
+import CustomizedSnackbars from '../Helpers/Snackbar';
 import ConciseBook from './ConciseBook';
-import Profile from './Profile';
-import { getBooks, lendBook, returnBook, setNotification } from '../actions/books';
-import { getUsers, notifyUser } from '../actions/users';
+import Profile from '../User/Profile';
+import { getBooks, lendBook, returnBook, setNotification } from '../../actions/books';
+import { getUsers, notifyUser } from '../../actions/users';
 
 const BootstrapInput = styled(InputBase)(({ theme }) => ({
   'label + &': {

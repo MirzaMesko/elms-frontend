@@ -5,16 +5,16 @@ import React from 'react';
 import { Route, Switch, withRouter, Redirect } from 'react-router-dom';
 import './App.css';
 import Dashboard from './components/Dashboard';
-import ManageUsers from './components/ManageUsers';
-import ManageBooks from './components/ManageBooks';
-import ManageOverdueBooks from './components/ManageOverdueBooks';
+import ManageUsers from './components/User/ManageUsers';
+import ManageBooks from './components/Book/ManageBooks';
+import ManageOverdueBooks from './components/Book/ManageOverdueBooks';
 import { logout, authCheckState } from './actions/auth';
 import { getBooks } from './actions/books';
 import { getUsers } from './actions/users';
-import Links from './components/Links';
-import Login from './components/Login';
-import Register from './components/SignUp';
-import LendOrReturn from './components/LendOrReturn';
+import Links from './components/Helpers/Links';
+import Login from './components/Auth/Login';
+import Register from './components/Auth/SignUp';
+import LendOrReturn from './components/Book/LendOrReturn';
 import Settings from './components/Settings';
 
 function App(props) {

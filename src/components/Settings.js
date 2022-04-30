@@ -15,10 +15,10 @@ import EditIcon from '@material-ui/icons/Edit';
 import Button from '@material-ui/core/Button';
 import DialogContent from '@material-ui/core/DialogContent';
 import Typography from '@material-ui/core/Typography';
-import FormDialog from './FormDialogue';
-import CustomizedSnackbars from './Snackbar';
-import ConciseBook from './ConciseBook';
-import Notification from './Notification';
+import FormDialog from './Dialogues/UserDialogue';
+import CustomizedSnackbars from './Helpers/Snackbar';
+import ConciseBook from './Book/ConciseBook';
+import Notification from './Notfication/Notification';
 import { updateNotifications } from '../actions/users';
 
 const useStyles = makeStyles(() => ({

@@ -19,10 +19,10 @@ import PropTypes from 'prop-types';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import { FormControl, OutlinedInput, FormHelperText, InputLabel } from '@material-ui/core';
-import { login, register, dismissAlert } from '../actions/auth';
-import Alert from './Alert';
-import CustomizedSnackbars from './Snackbar';
-import logo from '../utils/logo.png';
+import { login, register, dismissAlert } from '../../actions/auth';
+import Alert from '../Helpers/Alert';
+import CustomizedSnackbars from '../Helpers/Snackbar';
+import logo from '../../utils/logo.png';
 
 function Copyright() {
   return (

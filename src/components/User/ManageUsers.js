@@ -9,14 +9,13 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
 import SearchIcon from '@material-ui/icons/Search';
 import { connect } from 'react-redux';
-import { history as historyPropTypes } from 'history-prop-types';
 import PropTypes from 'prop-types';
 import React from 'react';
-import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
-import CustomizedSnackbars from './Snackbar';
-import FormDialogue from './FormDialogue';
-import BookTable from './BookTable';
-import { getBooks } from '../actions/books';
+import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
+import CustomizedSnackbars from '../Helpers/Snackbar';
+import UserDialogue from '../Dialogues/UserDialogue';
+import UserTable from './UserTable';
+import { getUsers } from '../../actions/users';
 
 const BootstrapInput = styled(InputBase)(({ theme }) => ({
   'label + &': {
@@ -68,7 +67,6 @@ const useStyles = makeStyles((theme) => ({
   container: {
     display: 'flex',
     flexDirection: 'row',
-    margin: theme.spacing(0, 3, 0),
   },
   search: {
     margin: theme.spacing(3, 0, 2),
@@ -80,7 +78,7 @@ const useStyles = makeStyles((theme) => ({
   },
   input: {
     border: '1px solid #3f51b5',
-    padding: '0.3rem 0.3rem',
+    padding: '0.3rem 0',
     marginRight: '0.5rem',
     color: '#3f51b5',
   },
@@ -91,30 +89,19 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function ManageBooks(props) {
-  const { token, onGetBooks, books, roles, history } = props;
+function ManageUsers(props) {
+  const { token, onGetUsers, users, roles } = props;
   const classes = useStyles();
   const [openDialogue, setOpenDialogue] = React.useState(false);
   const [severity, setSeverity] = React.useState('');
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
-  const [errMessage, setErrMessage] = React.useState('');
+  const [newUser, setNewUser] = React.useState('');
   const [searchResults, setSearchResults] = React.useState([]);
-  const [categorySearchResults, setCategorySearchResults] = React.useState([]);
   const [search, setSearch] = React.useState('');
-  const [searchFilter, setSearchFilter] = React.useState('title');
-  const [roleFilter, setRoleFilter] = React.useState('all books');
+  const [filter, setFilter] = React.useState('username');
+  const [roleFilter, setRoleFilter] = React.useState('All');
 
   const isAdmin = roles.includes('Admin');
-  const categories = [
-    'all books',
-    'Politics',
-    'History',
-    'Romance',
-    'Science Fiction & Fantasy',
-    'Biographies',
-    'Classics',
-    'Course books',
-  ];
 
   const handleOpen = () => {
     setOpenDialogue(true);
@@ -126,7 +113,7 @@ function ManageBooks(props) {
 
   const showSnackbar = (show, status, message) => {
     setSeverity(status);
-    setErrMessage(message);
+    setNewUser(message);
     setOpenSnackbar(show);
     setTimeout(() => {
       setOpenSnackbar(false);
@@ -134,44 +121,37 @@ function ManageBooks(props) {
   };
 
   React.useEffect(() => {
-    onGetBooks(token);
+    onGetUsers(token);
   }, [token]);
 
   React.useEffect(() => {
-    setSearchResults(books);
-  }, [books]);
-
-  const filterByCategorie = () => {
-    if (roleFilter === 'all books') {
-      setCategorySearchResults(books);
-      return;
-    }
-    const filteredResults = books.filter(
-      (book) => book.category?.toLowerCase() === roleFilter.toLowerCase()
-    );
-    setCategorySearchResults(filteredResults.reverse());
-  };
+    setSearchResults(users);
+  }, [users]);
 
   React.useEffect(() => {
-    const filteredResults = categorySearchResults.filter(
-      (book) =>
-        (searchFilter === 'title' && book.title.toLowerCase().includes(search.toLowerCase())) ||
-        (searchFilter === 'author' && book.author.toLowerCase().includes(search.toLowerCase())) ||
-        (searchFilter === 'year' && book.year.toString().includes(search)) ||
-        (searchFilter === 'publisher' &&
-          book.publisher.toLowerCase().includes(search.toLowerCase())) ||
-        (searchFilter === 'serNo' && book.serNo.toLowerCase().includes(search.toLowerCase()))
+    const filteredResults = users.filter(
+      (user) =>
+        (filter === 'username' && user.username.toLowerCase().includes(search.toLowerCase())) ||
+        (filter === 'email' && user.email.toLowerCase().includes(search.toLowerCase())) ||
+        (filter === 'name' && user.name && user.name.toLowerCase().includes(search.toLowerCase()))
     );
     setSearchResults(filteredResults.reverse());
-  }, [search, searchFilter, categorySearchResults]);
+  }, [search, filter]);
 
   React.useEffect(() => {
-    filterByCategorie();
+    const filteredResults = users.filter(
+      (user) =>
+        (roleFilter === 'Admin' && Object.values(user.roles).includes(roleFilter)) ||
+        (roleFilter === 'Librarian' && Object.values(user.roles).includes(roleFilter)) ||
+        (roleFilter === 'Member' && Object.values(user.roles).length === 1) ||
+        (roleFilter === 'All' && Object.values(user.roles).includes('Member'))
+    );
+    setSearchResults(filteredResults.reverse());
   }, [roleFilter]);
 
   return (
     <Box>
-      <CustomizedSnackbars show={openSnackbar} severity={severity} message={errMessage} />
+      <CustomizedSnackbars show={openSnackbar} severity={severity} message={newUser} />
       <div className={classes.container}>
         {isAdmin && (
           <Button
@@ -181,8 +161,8 @@ function ManageBooks(props) {
             className={classes.submit}
             onClick={handleOpen}
           >
-            <LibraryBooksIcon style={{ marginRight: '15px' }} />
-            New Book
+            <PersonAddOutlinedIcon style={{ marginRight: '15px' }} />
+            New User
           </Button>
         )}
         <FormControl variant="standard">
@@ -190,9 +170,9 @@ function ManageBooks(props) {
           <BootstrapInput
             id="demo-customized-textbox"
             type="text"
-            placeholder=""
+            placeholder="Search…"
             value={search}
-            label="search books"
+            label="search users"
             onChange={(e) => setSearch(e.target.value)}
           />
           <SearchIconWrapper>
@@ -203,16 +183,13 @@ function ManageBooks(props) {
         <FormControl variant="standard">
           <InputLabel htmlFor="demo-customized-textbox"> </InputLabel>
           <Select
-            value={searchFilter}
-            onChange={(e) => setSearchFilter(e.target.value)}
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
             input={<BootstrapInput />}
           >
-            <MenuItem value="title">title</MenuItem>
-            <MenuItem value="author">author</MenuItem>
-            <MenuItem value="year">year</MenuItem>
-            <MenuItem value="publisher">publisher</MenuItem>
-            {roles !== 'Member' && <MenuItem value="serNo">serial no</MenuItem>}
-            {roles === 'Member' && <MenuItem value="category">category</MenuItem>}
+            <MenuItem value="username">username</MenuItem>
+            <MenuItem value="email">email</MenuItem>
+            <MenuItem value="name">name</MenuItem>
           </Select>
         </FormControl>
         <Typography style={{ margin: '2rem 0.5rem 2rem 9rem' }}>showing</Typography>
@@ -223,41 +200,39 @@ function ManageBooks(props) {
             onChange={(e) => setRoleFilter(e.target.value)}
             input={<BootstrapInput />}
           >
-            {categories.map((category) => (
-              <MenuItem value={category} key={category}>
-                {category}
-              </MenuItem>
-            ))}
+            <MenuItem value="All">all users</MenuItem>
+            <MenuItem value="Admin">Admins</MenuItem>
+            <MenuItem value="Member">Members</MenuItem>
+            <MenuItem value="Librarian">Librarians</MenuItem>
           </Select>
         </FormControl>
       </div>
 
-      <BookTable books={searchResults} onShowSnackbar={showSnackbar} history={history} />
-      <FormDialogue
+      <UserTable users={searchResults} onShowSnackbar={showSnackbar} />
+      <UserDialogue
         show={openDialogue}
         close={handleClose}
         onShowSnackbar={showSnackbar}
-        title="Add New Book"
+        title="Add New User"
       />
     </Box>
   );
 }
 
-ManageBooks.propTypes = {
+ManageUsers.propTypes = {
   token: PropTypes.string.isRequired,
-  onGetBooks: PropTypes.func.isRequired,
-  books: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  onGetUsers: PropTypes.func.isRequired,
+  users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   roles: PropTypes.arrayOf(PropTypes.string).isRequired,
-  history: PropTypes.shape(historyPropTypes).isRequired,
 };
 
 const mapStateToProps = (state) => ({
   token: state.users.token,
-  books: state.books.books,
+  users: state.users.users,
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  onGetBooks: (token) => dispatch(getBooks(token)),
+  onGetUsers: (token) => dispatch(getUsers(token)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ManageBooks);
+export default connect(mapStateToProps, mapDispatchToProps)(ManageUsers);

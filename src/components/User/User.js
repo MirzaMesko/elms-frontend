@@ -18,12 +18,12 @@ import { withStyles, makeStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import Fade from '@material-ui/core/Fade';
 import NotificationsIcon from '@material-ui/icons/Notifications';
-import { notifyUser } from '../actions/users';
-import CustomizedSnackbars from './Snackbar';
-import EmailDialogue from './EmailDialogue';
-import NotificationDialogue from './NotificationDialogue';
-import { sendEmail } from '../actions/email';
-import profilePlaceholder from '../utils/profile-picture-default-png.png';
+import { notifyUser } from '../../actions/users';
+import CustomizedSnackbars from '../Helpers/Snackbar';
+import EmailDialogue from '../Dialogues/EmailDialogue';
+import NotificationDialogue from '../Dialogues/NotificationDialogue';
+import { sendEmail } from '../../actions/email';
+import profilePlaceholder from '../../utils/profile-picture-default-png.png';
 
 const useStyles = makeStyles(() => ({
   image: {

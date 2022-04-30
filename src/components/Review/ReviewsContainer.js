@@ -6,7 +6,7 @@ import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import Ratings from './Rating';
+import Ratings from '../Helpers/Rating';
 import ReviewCard from './Review';
 
 const useStyles = makeStyles((theme) => ({
@@ -58,7 +58,7 @@ function ReviewsContainer(props) {
             </AccordionDetails>
           ) : (
             reviews.map((review) => (
-              <AccordionDetails>
+              <AccordionDetails key={review.timestamp}>
                 <ReviewCard review={review} />
               </AccordionDetails>
             ))
@@ -69,9 +69,13 @@ function ReviewsContainer(props) {
   );
 }
 
+ReviewsContainer.defaultProps = {
+  reviews: [],
+};
+
 ReviewsContainer.propTypes = {
   currentRating: PropTypes.string.isRequired,
-  reviews: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.string)).isRequired,
+  reviews: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.string)),
 };
 
 export default ReviewsContainer;

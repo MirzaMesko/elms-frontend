@@ -8,82 +8,24 @@ import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import Toolbar from '@material-ui/core/Toolbar';
 import Avatar from '@material-ui/core/Avatar';
-import TableSortLabel from '@material-ui/core/TableSortLabel';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
-import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
 import EditIcon from '@material-ui/icons/Edit';
 import Tooltip from '@material-ui/core/Tooltip';
 import Fade from '@material-ui/core/Fade';
 import DeleteIcon from '@material-ui/icons/Delete';
 import CompareArrowsIcon from '@material-ui/icons/CompareArrows';
-import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import FormDialog from './FormDialogue';
-import Confirm from './Confirm';
+import UserDialog from '../Dialogues/UserDialogue';
+import Confirm from '../Helpers/Confirm';
 import UserDetails from './User';
-import { getUsers, deleteUser } from '../actions/users';
-
-function stringToColor(string) {
-  let hash = 0;
-  let i;
-
-  /* eslint-disable no-bitwise */
-  for (i = 0; i < string.length; i += 1) {
-    hash = string.charCodeAt(i) + ((hash << 5) - hash);
-  }
-
-  let color = '#';
-
-  for (i = 0; i < 3; i += 1) {
-    const value = (hash >> (i * 8)) & 0xff;
-    color += `00${value.toString(16)}`.substr(-2);
-  }
-  /* eslint-enable no-bitwise */
-
-  return color;
-}
-
-function stringAvatar(name) {
-  return {
-    sx: {
-      bgcolor: stringToColor(name),
-    },
-    children: `${name.split(' ')[0][0]}${name.split(' ')[1][0]}`,
-  };
-}
-
-function descendingComparator(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
-
-function getComparator(order, orderBy) {
-  return order === 'desc'
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-function stableSort(array, comparator) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-  return stabilizedThis.map((el) => el[0]);
-}
+import EnhancedTableHead from '../Helpers/EnhancedTableHead';
+import { getUsers, deleteUser } from '../../actions/users';
+import * as helpers from '../Helpers/helpers';
 
 const headCells = [
   { id: 'username', numeric: false, disablePadding: false, label: 'Username' },
@@ -92,49 +34,6 @@ const headCells = [
   { id: 'roles', numeric: true, disablePadding: false, label: 'Roles' },
   { id: 'actions', numeric: true, disablePadding: false, label: 'Actions' },
 ];
-
-function EnhancedTableHead(props) {
-  const { classes, order, orderBy, onRequestSort } = props;
-  const createSortHandler = (property) => (event) => {
-    onRequestSort(event, property);
-  };
-
-  return (
-    <TableHead>
-      <TableRow>
-        <TableCell> </TableCell>
-        {headCells.map((headCell) => (
-          <TableCell
-            key={headCell.id}
-            align={headCell.numeric ? 'center' : 'left'}
-            padding={headCell.disablePadding ? 'none' : 'default'}
-            sortDirection={orderBy === headCell.id ? order : false}
-          >
-            <TableSortLabel
-              active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : 'asc'}
-              onClick={createSortHandler(headCell.id)}
-            >
-              {headCell.label}
-              {orderBy === headCell.id ? (
-                <span className={classes.visuallyHidden}>
-                  {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                </span>
-              ) : null}
-            </TableSortLabel>
-          </TableCell>
-        ))}
-      </TableRow>
-    </TableHead>
-  );
-}
-
-EnhancedTableHead.propTypes = {
-  classes: PropTypes.objectOf(PropTypes.string).isRequired,
-  onRequestSort: PropTypes.func.isRequired,
-  order: PropTypes.oneOf(['asc', 'desc']).isRequired,
-  orderBy: PropTypes.string.isRequired,
-};
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -200,26 +99,6 @@ function EnhancedTable(props) {
     setPage(0);
   };
 
-  const roleColor = (item) => {
-    if (item === 'Admin') {
-      return 'secondary';
-    }
-    if (item === 'Librarian') {
-      return 'primary';
-    }
-    return 'default';
-  };
-
-  const setIcon = (item) => {
-    if (item === 'Admin') {
-      return <VerifiedUserIcon />;
-    }
-    if (item === 'Librarian') {
-      return <AssignmentIndIcon />;
-    }
-    return <AccountCircleIcon />;
-  };
-
   const onEdit = (user) => {
     setSelectedUser(user);
     setShowEditDialogue(!showEditDialogue);
@@ -277,6 +156,7 @@ function EnhancedTable(props) {
                 orderBy={orderBy}
                 onRequestSort={handleRequestSort}
                 rowCount={users.length}
+                headCells={headCells}
               />
               <Confirm
                 show={showConfirmDelete}
@@ -293,7 +173,8 @@ function EnhancedTable(props) {
                 cancelText="cancel"
               />
               <TableBody>
-                {stableSort(users, getComparator(order, orderBy))
+                {helpers
+                  .stableSort(users, helpers.getComparator(order, orderBy))
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((user, index) => {
                     const labelId = `enhanced-table-checkbox-${index}`;
@@ -307,7 +188,7 @@ function EnhancedTable(props) {
                           <Avatar
                             src={user.image}
                             alt={user.username}
-                            {...stringAvatar(`${user.username} ${user.name}`)}
+                            {...helpers.stringAvatar(`${user.username} ${user.name}`)}
                           >
                             {user.username.slice(0, 1)}
                           </Avatar>
@@ -340,28 +221,17 @@ function EnhancedTable(props) {
                           onClick={() => onShowUserDetails(user)}
                           style={{ cursor: 'pointer' }}
                         >
-                          {Object.values(user.roles) ? (
-                            Object.values(user.roles).map((item) => (
-                              <Chip
-                                // eslint-disable-next-line no-underscore-dangle
-                                key={item + user._id}
-                                icon={setIcon(item)}
-                                size="small"
-                                label={item}
-                                color={roleColor(item)}
-                                style={{ margin: '3px' }}
-                              />
-                            ))
-                          ) : (
+                          {Object.values(user.roles).map((item) => (
                             <Chip
-                              key="Member"
-                              icon={setIcon('Member')}
+                              // eslint-disable-next-line no-underscore-dangle
+                              key={item + user._id}
+                              icon={helpers.setIcon(item)}
                               size="small"
-                              label="Member"
-                              color={roleColor('Member')}
+                              label={item}
+                              color={helpers.roleColor(item)}
                               style={{ margin: '3px' }}
                             />
-                          )}
+                          ))}
                         </TableCell>
                         <TableCell>
                           {roles.includes('Admin') && (
@@ -413,7 +283,7 @@ function EnhancedTable(props) {
                   handleClose={() => setOpenUserDetails(false)}
                   user={chosenUser}
                 />
-                <FormDialog
+                <UserDialog
                   title="Edit User"
                   show={showEditDialogue}
                   close={() => onEdit()}
