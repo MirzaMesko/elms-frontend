@@ -38,8 +38,10 @@ function App(props) {
   }, []);
 
   React.useEffect(() => {
-    onGetBooks(token);
-    onGetUsers(token);
+    if (token) {
+      onGetBooks(token);
+      onGetUsers(token);
+    }
   }, [token]);
 
   let routes = (
