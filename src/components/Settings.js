@@ -1,16 +1,11 @@
 /* eslint-disable no-underscore-dangle */
 import React from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
-import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
-import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 import Chip from '@material-ui/core/Chip';
 import Tabs from '@material-ui/core/Tabs';
-import Box from '@material-ui/core/Box';
-import Tab from '@material-ui/core/Tab';
 import EditIcon from '@material-ui/icons/Edit';
 import Button from '@material-ui/core/Button';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -19,7 +14,10 @@ import FormDialog from './Dialogues/UserDialogue';
 import CustomizedSnackbars from './Helpers/Snackbar';
 import ConciseBook from './Book/ConciseBook';
 import Notification from './Notfication/Notification';
+import TabPanel from './Helpers/TabPanel';
+import LinkTab from './Helpers/LinkTab';
 import { updateNotifications } from '../actions/users';
+import * as helpers from './Helpers/helpers';
 
 const useStyles = makeStyles(() => ({
   image: {
@@ -31,12 +29,6 @@ const useStyles = makeStyles(() => ({
   container: {
     display: 'flex',
     padding: '1rem',
-  },
-  firstRow: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: '1rem',
   },
   centered: {
     display: 'flex',
@@ -52,28 +44,6 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function TabPanel(props) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`nav-tabpanel-${index}`}
-      aria-labelledby={`nav-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box p={3}>{children}</Box>}
-    </div>
-  );
-}
-
-TabPanel.propTypes = {
-  children: PropTypes.node.isRequired,
-  index: PropTypes.number.isRequired,
-  value: PropTypes.number.isRequired,
-};
-
 const Settings = (props) => {
   const [user, setUser] = React.useState({});
   const [value, setValue] = React.useState(0);
@@ -84,7 +54,6 @@ const Settings = (props) => {
   const [newUser, setNewUser] = React.useState('');
 
   const classes = useStyles();
-  const history = useHistory();
   const { users, books, onSetNotificationsSeen, token, roles, onDismissNotification } = props;
   const { id } = useParams();
 
@@ -107,26 +76,6 @@ const Settings = (props) => {
     setTimeout(() => {
       setOpenSnackbar(false);
     }, 6000);
-  };
-
-  const roleColor = (item) => {
-    if (item === 'Admin') {
-      return 'secondary';
-    }
-    if (item === 'Librarian') {
-      return 'primary';
-    }
-    return 'default';
-  };
-
-  const setIcon = (item) => {
-    if (item === 'Admin') {
-      return <VerifiedUserIcon />;
-    }
-    if (item === 'Librarian') {
-      return <AssignmentIndIcon />;
-    }
-    return <AccountCircleIcon />;
   };
 
   const handleChange = (event, newValue) => {
@@ -164,7 +113,7 @@ const Settings = (props) => {
     <div className={classes.container}>
       <img src={user.image} alt="" className={classes.image} />
       <DialogContent>
-        <div className={classes.firstRow}>
+        <div className="spaceBetween">
           <Typography gutterBottom variant="h4">
             {user.username}
           </Typography>
@@ -179,27 +128,17 @@ const Settings = (props) => {
             Edit Profile
           </Button>
         </div>
-        {user.roles ? (
+        {user.roles &&
           Object.values(user.roles).map((item) => (
             <Chip
               key={item + user._id}
-              icon={setIcon(item)}
+              icon={helpers.setIcon(item)}
               size="small"
               label={item}
-              color={roleColor(item)}
+              color={helpers.roleColor(item)}
               style={{ margin: '3px' }}
             />
-          ))
-        ) : (
-          <Chip
-            key={user._id}
-            icon={setIcon('Member')}
-            size="small"
-            label="Member"
-            color={roleColor('Member')}
-            style={{ margin: '3px' }}
-          />
-        )}
+          ))}
         <Typography gutterBottom variant="subtitle2">
           {user.email}
         </Typography>
@@ -228,7 +167,7 @@ const Settings = (props) => {
     user.readingHistory
       .map((bookId) => {
         const match = books.filter((book) => book._id === bookId);
-        return match.map((owedBook) => <ConciseBook book={owedBook} />);
+        return match.map((owedBook) => <ConciseBook book={owedBook} key={owedBook._id} />);
       })
       .reverse()
   );
@@ -248,26 +187,6 @@ const Settings = (props) => {
     };
   }
 
-  // eslint-disable-next-line no-shadow
-  function LinkTab(props) {
-    return (
-      <Tab
-        component="a"
-        onClick={(event) => {
-          event.preventDefault();
-          if (!window.history.href?.includes(`${props.href}`)) {
-            history.push(`/users/settings/${user.username}/${props.href}`);
-          }
-        }}
-        {...props}
-      />
-    );
-  }
-
-  LinkTab.propTypes = {
-    href: PropTypes.string.isRequired,
-  };
-
   return (
     <div>
       <Tabs
@@ -277,9 +196,19 @@ const Settings = (props) => {
         textColor="primary"
         indicatorColor="primary"
       >
-        <LinkTab label="notifications" href="notifications" {...a11yProps(0)} />
-        <LinkTab label="profile" href="profile" {...a11yProps(1)} />
-        <LinkTab label="reading history" href="reading history" {...a11yProps(2)} />
+        <LinkTab
+          label="notifications"
+          href="notifications"
+          username={user.username}
+          {...a11yProps(0)}
+        />
+        <LinkTab label="profile" href="profile" username={user.username} {...a11yProps(1)} />
+        <LinkTab
+          label="reading history"
+          href="reading history"
+          username={user.username}
+          {...a11yProps(2)}
+        />
       </Tabs>
       <TabPanel value={value} index={0}>
         {notifications}
