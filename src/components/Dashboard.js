@@ -5,7 +5,6 @@ import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Drawer from '@material-ui/core/Drawer';
 import IconButton from '@material-ui/core/IconButton';
-import Link from '@material-ui/core/Link';
 import List from '@material-ui/core/List';
 import { makeStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -18,19 +17,7 @@ import { NavLink as RouterLink } from 'react-router-dom';
 import MainListItems from './Helpers/ListItems';
 import BasicMenu from './Menu';
 import NotificationsMenu from './Notfication/NotificationsMenu';
-
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        Elms
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
+import Copyright from './Helpers/Copyright';
 
 const drawerWidth = 240;
 
@@ -131,7 +118,7 @@ function Dashboard(props) {
 
   React.useEffect(() => {
     const notSeenNotifications = currentUser[0]?.notifications.filter((n) => n.seen === 'false');
-    if (notSeenNotifications) {
+    if (notSeenNotifications?.length > 0) {
       setNewNotifications(notSeenNotifications);
     }
   }, [users]);
