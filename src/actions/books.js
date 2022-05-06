@@ -220,7 +220,7 @@ export function setNotification(token, authUserRoles, book, userId) {
 
 export function addNewRating(token, authUserRoles, bookId, userId, newRating) {
   const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
-  const url = `http://localhost:3500/books`;
+  const url = `http://localhost:3500/books/rate/`;
 
   return () =>
     axios
@@ -241,7 +241,7 @@ export function addNewRating(token, authUserRoles, bookId, userId, newRating) {
 
 export function addReview(token, authUserRoles, bookId, userId, newReview) {
   const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
-  const url = `http://localhost:3500/books`;
+  const url = `http://localhost:3500/books/review/`;
 
   return () =>
     axios
@@ -262,7 +262,7 @@ export function addReview(token, authUserRoles, bookId, userId, newReview) {
 
 export function updateReview(token, authUserRoles, bookId, reviews) {
   const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
-  const url = `http://localhost:3500/books`;
+  const url = `http://localhost:3500/books/review/`;
 
   return () =>
     axios
