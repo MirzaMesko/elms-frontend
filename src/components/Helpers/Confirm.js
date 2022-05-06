@@ -66,24 +66,22 @@ function Confirm(props) {
   };
 
   return (
-    <div>
-      <Dialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
-        <DialogTitle id="customized-dialog-title" onClose={handleClose}>
-          {title}
-        </DialogTitle>
-        <DialogContent dividers>
-          <Typography gutterBottom>{message}</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button autoFocus onClick={handleClose} color="primary">
-            {cancelText}
-          </Button>
-          <Button onClick={cancel} color="primary">
-            {confirmText}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
+    <Dialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
+      <DialogTitle id="customized-dialog-title" onClose={handleClose}>
+        {title}
+      </DialogTitle>
+      <DialogContent dividers>
+        <Typography gutterBottom>{message}</Typography>
+      </DialogContent>
+      <DialogActions>
+        <Button autoFocus onClick={handleClose} color="primary">
+          {cancelText}
+        </Button>
+        <Button onClick={cancel} color="primary">
+          {confirmText}
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }
 
