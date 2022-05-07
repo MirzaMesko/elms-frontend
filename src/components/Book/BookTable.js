@@ -1,7 +1,8 @@
+/* eslint-disable no-underscore-dangle */
 import { Typography } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
-import { withStyles, makeStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -11,7 +12,6 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import Toolbar from '@material-ui/core/Toolbar';
 import Avatar from '@material-ui/core/Avatar';
-import Tooltip from '@material-ui/core/Tooltip';
 import Fade from '@material-ui/core/Fade';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -23,6 +23,9 @@ import EnhancedTableHead from '../Helpers/EnhancedTableHead';
 import Confirm from '../Helpers/Confirm';
 import { getBooks, deleteBook } from '../../actions/books';
 import * as helpers from '../Helpers/helpers';
+import { LightTooltip } from '../Helpers/Tooltip';
+import Loading from '../Helpers/Loading';
+import Error from '../Helpers/Error';
 
 const headCells = [
   { id: 'title', numeric: false, disablePadding: false, label: 'Title' },
@@ -59,15 +62,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const LightTooltip = withStyles((theme) => ({
-  tooltip: {
-    backgroundColor: theme.palette.common.white,
-    color: '#3f51b5',
-    boxShadow: theme.shadows[1],
-    fontSize: 11,
-  },
-}))(Tooltip);
-
 function EnhancedTable(props) {
   const classes = useStyles();
   const [order, setOrder] = React.useState('asc');
@@ -78,9 +72,18 @@ function EnhancedTable(props) {
   const [selectedBook, setSelectedBook] = React.useState();
   const [showConfirmDelete, setShowDeleteConfirm] = React.useState(false);
   const [openBookDetails, setOpenBookDetails] = React.useState(false);
-  const [chosenBook, setChosenBook] = React.useState({});
+  const [chosenBookId, setChosenBookId] = React.useState(null);
 
-  const { books, onShowSnackbar, roles, token, onDeleteBook, onGetBooks } = props;
+  const {
+    books,
+    onShowSnackbar,
+    roles,
+    token,
+    onDeleteBook,
+    onGetBooks,
+    loadingBooks,
+    error,
+  } = props;
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -110,7 +113,7 @@ function EnhancedTable(props) {
   const onDelete = () => {
     // eslint-disable-next-line no-underscore-dangle
     onDeleteBook(roles, selectedBook._id, token).then((response) => {
-      if (response.status === 400 || response.status === 401 || response.status === 403) {
+      if (response.status !== 200) {
         onShowSnackbar(true, 'error', response.message);
       }
       if (response.status === 200) {
@@ -122,11 +125,21 @@ function EnhancedTable(props) {
   };
 
   const onShowBookDetails = (book) => {
-    setOpenBookDetails(true);
-    setChosenBook(book);
+    setChosenBookId(book._id);
+    setTimeout(() => {
+      setOpenBookDetails(true);
+    }, 200);
   };
 
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, books.length - page * rowsPerPage);
+
+  if (loadingBooks) {
+    return <Loading />;
+  }
+
+  if (error?.error) {
+    return <Error message={error.message} />;
+  }
 
   return (
     <div className={classes.root}>
@@ -177,121 +190,113 @@ function EnhancedTable(props) {
                 {helpers
                   .stableSort(books, helpers.getComparator(order, orderBy))
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((book, index) => {
-                    const labelId = `enhanced-table-checkbox-${index}`;
-
-                    return (
-                      <>
-                        <TableRow
-                          hover
-                          role="checkbox"
-                          tabIndex={0}
-                          // eslint-disable-next-line no-underscore-dangle
-                          key={book._id}
+                  .map((book) => (
+                    <TableRow hover role="checkbox" tabIndex={0} key={book._id + book._id}>
+                      <TableCell
+                        onClick={() => onShowBookDetails(book)}
+                        style={{ cursor: 'pointer' }}
+                        key={book.title + book._id}
+                      >
+                        <Avatar
+                          src={book.image}
+                          alt={book.title}
+                          variant="square"
+                          sx={{ width: 56, height: 56 }}
                         >
-                          <TableCell
-                            onClick={() => onShowBookDetails(book)}
-                            style={{ cursor: 'pointer' }}
+                          {book.title.slice(0, 1)}
+                        </Avatar>
+                      </TableCell>
+                      <TableCell
+                        onClick={() => onShowBookDetails(book)}
+                        style={{ cursor: 'pointer' }}
+                        key={book._id + book.title}
+                      >
+                        {book.title}
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        onClick={() => onShowBookDetails(book)}
+                        style={{ cursor: 'pointer' }}
+                        key={book._id + book.author}
+                      >
+                        {book.author}
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        onClick={() => onShowBookDetails(book)}
+                        style={{ cursor: 'pointer' }}
+                        key={book._id + book.year}
+                      >
+                        {book.year}
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        onClick={() => onShowBookDetails(book)}
+                        style={{ cursor: 'pointer' }}
+                        key={book._id + book.description.slice(0, 4)}
+                      >
+                        {book.description.slice(0, 60)}...
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        onClick={() => onShowBookDetails(book)}
+                        style={{ cursor: 'pointer' }}
+                        key={book._id + book.publisher}
+                      >
+                        {book.publisher}
+                      </TableCell>
+                      {roles.length === 1 && roles[0] === 'Member' ? null : (
+                        <TableCell
+                          align="left"
+                          onClick={() => onShowBookDetails(book)}
+                          style={{ cursor: 'pointer' }}
+                          key={book._id + book.serNo}
+                        >
+                          {book.serNo}
+                        </TableCell>
+                      )}
+                      {roles.includes('Librarian') && (
+                        <TableCell align="center">
+                          <span
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'row',
+                            }}
+                            key={book._id}
                           >
-                            <Avatar
-                              src={book.image}
-                              alt={book.title}
-                              variant="square"
-                              sx={{ width: 56, height: 56 }}
+                            <LightTooltip
+                              TransitionComponent={Fade}
+                              TransitionProps={{ timeout: 600 }}
+                              title="Edit book"
                             >
-                              {book.title.slice(0, 1)}
-                            </Avatar>
-                          </TableCell>
-                          <TableCell
-                            id={labelId}
-                            onClick={() => onShowBookDetails(book)}
-                            style={{ cursor: 'pointer' }}
-                          >
-                            {book.title}
-                          </TableCell>
-                          <TableCell
-                            align="left"
-                            onClick={() => onShowBookDetails(book)}
-                            style={{ cursor: 'pointer' }}
-                          >
-                            {book.author}
-                          </TableCell>
-                          <TableCell
-                            align="left"
-                            onClick={() => onShowBookDetails(book)}
-                            style={{ cursor: 'pointer' }}
-                          >
-                            {book.year}
-                          </TableCell>
-                          <TableCell
-                            align="left"
-                            onClick={() => onShowBookDetails(book)}
-                            style={{ cursor: 'pointer' }}
-                          >
-                            {book.description.slice(0, 60)}...
-                          </TableCell>
-                          <TableCell
-                            align="left"
-                            onClick={() => onShowBookDetails(book)}
-                            style={{ cursor: 'pointer' }}
-                          >
-                            {book.publisher}
-                          </TableCell>
-                          {roles.length === 1 && roles[0] === 'Member' ? null : (
-                            <TableCell
-                              align="left"
-                              onClick={() => onShowBookDetails(book)}
-                              style={{ cursor: 'pointer' }}
-                            >
-                              {book.serNo}
-                            </TableCell>
-                          )}
-                          {roles.includes('Librarian') && (
-                            <TableCell align="center">
-                              <div
-                                style={{
-                                  display: 'flex',
-                                  flexDirection: 'row',
-                                }}
-                              >
-                                <LightTooltip
-                                  TransitionComponent={Fade}
-                                  TransitionProps={{ timeout: 600 }}
-                                  title="Edit book"
-                                >
-                                  <IconButton aria-label="edit" onClick={() => onEdit(book)}>
-                                    <EditIcon fontSize="small" />
-                                  </IconButton>
-                                </LightTooltip>
+                              <IconButton aria-label="edit" onClick={() => onEdit(book)}>
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                            </LightTooltip>
 
-                                <LightTooltip
-                                  TransitionComponent={Fade}
-                                  TransitionProps={{ timeout: 600 }}
-                                  title="Delete book"
-                                >
-                                  <IconButton
-                                    aria-label="edit"
-                                    onClick={() => onConfirmDelete(book)}
-                                  >
-                                    <DeleteIcon fontSize="small" />
-                                  </IconButton>
-                                </LightTooltip>
-                              </div>
-                            </TableCell>
-                          )}
-                        </TableRow>
-                      </>
-                    );
-                  })}
+                            <LightTooltip
+                              TransitionComponent={Fade}
+                              TransitionProps={{ timeout: 600 }}
+                              title="Delete book"
+                            >
+                              <IconButton aria-label="edit" onClick={() => onConfirmDelete(book)}>
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </LightTooltip>
+                          </span>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))}
                 {emptyRows > 0 ? (
                   <TableRow style={{ height: 53 * emptyRows }}>
-                    <TableCell colSpan={6} />
+                    <TableCell colSpan={6} key={2} />
                   </TableRow>
                 ) : null}
                 <BookDetails
                   open={openBookDetails}
                   handleClose={() => setOpenBookDetails(false)}
-                  book={chosenBook}
+                  bookId={chosenBookId}
                 />
                 <BookDialog
                   title="Edit Book"
@@ -325,11 +330,18 @@ EnhancedTable.propTypes = {
   token: PropTypes.string.isRequired,
   onDeleteBook: PropTypes.func.isRequired,
   onGetBooks: PropTypes.func.isRequired,
+  loadingBooks: PropTypes.bool.isRequired,
+  error: PropTypes.shape({
+    error: PropTypes.bool,
+    message: PropTypes.string,
+  }).isRequired,
 };
 
 const mapStateToProps = (state) => ({
   token: state.users.token,
   roles: state.users.authUser.roles,
+  loadingBooks: state.books.loading,
+  error: state.books.error,
 });
 
 const mapDispatchToProps = (dispatch) => ({
