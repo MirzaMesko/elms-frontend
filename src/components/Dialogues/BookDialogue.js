@@ -18,7 +18,7 @@ import BasicSelect from '../Helpers/Select';
 import editionPlaceholder from '../../utils/edition_placeholder2.png';
 
 const categoryOptions = [
-  'All books',
+  'All Books',
   'Politics',
   'History',
   'Romance',
@@ -119,7 +119,7 @@ function BookDialog(props) {
 
   const onEditSingleBook = (event) => {
     event.preventDefault();
-    onEditBook(authUserRoles, bookId, title, author, year, description, category, image, publisher, serNo, token)
+    onEditBook(authUserRoles, bookId, bookTitle, author, year, description, category, image, publisher, serNo, token)
     .then((response) => {
       if (response.status === 400 || response.status === 401 || response.status === 403) {
         onShowSnackbar(true, 'error', response.message);
