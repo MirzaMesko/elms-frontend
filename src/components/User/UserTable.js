@@ -2,7 +2,7 @@ import { Typography } from '@material-ui/core';
 import Chip from '@material-ui/core/Chip';
 import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
-import { withStyles, makeStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -13,7 +13,6 @@ import TableRow from '@material-ui/core/TableRow';
 import Toolbar from '@material-ui/core/Toolbar';
 import Avatar from '@material-ui/core/Avatar';
 import EditIcon from '@material-ui/icons/Edit';
-import Tooltip from '@material-ui/core/Tooltip';
 import Fade from '@material-ui/core/Fade';
 import DeleteIcon from '@material-ui/icons/Delete';
 import CompareArrowsIcon from '@material-ui/icons/CompareArrows';
@@ -26,6 +25,9 @@ import UserDetails from './User';
 import EnhancedTableHead from '../Helpers/EnhancedTableHead';
 import { getUsers, deleteUser } from '../../actions/users';
 import * as helpers from '../Helpers/helpers';
+import { LightTooltip } from '../Helpers/Tooltip';
+import Loading from '../Helpers/Loading';
+import Error from '../Helpers/Error';
 
 const headCells = [
   { id: 'username', numeric: false, disablePadding: false, label: 'Username' },
@@ -60,15 +62,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const LightTooltip = withStyles((theme) => ({
-  tooltip: {
-    backgroundColor: theme.palette.common.white,
-    color: '#3f51b5',
-    boxShadow: theme.shadows[1],
-    fontSize: 11,
-  },
-}))(Tooltip);
-
 function EnhancedTable(props) {
   const classes = useStyles();
   const [order, setOrder] = React.useState('asc');
@@ -81,7 +74,16 @@ function EnhancedTable(props) {
   const [openUserDetails, setOpenUserDetails] = React.useState(false);
   const [chosenUser, setChosenUser] = React.useState({});
 
-  const { users, onShowSnackbar, roles, token, onDeleteUser, onGetUsers } = props;
+  const {
+    users,
+    onShowSnackbar,
+    roles,
+    token,
+    onDeleteUser,
+    onGetUsers,
+    loadingUsers,
+    error,
+  } = props;
   const history = useHistory();
 
   const handleRequestSort = (event, property) => {
@@ -130,6 +132,14 @@ function EnhancedTable(props) {
 
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, users.length - page * rowsPerPage);
 
+  if (loadingUsers) {
+    return <Loading />;
+  }
+
+  if (error.error) {
+    return <Error message={error.message} />;
+  }
+
   return (
     <div className={classes.root}>
       <Paper className={classes.paper}>
@@ -176,103 +186,98 @@ function EnhancedTable(props) {
                 {helpers
                   .stableSort(users, helpers.getComparator(order, orderBy))
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((user, index) => {
-                    const labelId = `enhanced-table-checkbox-${index}`;
-
-                    return (
-                      <TableRow hover role="checkbox" tabIndex={-1} key={user.username}>
-                        <TableCell
-                          onClick={() => onShowUserDetails(user)}
-                          style={{ cursor: 'pointer' }}
+                  .map((user) => (
+                    <TableRow hover role="checkbox" tabIndex={-1} key={user.username}>
+                      <TableCell
+                        onClick={() => onShowUserDetails(user)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <Avatar
+                          src={user.image}
+                          alt={user.username}
+                          {...helpers.stringAvatar(`${user.username} ${user.name}`)}
                         >
-                          <Avatar
-                            src={user.image}
-                            alt={user.username}
-                            {...helpers.stringAvatar(`${user.username} ${user.name}`)}
-                          >
-                            {user.username.slice(0, 1)}
-                          </Avatar>
-                        </TableCell>
-                        <TableCell
-                          component="th"
-                          id={labelId}
-                          scope="row"
-                          onClick={() => onShowUserDetails(user)}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          {user.username}
-                        </TableCell>
-                        <TableCell
-                          align="left"
-                          onClick={() => onShowUserDetails(user)}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          {user.email}
-                        </TableCell>
-                        <TableCell
-                          align="left"
-                          onClick={() => onShowUserDetails(user)}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          {user.name}
-                        </TableCell>
-                        <TableCell
-                          align="left"
-                          onClick={() => onShowUserDetails(user)}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          {Object.values(user.roles).map((item) => (
-                            <Chip
-                              // eslint-disable-next-line no-underscore-dangle
-                              key={item + user._id}
-                              icon={helpers.setIcon(item)}
-                              size="small"
-                              label={item}
-                              color={helpers.roleColor(item)}
-                              style={{ margin: '3px' }}
-                            />
-                          ))}
-                        </TableCell>
-                        <TableCell>
-                          {roles.includes('Admin') && (
-                            <>
-                              <LightTooltip
-                                TransitionComponent={Fade}
-                                TransitionProps={{ timeout: 600 }}
-                                title="Lend or return books"
+                          {user.username.slice(0, 1)}
+                        </Avatar>
+                      </TableCell>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        onClick={() => onShowUserDetails(user)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        {user.username}
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        onClick={() => onShowUserDetails(user)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        {user.email}
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        onClick={() => onShowUserDetails(user)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        {user.name}
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        onClick={() => onShowUserDetails(user)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        {Object.values(user.roles).map((item) => (
+                          <Chip
+                            // eslint-disable-next-line no-underscore-dangle
+                            key={item + user._id}
+                            icon={helpers.setIcon(item)}
+                            size="small"
+                            label={item}
+                            color={helpers.roleColor(item)}
+                            style={{ margin: '3px' }}
+                          />
+                        ))}
+                      </TableCell>
+                      <TableCell>
+                        {roles.includes('Admin') && (
+                          <>
+                            <LightTooltip
+                              TransitionComponent={Fade}
+                              TransitionProps={{ timeout: 600 }}
+                              title="Lend or return books"
+                            >
+                              <IconButton
+                                aria-label="edit"
+                                // eslint-disable-next-line no-underscore-dangle
+                                onClick={() => history.push(`/users/lend&return/${user._id}`)}
                               >
-                                <IconButton
-                                  aria-label="edit"
-                                  // eslint-disable-next-line no-underscore-dangle
-                                  onClick={() => history.push(`/users/lend&return/${user._id}`)}
-                                >
-                                  <CompareArrowsIcon fontSize="small" />
-                                </IconButton>
-                              </LightTooltip>
-                              <LightTooltip
-                                TransitionComponent={Fade}
-                                TransitionProps={{ timeout: 600 }}
-                                title="Edit user"
-                              >
-                                <IconButton aria-label="edit" onClick={() => onEdit(user)}>
-                                  <EditIcon fontSize="small" />
-                                </IconButton>
-                              </LightTooltip>
-                              <LightTooltip
-                                TransitionComponent={Fade}
-                                TransitionProps={{ timeout: 600 }}
-                                title="Delete user"
-                              >
-                                <IconButton aria-label="edit" onClick={() => onConfirmDelete(user)}>
-                                  <DeleteIcon fontSize="small" />
-                                </IconButton>
-                              </LightTooltip>
-                            </>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                                <CompareArrowsIcon fontSize="small" />
+                              </IconButton>
+                            </LightTooltip>
+                            <LightTooltip
+                              TransitionComponent={Fade}
+                              TransitionProps={{ timeout: 600 }}
+                              title="Edit user"
+                            >
+                              <IconButton aria-label="edit" onClick={() => onEdit(user)}>
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                            </LightTooltip>
+                            <LightTooltip
+                              TransitionComponent={Fade}
+                              TransitionProps={{ timeout: 600 }}
+                              title="Delete user"
+                            >
+                              <IconButton aria-label="edit" onClick={() => onConfirmDelete(user)}>
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </LightTooltip>
+                          </>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 {emptyRows > 0 ? (
                   <TableRow style={{ height: 53 * emptyRows }}>
                     <TableCell colSpan={6} />
@@ -315,11 +320,18 @@ EnhancedTable.propTypes = {
   token: PropTypes.string.isRequired,
   onDeleteUser: PropTypes.func.isRequired,
   onGetUsers: PropTypes.func.isRequired,
+  loadingUsers: PropTypes.bool.isRequired,
+  error: PropTypes.shape({
+    error: PropTypes.bool,
+    message: PropTypes.string,
+  }).isRequired,
 };
 
 const mapStateToProps = (state) => ({
   token: state.users.token,
   roles: state.users.authUser.roles,
+  loadingUsers: state.users.loading,
+  error: state.users.err,
 });
 
 const mapDispatchToProps = (dispatch) => ({
