@@ -4,6 +4,7 @@ const axios = require('axios');
 
 export const RETRIEVE_USERS_SUCCESS = 'RETRIEVE_USERS_SUCCESS';
 export const RETRIEVE_USERS_FAIL = 'RETRIEVE_USERS_FAIL';
+export const RETRIEVE_USERS_PENDING = 'RETRIEVE_USERS_PENDING';
 export const CURRENT_USER_INFO = 'CURRENT_USER_INFO';
 
 function currentUser(user) {
@@ -26,6 +27,12 @@ export function addUser(authUserRoles, email, username, password, roles, name, i
       .catch((error) => error.response.data);
 }
 
+function retrieveUsersPending() {
+  return {
+    type: RETRIEVE_USERS_PENDING,
+  };
+}
+
 function retrieveUsersSuccess(users) {
   return {
     type: RETRIEVE_USERS_SUCCESS,
@@ -41,19 +48,21 @@ function retrieveUsersFail(error) {
 }
 
 export function getUsers(token) {
-  const headers = { Authorization: `Bearer ${token}` };
-  const url = 'http://localhost:3500/users';
-  return (dispatch) =>
-    axios
+  return (dispatch) => {
+    dispatch(retrieveUsersPending());
+    const headers = { Authorization: `Bearer ${token}` };
+    const url = 'http://localhost:3500/users';
+    return axios
       .get(url, { headers })
       .then((response) => {
         dispatch(retrieveUsersSuccess(response.data));
       })
       .catch((error) => {
-        if (error.response.data.statusCode === 401) {
-          dispatch(retrieveUsersFail(error));
+        if (error.response.data.statusCode !== 200) {
+          dispatch(retrieveUsersFail(error.message));
         }
       });
+  };
 }
 
 export function getCurrentUser(token) {
