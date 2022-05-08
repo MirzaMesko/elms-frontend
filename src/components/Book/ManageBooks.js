@@ -106,14 +106,14 @@ function ManageBooks(props) {
 
   const isAdmin = roles.includes('Admin');
   const categories = [
-    'all books',
-    'Politics',
-    'History',
-    'Romance',
-    'Science Fiction & Fantasy',
-    'Biographies',
-    'Classics',
-    'Course books',
+    { name: 'all books', id: 1 },
+    { name: 'Politics', id: 2 },
+    { name: 'History', id: 3 },
+    { name: 'Romance', id: 4 },
+    { name: 'Science Fiction & Fantasy', id: 5 },
+    { name: 'Biographies', id: 6 },
+    { name: 'Classics', id: 7 },
+    { name: 'Course books', id: 8 },
   ];
 
   const handleOpen = () => {
@@ -224,8 +224,8 @@ function ManageBooks(props) {
             input={<BootstrapInput />}
           >
             {categories.map((category) => (
-              <MenuItem value={category} key={category}>
-                {category}
+              <MenuItem value={category.name} key={category.id}>
+                {category.name}
               </MenuItem>
             ))}
           </Select>
