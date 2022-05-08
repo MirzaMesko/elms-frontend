@@ -27,7 +27,7 @@ const useStyles = makeStyles({
 
 function Ratings(props) {
   const { name, currentRating, onClick } = props;
-  const [value, setValue] = React.useState(4);
+  const [value, setValue] = React.useState(0);
   const [hover, setHover] = React.useState(-1);
   const classes = useStyles();
 
@@ -66,9 +66,13 @@ function Ratings(props) {
   );
 }
 
+Ratings.defaultProps = {
+  onClick: () => null,
+};
+
 Ratings.propTypes = {
   name: PropTypes.string.isRequired,
-  onClick: PropTypes.func.isRequired,
+  onClick: PropTypes.func,
   currentRating: PropTypes.number,
 };
 
