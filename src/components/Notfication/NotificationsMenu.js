@@ -99,8 +99,12 @@ function NotificationsMenu(props) {
   );
 }
 
+NotificationsMenu.defaultProps = {
+  notifications: [],
+};
+
 NotificationsMenu.propTypes = {
-  notifications: PropTypes.arrayOf({}).isRequired,
+  notifications: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.string)),
   username: PropTypes.string.isRequired,
   badgeContent: PropTypes.number.isRequired,
   resetBadge: PropTypes.func.isRequired,
