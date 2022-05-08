@@ -19,7 +19,9 @@ import { LightTooltip } from '../Helpers/Tooltip';
 import CustomizedSnackbars from '../Helpers/Snackbar';
 import ReviewsContainer from '../Review/ReviewsContainer';
 import ReviewDialog from '../Dialogues/ReviewDialogue';
-import { getBooks, addNewRating, addReview, updateReview } from '../../actions/books';
+import Loading from '../Helpers/Loading';
+import Error from '../Helpers/Error';
+import { getBooks, addNewRating, addReview, updateReview, getBookById } from '../../actions/books';
 
 const useStyles = makeStyles(() => ({
   image: {
@@ -34,24 +36,17 @@ const useStyles = makeStyles(() => ({
 }));
 
 function BookDetails(props) {
-  const {
-    open,
-    handleClose,
-    book,
-    onRateBook,
-    token,
-    authUserRoles,
-    user,
-    onGetBooks,
-    onReviewBook,
-  } = props;
+  const { open, handleClose, bookId, onRateBook, token, authUserRoles, user, onReviewBook } = props;
   const [showRatingDialogue, setShowRatingDialogue] = React.useState(false);
   const [showReviewDialogue, setShowReviewDialogue] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
   const [severity, setSeverity] = React.useState('');
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [errMessage, setErrMessage] = React.useState('');
   const [bookRating, setBookRating] = React.useState(0);
-  const [bookReviews, setBookReviews] = React.useState(book.reviews);
+  const [bookReviews, setBookReviews] = React.useState({});
+  const [book, setBook] = React.useState({});
+  const [error, setError] = React.useState({});
 
   const dispatch = useDispatch();
   const classes = useStyles();
@@ -70,44 +65,46 @@ function BookDetails(props) {
     setBookRating(rating);
   };
 
+  const onClose = () => {
+    handleClose();
+  };
+
   const rateBook = (ratingValue) => {
     setShowRatingDialogue(false);
-    onRateBook(token, authUserRoles, book._id, user[0]._id, ratingValue).then((response) => {
+    onRateBook(token, authUserRoles, book.title, user[0]._id, ratingValue).then((response) => {
       if (response.status !== 200) {
         showSnackbar(true, 'error', response.message);
       }
       if (response.status === 200) {
         showSnackbar(true, 'success', 'Thank you for your rating.');
-        calculateRating(response.data.rating);
-        onGetBooks(token);
+        const sum = [...book.rating, { userId: user[0]._id, rating: ratingValue }];
+        calculateRating(sum);
       }
     });
   };
 
   const reviewBook = (review) => {
     setShowReviewDialogue(false);
-    onReviewBook(token, authUserRoles, book._id, user[0]._id, review).then((response) => {
+    onReviewBook(token, authUserRoles, book.title, user[0]._id, review).then((response) => {
       if (response.status !== 200) {
         showSnackbar(true, 'error', response.message);
       }
       if (response.status === 200) {
         showSnackbar(true, 'success', 'Thank you for your review.');
-        setBookReviews(response.data.reviews);
-        onGetBooks(token);
+        setBookReviews([...bookReviews, response.data]);
       }
     });
   };
 
   const delReview = (id) => {
     const afterDelete = bookReviews.filter((r) => r._id !== id);
-    dispatch(updateReview(token, authUserRoles, book._id, afterDelete)).then((response) => {
+    dispatch(updateReview(token, authUserRoles, book.title, afterDelete)).then((response) => {
       if (response.status !== 200) {
         showSnackbar(true, 'error', response.message);
       }
       if (response.status === 200) {
         showSnackbar(true, 'success', 'The review has been deleted.');
         setBookReviews(afterDelete);
-        onGetBooks(token);
       }
     });
   };
@@ -119,102 +116,122 @@ function BookDetails(props) {
       }
       return r;
     });
-    dispatch(updateReview(token, authUserRoles, book._id, afterEdit)).then((response) => {
+    dispatch(updateReview(token, authUserRoles, book.title, afterEdit)).then((response) => {
       if (response.status !== 200) {
         showSnackbar(true, 'error', response.message);
       }
       if (response.status === 200) {
         showSnackbar(true, 'success', 'The review has been edited.');
         setBookReviews(afterEdit);
-        onGetBooks(token);
+      }
+    });
+  };
+
+  const fetchBook = (id) => {
+    setLoading(true);
+    dispatch(getBookById(token, id)).then((response) => {
+      if (response.status !== 200) {
+        setError({ error: true, message: response.message });
+        setLoading(false);
+      }
+      if (response.status === 200) {
+        setBook(response.data);
+        if (response.data?.rating) {
+          calculateRating(response.data.rating);
+        } else {
+          setBookRating(0);
+        }
+        setBookReviews(response.data.reviews);
+        setLoading(false);
       }
     });
   };
 
   React.useEffect(() => {
-    if (book?.rating) {
-      calculateRating(book.rating);
-    } else {
-      setBookRating(0);
+    if (bookId) {
+      fetchBook(bookId);
     }
-    setBookReviews(book.reviews);
-  }, [book.rating, book.reviews]);
+  }, [bookId]);
+
+  if (error?.error) {
+    return <Error message={error.message} />;
+  }
 
   return (
     <>
+      <CustomizedSnackbars show={openSnackbar} severity={severity} message={errMessage} />
+      <ReviewDialog
+        show={showReviewDialogue}
+        close={() => setShowReviewDialogue(false)}
+        addReview={reviewBook}
+      />
       <Dialog open={showRatingDialogue} onClose={() => setShowRatingDialogue(false)}>
-        <CustomizedSnackbars show={openSnackbar} severity={severity} message={errMessage} />
-        <ReviewDialog
-          show={showReviewDialogue}
-          close={() => setShowReviewDialogue(false)}
-          addReview={reviewBook}
-        />
         <DialogContent style={{ padding: '1rem 3rem' }}>
           <Ratings name="hover-feedback" onClick={rateBook} />
         </DialogContent>
       </Dialog>
-      <Dialog
-        onClose={handleClose}
-        aria-labelledby="customized-dialog-title"
-        open={open}
-        maxWidth="md"
-      >
+      <Dialog onClose={onClose} aria-labelledby="customized-dialog-title" open={open} maxWidth="md">
         <div className={classes.container}>
           <img src={book.image || editionPlaceholder} alt="" className={classes.image} />
           <DialogContent>
-            <div className="spaceBetween">
-              <Typography gutterBottom variant="h4">
-                {book.title}
-              </Typography>
-              <div style={{ display: 'flex', flexDirection: 'row' }}>
-                <LightTooltip
-                  TransitionComponent={Fade}
-                  TransitionProps={{ timeout: 600 }}
-                  title="Rate this book"
-                >
-                  <IconButton
-                    aria-label="edit"
-                    onClick={() => setShowRatingDialogue(true)}
-                    color="primary"
-                  >
-                    <StarsIcon fontSize="large" />
-                  </IconButton>
-                </LightTooltip>
-                <LightTooltip
-                  TransitionComponent={Fade}
-                  TransitionProps={{ timeout: 600 }}
-                  title="Add review for this book"
-                >
-                  <IconButton
-                    aria-label="edit"
-                    onClick={() => setShowReviewDialogue(true)}
-                    color="primary"
-                  >
-                    <AddCommentIcon fontSize="large" />
-                  </IconButton>
-                </LightTooltip>
-              </div>
-            </div>
+            {loading ? (
+              <Loading />
+            ) : (
+              <>
+                <div className="spaceBetween">
+                  <Typography gutterBottom variant="h4">
+                    {book.title}
+                  </Typography>
+                  <div style={{ display: 'flex', flexDirection: 'row' }}>
+                    <LightTooltip
+                      TransitionComponent={Fade}
+                      TransitionProps={{ timeout: 600 }}
+                      title="Rate this book"
+                    >
+                      <IconButton
+                        aria-label="edit"
+                        color="primary"
+                        onClick={() => setShowRatingDialogue(true)}
+                      >
+                        <StarsIcon fontSize="large" />
+                      </IconButton>
+                    </LightTooltip>
+                    <LightTooltip
+                      TransitionComponent={Fade}
+                      TransitionProps={{ timeout: 600 }}
+                      title="Add review for this book"
+                    >
+                      <IconButton
+                        aria-label="edit"
+                        color="primary"
+                        onClick={() => setShowReviewDialogue(true)}
+                      >
+                        <AddCommentIcon fontSize="large" />
+                      </IconButton>
+                    </LightTooltip>
+                  </div>
+                </div>
 
-            <Typography gutterBottom variant="subtitle2">
-              by {book.author}
-            </Typography>
-            <Typography gutterBottom>Category: {book.category}</Typography>
-            <ReviewsContainer
-              currentRating={bookRating}
-              reviews={bookReviews}
-              onDelete={delReview}
-              onEdit={editReview}
-            />
-            <Typography gutterBottom variant="h6">
-              About {book.title}
-            </Typography>
-            <Typography gutterBottom variant="body1">
-              {book.description}
-            </Typography>
+                <Typography gutterBottom variant="subtitle2">
+                  by {book.author}
+                </Typography>
+                <Typography gutterBottom>Category: {book.category}</Typography>
+                <ReviewsContainer
+                  currentRating={bookRating}
+                  reviews={bookReviews}
+                  onDelete={delReview}
+                  onEdit={editReview}
+                />
+                <Typography gutterBottom variant="h6">
+                  About {book.title}
+                </Typography>
+                <Typography gutterBottom variant="body1">
+                  {book.description}
+                </Typography>
+              </>
+            )}
           </DialogContent>
         </div>
-
         <DialogActions>
           <Button autoFocus onClick={handleClose}>
             back
@@ -230,19 +247,7 @@ BookDetails.propTypes = {
   handleClose: PropTypes.func.isRequired,
   onRateBook: PropTypes.func.isRequired,
   onReviewBook: PropTypes.func.isRequired,
-  onGetBooks: PropTypes.func.isRequired,
-  book: PropTypes.objectOf(
-    PropTypes.shape({
-      title: PropTypes.string,
-      category: PropTypes.string,
-      description: PropTypes.string,
-      owedBy: PropTypes.arrayOf(PropTypes.string),
-      reviews: PropTypes.arrayOf(PropTypes.string),
-      rating: PropTypes.number,
-      author: PropTypes.string,
-      _id: PropTypes.string,
-    })
-  ).isRequired,
+  bookId: PropTypes.string.isRequired,
   authUserRoles: PropTypes.arrayOf(PropTypes.string).isRequired,
   token: PropTypes.string.isRequired,
   user: PropTypes.arrayOf(
