@@ -168,8 +168,10 @@ function EnhancedTable(props) {
   };
 
   const onShowBookDetails = (book) => {
-    setOpenBookDetails(true);
-    setChosenBook(book);
+    setTimeout(() => {
+      setOpenBookDetails(true);
+    }, 200);
+    setChosenBook(book._id);
   };
 
   const onShowUserDetails = (u) => {
@@ -236,134 +238,126 @@ function EnhancedTable(props) {
                 {helpers
                   .stableSort(books, helpers.getComparator(order, orderBy))
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((book, index) => {
-                    const labelId = `enhanced-table-checkbox-${index}`;
-
-                    return (
-                      <>
-                        <TableRow
-                          hover
-                          role="checkbox"
-                          tabIndex={0}
-                          // eslint-disable-next-line no-underscore-dangle
-                          key={book._id}
+                  .map((book) => (
+                    <TableRow
+                      hover
+                      role="checkbox"
+                      tabIndex={0}
+                      // eslint-disable-next-line no-underscore-dangle
+                      key={book._id}
+                    >
+                      <TableCell
+                        onClick={() => onShowBookDetails(book)}
+                        style={{ cursor: 'pointer' }}
+                        key={book.title.slice(0, 5)}
+                      >
+                        <Avatar
+                          src={book.image}
+                          alt={book.title}
+                          variant="square"
+                          sx={{ width: 56, height: 56 }}
                         >
-                          <TableCell
-                            onClick={() => onShowBookDetails(book)}
-                            style={{ cursor: 'pointer' }}
-                          >
-                            <Avatar
-                              src={book.image}
-                              alt={book.title}
-                              variant="square"
-                              sx={{ width: 56, height: 56 }}
-                            >
-                              {book.title.slice(0, 1)}
-                            </Avatar>
-                          </TableCell>
-                          <TableCell
-                            id={labelId}
-                            onClick={() => onShowBookDetails(book)}
-                            style={{ cursor: 'pointer' }}
-                          >
-                            {book.title}
-                          </TableCell>
-                          <TableCell
-                            align="left"
-                            onClick={() => onShowBookDetails(book)}
-                            style={{ cursor: 'pointer' }}
-                          >
-                            {book.author}
-                          </TableCell>
-                          {roles.length === 1 && roles[0] === 'Member' ? null : (
+                          {book.title.slice(0, 1)}
+                        </Avatar>
+                      </TableCell>
+                      <TableCell
+                        onClick={() => onShowBookDetails(book)}
+                        style={{ cursor: 'pointer' }}
+                        key={book.title.slice(5, 10)}
+                      >
+                        {book.title}
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        onClick={() => onShowBookDetails(book)}
+                        style={{ cursor: 'pointer' }}
+                        key={book.author.slice(0, 5)}
+                      >
+                        {book.author}
+                      </TableCell>
+                      {roles.length === 1 && roles[0] === 'Member' ? null : (
+                        <TableCell
+                          align="left"
+                          onClick={() => onShowBookDetails(book)}
+                          style={{ cursor: 'pointer' }}
+                          key={book.serNo}
+                        >
+                          {book.serNo}
+                        </TableCell>
+                      )}
+                      {users?.map((u) => {
+                        if (u._id === book.owedBy.userId) {
+                          return (
                             <TableCell
-                              align="left"
-                              onClick={() => onShowBookDetails(book)}
+                              onClick={() => onShowUserDetails(u)}
                               style={{ cursor: 'pointer' }}
+                              key={book.owedBy.userId}
                             >
-                              {book.serNo}
-                            </TableCell>
-                          )}
-                          {users?.map((u) => {
-                            let userInfo = <></>;
-                            if (u._id === book.owedBy.userId) {
-                              userInfo = (
-                                <TableCell
-                                  id={labelId}
-                                  onClick={() => onShowUserDetails(u)}
-                                  style={{ cursor: 'pointer' }}
+                              <div>
+                                <Avatar
+                                  src={u.image}
+                                  alt={u.username}
+                                  variant="square"
+                                  sx={{ width: 56, height: 56 }}
                                 >
-                                  <div>
-                                    <Avatar
-                                      src={u.image}
-                                      alt={u.username}
-                                      variant="square"
-                                      sx={{ width: 56, height: 56 }}
-                                    >
-                                      {u.username.slice(0, 1)}
-                                    </Avatar>
-                                    {u.username}
-                                  </div>
-                                </TableCell>
-                              );
-                              return userInfo;
-                            }
-                            return userInfo;
-                          })}
-                          <TableCell id={labelId}>{book.owedBy.dueDate}</TableCell>
-
-                          {roles.includes('Librarian') && (
-                            <TableCell align="center">
-                              <div
-                                style={{
-                                  display: 'flex',
-                                  flexDirection: 'row',
-                                }}
-                              >
-                                <LightTooltip
-                                  TransitionComponent={Fade}
-                                  TransitionProps={{ timeout: 600 }}
-                                  title="Send e-mail"
-                                >
-                                  <IconButton
-                                    aria-label="edit"
-                                    onClick={() =>
-                                      setEmailInfo(
-                                        book,
-                                        users?.filter((u) => u._id === book.owedBy.userId)
-                                      )
-                                    }
-                                  >
-                                    <EmailIcon fontSize="small" />
-                                  </IconButton>
-                                </LightTooltip>
-                                <LightTooltip
-                                  TransitionComponent={Fade}
-                                  TransitionProps={{ timeout: 600 }}
-                                  title="Send notification"
-                                >
-                                  <IconButton
-                                    aria-label="edit"
-                                    onClick={() => onConfirmNotify(book)}
-                                  >
-                                    <NotificationsIcon fontSize="small" />
-                                  </IconButton>
-                                </LightTooltip>
-                                <EmailDialogue
-                                  show={showEmailDialogue}
-                                  close={() => setShowEmailDialogue(false)}
-                                  emailSubject="Reminder of an overdue book"
-                                  emailText={`You received this email because the following book: "${selectedBook?.title}" by "${selectedBook?.author}" is overdue. Please return it as soon as possible!\n\nBest regards,\nYour ELMS team`}
-                                  sendEmail={handleSendEmail}
-                                  recepientsEmail={selectedUser.email}
-                                />
+                                  {u.username.slice(0, 1)}
+                                </Avatar>
+                                {u.username}
                               </div>
                             </TableCell>
-                          )}
-                        </TableRow>
-                      </>
-                    );
-                  })}
+                          );
+                        }
+                        return null;
+                      })}
+                      <TableCell key={book.owedBy.dueDate}>{book.owedBy.dueDate}</TableCell>
+
+                      {roles.includes('Librarian') && (
+                        <TableCell align="center" key={book.owedBy.userId.slice(0, 6)}>
+                          <div
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'row',
+                            }}
+                          >
+                            <LightTooltip
+                              TransitionComponent={Fade}
+                              TransitionProps={{ timeout: 600 }}
+                              title="Send e-mail"
+                            >
+                              <IconButton
+                                aria-label="edit"
+                                onClick={() =>
+                                  setEmailInfo(
+                                    book,
+                                    users?.filter((u) => u._id === book.owedBy.userId)
+                                  )
+                                }
+                              >
+                                <EmailIcon fontSize="small" />
+                              </IconButton>
+                            </LightTooltip>
+                            <LightTooltip
+                              TransitionComponent={Fade}
+                              TransitionProps={{ timeout: 600 }}
+                              title="Send notification"
+                            >
+                              <IconButton aria-label="edit" onClick={() => onConfirmNotify(book)}>
+                                <NotificationsIcon fontSize="small" />
+                              </IconButton>
+                            </LightTooltip>
+                            <EmailDialogue
+                              show={showEmailDialogue}
+                              close={() => setShowEmailDialogue(false)}
+                              emailSubject="Reminder of an overdue book"
+                              emailText={`You received this email because the following book: "${selectedBook?.title}" by "${selectedBook?.author}" is overdue. Please return it as soon as possible!\n\nBest regards,\nYour ELMS team`}
+                              sendEmail={handleSendEmail}
+                              recepientsEmail={selectedUser.email}
+                            />
+                          </div>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))}
                 {emptyRows > 0 ? (
                   <TableRow style={{ height: 53 * emptyRows }}>
                     <TableCell colSpan={6} />
@@ -372,7 +366,7 @@ function EnhancedTable(props) {
                 <BookDetails
                   open={openBookDetails}
                   handleClose={() => setOpenBookDetails(false)}
-                  book={chosenBook}
+                  bookId={chosenBook}
                 />
                 <UserDetails
                   open={openUserDetails}
