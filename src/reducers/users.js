@@ -1,5 +1,10 @@
 import { SET_AUTH_FAIL, SET_AUTH_USER, LOG_OUT, DISMISS_ALERT } from '../actions/auth';
-import { RETRIEVE_USERS_SUCCESS, RETRIEVE_USERS_FAIL, CURRENT_USER_INFO } from '../actions/users';
+import {
+  RETRIEVE_USERS_SUCCESS,
+  RETRIEVE_USERS_FAIL,
+  CURRENT_USER_INFO,
+  RETRIEVE_USERS_PENDING,
+} from '../actions/users';
 
 const initialState = {
   loggedIn: false,
@@ -49,16 +54,27 @@ const users = (state = initialState, action) => {
         error: false,
       };
     }
+    case RETRIEVE_USERS_PENDING: {
+      return {
+        ...state,
+        loading: true,
+      };
+    }
     case RETRIEVE_USERS_SUCCESS: {
       return {
         ...state,
         users: action.users,
+        loading: false,
       };
     }
     case RETRIEVE_USERS_FAIL: {
       return {
         ...state,
-        users: action.error,
+        err: {
+          error: true,
+          message: action.error,
+        },
+        loading: false,
       };
     }
     case DISMISS_ALERT: {
