@@ -5,6 +5,13 @@ const axios = require('axios');
 
 export const RETRIEVE_BOOKS_SUCCESS = 'RETRIEVE_BOOKS_SUCCESS';
 export const RETRIEVE_BOOKS_FAIL = 'RETRIEVE_BOOKS_FAIL';
+export const RETRIEVE_BOOKS_PENDING = 'RETRIEVE_BOOKS_PENDING';
+
+function retrieveBooksPending() {
+  return {
+    type: RETRIEVE_BOOKS_PENDING,
+  };
+}
 
 function retrieveBooksSuccess(books) {
   return {
@@ -20,20 +27,32 @@ function retrieveBooksFail(error) {
   };
 }
 
-export function getBooks(token) {
+export function getBookById(token, bookId) {
   const headers = { Authorization: `Bearer ${token}` };
-  const url = 'http://localhost:3500/books';
-  return (dispatch) =>
+  const url = `http://localhost:3500/books/${bookId}`;
+  return () =>
     axios
+      .get(url, { headers })
+      .then((response) => response)
+      .catch((error) => error.response.data);
+}
+
+export function getBooks(token) {
+  return (dispatch) => {
+    dispatch(retrieveBooksPending());
+    const headers = { Authorization: `Bearer ${token}` };
+    const url = 'http://localhost:3500/books';
+    return axios
       .get(url, { headers })
       .then((response) => {
         dispatch(retrieveBooksSuccess(response.data));
       })
       .catch((error) => {
-        if (error.response.data.statusCode === 401) {
-          dispatch(retrieveBooksFail(error));
+        if (error.response.data.statusCode !== 200) {
+          dispatch(retrieveBooksFail(error.message));
         }
       });
+  };
 }
 
 export function addBook(
@@ -218,7 +237,7 @@ export function setNotification(token, authUserRoles, book, userId) {
       .catch((error) => error.response.data);
 }
 
-export function addNewRating(token, authUserRoles, bookId, userId, newRating) {
+export function addNewRating(token, authUserRoles, bookTitle, userId, newRating) {
   const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
   const url = `http://localhost:3500/books/rate/`;
 
@@ -227,7 +246,7 @@ export function addNewRating(token, authUserRoles, bookId, userId, newRating) {
       .put(
         url,
         {
-          id: bookId,
+          title: bookTitle,
           newRating: {
             userId,
             value: newRating,
@@ -236,10 +255,10 @@ export function addNewRating(token, authUserRoles, bookId, userId, newRating) {
         { headers }
       )
       .then((resp) => resp)
-      .catch((error) => error.response.data);
+      .catch((error) => error);
 }
 
-export function addReview(token, authUserRoles, bookId, userId, newReview) {
+export function addReview(token, authUserRoles, bookTitle, userId, newReview) {
   const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
   const url = `http://localhost:3500/books/review/`;
 
@@ -248,7 +267,7 @@ export function addReview(token, authUserRoles, bookId, userId, newReview) {
       .put(
         url,
         {
-          id: bookId,
+          title: bookTitle,
           newReview: {
             userId,
             review: newReview,
@@ -257,10 +276,10 @@ export function addReview(token, authUserRoles, bookId, userId, newReview) {
         { headers }
       )
       .then((resp) => resp)
-      .catch((error) => error.response.data);
+      .catch((error) => error);
 }
 
-export function updateReview(token, authUserRoles, bookId, reviews) {
+export function updateReview(token, authUserRoles, bookTitle, reviews) {
   const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
   const url = `http://localhost:3500/books/review/`;
 
@@ -269,11 +288,11 @@ export function updateReview(token, authUserRoles, bookId, reviews) {
       .put(
         url,
         {
-          id: bookId,
+          title: bookTitle,
           reviews,
         },
         { headers }
       )
       .then((resp) => resp)
-      .catch((error) => error.response.data);
+      .catch((error) => error);
 }
