@@ -181,7 +181,7 @@ function UserDialog(props) {
               autoComplete="off"
               label="Username*"
               defaultValue={username}
-              disabled={user.username?.length > 1}
+              disabled={username?.length > 1}
               type="username"
               fullWidth
               onChange={handleUsernameChange}
@@ -191,7 +191,7 @@ function UserDialog(props) {
               autoComplete="off"
               label="Password*"
               type="password"
-              disabled={user.password?.length > 1}
+              disabled={password?.length > 1}
               defaultValue={password}
               fullWidth
               onChange={handlePasswordChange}
@@ -281,14 +281,7 @@ UserDialog.propTypes = {
   onGetUsers: PropTypes.func.isRequired,
   onShowSnackbar: PropTypes.func.isRequired,
   title: PropTypes.string.isRequired,
-  user: PropTypes.objectOf(
-    PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.array,
-      PropTypes.objectOf(PropTypes.string),
-      PropTypes.objectOf({}),
-    ])
-  ),
+  user: PropTypes.objectOf(PropTypes.shape({})),
   onEditUser: PropTypes.func.isRequired,
   onAddUser: PropTypes.func.isRequired,
   authUserRoles: PropTypes.arrayOf(PropTypes.string).isRequired,
