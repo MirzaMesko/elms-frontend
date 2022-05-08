@@ -2,24 +2,13 @@ import React from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core/styles';
 
 function Alert(props) {
   return <MuiAlert elevation={11} variant="filled" {...props} />;
 }
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    width: '100%',
-    '& > * + *': {
-      marginTop: theme.spacing(2),
-    },
-  },
-}));
-
 export default function CustomizedSnackbars(props) {
   const { show, severity, message } = props;
-  const classes = useStyles();
   const [open, setOpen] = React.useState(show);
 
   const handleClose = (event, reason) => {
@@ -35,7 +24,7 @@ export default function CustomizedSnackbars(props) {
   }, [show]);
 
   return (
-    <div className={classes.root}>
+    <>
       <Snackbar
         open={open}
         autoHideDuration={6000}
@@ -46,7 +35,7 @@ export default function CustomizedSnackbars(props) {
           {message}
         </Alert>
       </Snackbar>
-    </div>
+    </>
   );
 }
 
