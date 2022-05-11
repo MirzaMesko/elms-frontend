@@ -33,12 +33,41 @@
   flex-direction: row;
   justify-content: space-between;
   margin-bottom: 1rem;
+  width: 100%;
 }
 
 .centered {
   display: flex;
   justify-content: center;
   margin: 5rem 1rem;
+}
+
+.largeImage {
+  height: 350px;
+  width: 300px;
+  display: inline-flex;
+  object-fit: cover;
+}
+
+.mediumImage {
+  height: 300px;
+  width: 200px;
+  display: inline-flex;
+  object-fit: cover;
+}
+
+.smallImage {
+  height: 80px;
+  width: 60px;
+  display: inline-flex;
+  object-fit: cover;
+}
+
+.dialogueContainer {
+  display: flex;
+  max-height:  500px;
+  min-width: 500px;
+  padding: 1rem;
 }
 
 @keyframes App-logo-spin {
