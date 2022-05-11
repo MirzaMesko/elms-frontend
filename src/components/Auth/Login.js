@@ -6,7 +6,6 @@ import Container from '@material-ui/core/Container';
 import IconButton from '@material-ui/core/IconButton';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import Link from '@material-ui/core/Link';
 import { history as historyPropTypes } from 'history-prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
@@ -21,18 +20,7 @@ import { NavLink } from 'react-router-dom';
 import { login, dismissAlert } from '../../actions/auth';
 import Alert from '../Helpers/Alert';
 import logo from '../../utils/logo.png';
-
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        Elms
-      </Link>{' '}
-      {new Date().getFullYear()}.
-    </Typography>
-  );
-}
+import Copyright from '../Helpers/Copyright';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
