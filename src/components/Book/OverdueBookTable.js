@@ -2,7 +2,7 @@
 import { Typography } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
-import { withStyles, makeStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -12,7 +12,6 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import Toolbar from '@material-ui/core/Toolbar';
 import Avatar from '@material-ui/core/Avatar';
-import Tooltip from '@material-ui/core/Tooltip';
 import Fade from '@material-ui/core/Fade';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import EmailIcon from '@material-ui/icons/Email';
@@ -28,6 +27,7 @@ import { getBooks } from '../../actions/books';
 import { notifyUser } from '../../actions/users';
 import { sendEmail } from '../../actions/email';
 import * as helpers from '../Helpers/helpers';
+import { LightTooltip } from '../Helpers/Tooltip';
 
 const headCells = [
   { id: 'title', numeric: false, disablePadding: false, label: 'Title' },
@@ -63,22 +63,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const LightTooltip = withStyles((theme) => ({
-  tooltip: {
-    backgroundColor: theme.palette.common.white,
-    color: '#3f51b5',
-    boxShadow: theme.shadows[1],
-    fontSize: 11,
-  },
-}))(Tooltip);
-
 function EnhancedTable(props) {
   const classes = useStyles();
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('username');
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  // const [showEditDialogue, setShowEditDialogue] = React.useState(false);
   const [selectedBook, setSelectedBook] = React.useState();
   const [selectedUser, setSelectedUser] = React.useState({});
   const [showConfirm, setShowConfirm] = React.useState(false);
@@ -90,8 +80,7 @@ function EnhancedTable(props) {
   const [openUserDetails, setOpenUserDetails] = React.useState(false);
   const [showEmailDialogue, setShowEmailDialogue] = React.useState(false);
 
-  // eslint-disable-next-line no-unused-vars
-  const { books, onShowSnackbar, roles, token, onNotifyUser, users, onSendEmail } = props;
+  const { books, roles, token, onNotifyUser, users, onSendEmail } = props;
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -394,7 +383,6 @@ function EnhancedTable(props) {
 EnhancedTable.propTypes = {
   books: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  onShowSnackbar: PropTypes.func.isRequired,
   roles: PropTypes.arrayOf(PropTypes.string).isRequired,
   token: PropTypes.string.isRequired,
   onNotifyUser: PropTypes.func.isRequired,
