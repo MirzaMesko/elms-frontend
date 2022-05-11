@@ -6,14 +6,9 @@ import Chip from '@material-ui/core/Chip';
 import { makeStyles } from '@material-ui/core/styles';
 import profilePlaceholder from '../../utils/profile-picture-default-png.png';
 import * as helpers from '../Helpers/helpers';
+import Loading from '../Helpers/Loading';
 
 const useStyles = makeStyles(() => ({
-  image: {
-    height: '200px',
-    width: '150px',
-    display: 'inline-flex',
-    objectFit: 'cover',
-  },
   container: {
     display: 'flex',
     flexDirection: 'column',
@@ -25,15 +20,19 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const Profile = (props) => {
+function Profile(props) {
   const classes = useStyles();
   const { user } = props;
 
   const image = user?.image ? user.image : profilePlaceholder;
 
+  if (!user.username) {
+    return <Loading />;
+  }
+
   return (
     <div className={classes.container}>
-      <img src={image} alt="" className={classes.image} />
+      <img src={image} alt="" className="mediumImage" />
       <Typography gutterBottom variant="h4">
         {user.username}
       </Typography>
@@ -53,10 +52,14 @@ const Profile = (props) => {
       <Typography gutterBottom>{user.name}</Typography>
     </div>
   );
+}
+
+Profile.defaultProps = {
+  user: {},
 };
 
 Profile.propTypes = {
-  user: PropTypes.objectOf(PropTypes.objectOf(PropTypes.string), PropTypes.String).isRequired,
+  user: PropTypes.objectOf(PropTypes.shape({})),
 };
 
 export default Profile;

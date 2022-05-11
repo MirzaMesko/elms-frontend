@@ -45,7 +45,7 @@ function NotificationDialog(props) {
     <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
       <DialogTitle id="form-dialog-title">Compose notification</DialogTitle>
       <DialogContent>
-        <div style={{ display: 'flex', minWidth: '500px' }}>
+        <div className="dialogueContainer">
           <TextField
             id="outlined-multiline-flexible"
             multiline

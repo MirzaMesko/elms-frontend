@@ -17,10 +17,6 @@ const useStyles = makeStyles(() => ({
     flexDirection: 'column',
     width: '90%',
   },
-  centered: {
-    display: 'flex',
-    justifyContent: 'center',
-  },
 }));
 
 function NotificationsMenu(props) {
@@ -92,7 +88,7 @@ function NotificationsMenu(props) {
         )}
         <Divider />
         <MenuItem onClick={goToNotifications}>
-          <ListItemText className={classes.centered}>See all notifications</ListItemText>
+          <ListItemText className="centered">See all notifications</ListItemText>
         </MenuItem>
       </Menu>
     </div>

@@ -58,7 +58,7 @@ function ReviewDialog(props) {
     <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
       <DialogTitle id="form-dialog-title">{title}</DialogTitle>
       <DialogContent>
-        <div style={{ display: 'flex', width: '30rem' }}>
+        <div className="dialogueContainer">
           <TextField
             id="outlined-multiline-flexible"
             multiline

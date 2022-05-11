@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
@@ -19,23 +20,10 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: theme.typography.fontWeightRegular,
     paddingTop: '0.3rem',
   },
-  firstRow: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: '0.3rem',
-    width: '100%',
-  },
-  centered: {
-    display: 'flex',
-    justifyContent: 'center',
-    padding: '1rem 5 rem',
-    backgroundColor: '#f5f5f5',
-  },
 }));
 
 function ReviewsContainer(props) {
-  const { currentRating, reviews } = props;
+  const { currentRating, reviews, onDelete, onEdit } = props;
   const classes = useStyles();
 
   return (
@@ -46,20 +34,20 @@ function ReviewsContainer(props) {
           aria-controls="panel1a-content"
           id="panel1a-header"
         >
-          <div className={classes.firstRow}>
+          <div className="spaceBetween">
             <Ratings name="read-only" currentRating={currentRating} />
             <Typography className={classes.heading}>Reviews ({reviews.length})</Typography>
           </div>
         </AccordionSummary>
         <div style={{ maxHeight: '300px', overflow: 'auto' }}>
           {!reviews.length ? (
-            <AccordionDetails className={classes.centered}>
+            <AccordionDetails className="centered">
               <Typography>Be the first to review this book.</Typography>
             </AccordionDetails>
           ) : (
             reviews.map((review) => (
-              <AccordionDetails key={review.timestamp}>
-                <ReviewCard review={review} />
+              <AccordionDetails key={review._id}>
+                <ReviewCard review={review} onDelete={onDelete} onEdit={onEdit} />
               </AccordionDetails>
             ))
           )}
@@ -74,8 +62,10 @@ ReviewsContainer.defaultProps = {
 };
 
 ReviewsContainer.propTypes = {
-  currentRating: PropTypes.string.isRequired,
+  currentRating: PropTypes.number.isRequired,
   reviews: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.string)),
+  onDelete: PropTypes.func.isRequired,
+  onEdit: PropTypes.func.isRequired,
 };
 
 export default ReviewsContainer;

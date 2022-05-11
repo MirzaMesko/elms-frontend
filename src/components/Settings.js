@@ -10,30 +10,20 @@ import EditIcon from '@material-ui/icons/Edit';
 import Button from '@material-ui/core/Button';
 import DialogContent from '@material-ui/core/DialogContent';
 import Typography from '@material-ui/core/Typography';
-import FormDialog from './Dialogues/UserDialogue';
+import UserDialog from './Dialogues/UserDialogue';
 import CustomizedSnackbars from './Helpers/Snackbar';
 import ConciseBook from './Book/ConciseBook';
 import Notification from './Notfication/Notification';
 import TabPanel from './Helpers/TabPanel';
 import LinkTab from './Helpers/LinkTab';
-import { updateNotifications } from '../actions/users';
+import profilePlaceholder from '../utils/profile-picture-default-png.png';
+import { updateNotifications, getUsers } from '../actions/users';
 import * as helpers from './Helpers/helpers';
 
 const useStyles = makeStyles(() => ({
-  image: {
-    height: '300px',
-    width: '250px',
-    display: 'inline-flex',
-    objectFit: 'cover',
-  },
   container: {
     display: 'flex',
     padding: '1rem',
-  },
-  centered: {
-    display: 'flex',
-    justifyContent: 'center',
-    margin: '5rem 1rem',
   },
   notification: {
     display: 'flex',
@@ -54,7 +44,15 @@ const Settings = (props) => {
   const [newUser, setNewUser] = React.useState('');
 
   const classes = useStyles();
-  const { users, books, onSetNotificationsSeen, token, roles, onDismissNotification } = props;
+  const {
+    users,
+    books,
+    onSetNotificationsSeen,
+    token,
+    roles,
+    onDismissNotification,
+    onGetUsers,
+  } = props;
   const { id } = useParams();
 
   React.useEffect(() => {
@@ -94,6 +92,7 @@ const Settings = (props) => {
     onDismissNotification(token, roles, user._id, newNotifications).then((response) => {
       if (response) {
         setUser({ ...user, notifications: newNotifications });
+        onGetUsers(token);
       }
     });
   };
@@ -111,7 +110,7 @@ const Settings = (props) => {
 
   const profile = (
     <div className={classes.container}>
-      <img src={user.image} alt="" className={classes.image} />
+      <img src={user.image || profilePlaceholder} alt="" className="largeImage" />
       <DialogContent>
         <div className="spaceBetween">
           <Typography gutterBottom variant="h4">
@@ -151,7 +150,7 @@ const Settings = (props) => {
         </Typography>
       </DialogContent>
       <CustomizedSnackbars show={openSnackbar} severity={severity} message={newUser} />
-      <FormDialog
+      <UserDialog
         title="Edit User"
         show={showEditDialogue}
         close={() => onEdit()}
@@ -162,7 +161,7 @@ const Settings = (props) => {
   );
 
   const readingHistory = !user.readingHistory?.length ? (
-    <Typography className={classes.centered}>No reaading history for this user.</Typography>
+    <Typography className="centered">No reaading history for this user.</Typography>
   ) : (
     user.readingHistory
       .map((bookId) => {
@@ -173,7 +172,7 @@ const Settings = (props) => {
   );
 
   const notifications = !user.notifications?.length ? (
-    <Typography className={classes.centered}>Nothing to show here yet.</Typography>
+    <Typography className="centered">Nothing to show here yet.</Typography>
   ) : (
     user.notifications
       .map((n) => <Notification notification={n} dismiss={dismissNotification} key={n.timestamp} />)
@@ -228,6 +227,7 @@ Settings.propTypes = {
   books: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   onSetNotificationsSeen: PropTypes.func.isRequired,
   onDismissNotification: PropTypes.func.isRequired,
+  onGetUsers: PropTypes.func.isRequired,
   roles: PropTypes.arrayOf(PropTypes.string).isRequired,
   token: PropTypes.string.isRequired,
 };
@@ -242,6 +242,7 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch(updateNotifications(token, authUserRoles, userId, notifications)),
   onDismissNotification: (token, authUserRoles, userId, notifications) =>
     dispatch(updateNotifications(token, authUserRoles, userId, notifications)),
+  onGetUsers: (token) => dispatch(getUsers(token)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Settings);

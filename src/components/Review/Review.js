@@ -41,12 +41,6 @@ const useStyles = makeStyles((theme) => ({
     width: theme.spacing(3),
     height: theme.spacing(3),
   },
-  firstRow: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: '0.3rem',
-  },
 }));
 
 function ReviewCard(props) {
@@ -64,7 +58,7 @@ function ReviewCard(props) {
         onEdit={onEdit}
       />
       <CardContent>
-        <div className={classes.firstRow}>
+        <div className="spaceBetween">
           <div
             style={{
               display: 'flex',
@@ -98,8 +92,8 @@ function ReviewCard(props) {
                   TransitionProps={{ timeout: 600 }}
                   title="Edit"
                 >
-                  <IconButton aria-label="edit">
-                    <EditIcon fontSize="small" onClick={() => setShowReviewDialogue(true)} />
+                  <IconButton aria-label="edit" onClick={() => setShowReviewDialogue(true)}>
+                    <EditIcon fontSize="small" />
                   </IconButton>
                 </LightTooltip>
 
@@ -108,8 +102,8 @@ function ReviewCard(props) {
                   TransitionProps={{ timeout: 600 }}
                   title="Delete"
                 >
-                  <IconButton aria-label="edit">
-                    <DeleteIcon fontSize="small" onClick={() => onDelete(review._id)} />
+                  <IconButton aria-label="edit" onClick={() => onDelete(review._id)}>
+                    <DeleteIcon fontSize="small" />
                   </IconButton>
                 </LightTooltip>
               </>
@@ -131,15 +125,21 @@ function ReviewCard(props) {
 
 ReviewCard.propTypes = {
   review: PropTypes.objectOf(PropTypes.string, PropTypes.objectOf(PropTypes.string)).isRequired,
-  reviewAuthor: PropTypes.objectOf(PropTypes.string, PropTypes.objectOf(PropTypes.string))
-    .isRequired,
   authUser: PropTypes.string.isRequired,
   onDelete: PropTypes.func.isRequired,
   onEdit: PropTypes.func.isRequired,
+  reviewAuthor: PropTypes.objectOf(
+    PropTypes.shape({
+      username: PropTypes.string.isRequired,
+      roles: PropTypes.objectOf(PropTypes.string).isRequired,
+      _id: PropTypes.string.isRequired,
+      email: PropTypes.string.isRequired,
+      slice: PropTypes.string.isRequired,
+    })
+  ).isRequired,
 };
 
 const mapStateToProps = (state, props) => ({
-  // eslint-disable-next-line no-underscore-dangle
   reviewAuthor: state.users.users.filter((u) => u._id === props.review.userId)[0],
   authUser: state.users.authUser.username,
 });

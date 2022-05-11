@@ -11,12 +11,6 @@ import Button from '@material-ui/core/Button';
 import editionPlaceholder from '../../utils/edition_placeholder.png';
 
 const useStyles = makeStyles((theme) => ({
-  image: {
-    height: '80px',
-    width: '60px',
-    display: 'inline-flex',
-    objectFit: 'cover',
-  },
   search: {
     margin: theme.spacing(3, 0, 2),
     padding: '0.1rem',
@@ -28,17 +22,6 @@ const useStyles = makeStyles((theme) => ({
     padding: '0.2rem',
     borderBottom: '1px solid #DDD',
   },
-  centered: {
-    display: 'flex',
-    justifyContent: 'center',
-    marginBottom: '1rem',
-  },
-  firstRow: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: '0.3rem',
-  },
 }));
 
 const ConciseBook = (props) => {
@@ -48,15 +31,15 @@ const ConciseBook = (props) => {
   const isOverdue = new Date(book.owedBy?.dueDate).getTime() < new Date().getTime();
 
   if (!book) {
-    return <Typography className={classes.centered}>Nothing to show here.</Typography>;
+    return <Typography className="centered">Nothing to show here.</Typography>;
   }
 
   return (
     <div className={classes.selectedBook} key={book._id}>
-      <img src={book.image || editionPlaceholder} alt="" className={classes.image} />
+      <img src={book.image || editionPlaceholder} alt="" className="smallImage" />
       {book.serNo && (
         <div style={{ marginLeft: '2rem', width: '100%' }}>
-          <div className={classes.firstRow}>
+          <div className="spaceBetween">
             <Typography variant="h6">{book.serNo}</Typography>
             {lend || onReturnBook ? (
               <div>
@@ -96,7 +79,7 @@ const ConciseBook = (props) => {
               </div>
             ) : null}
           </div>
-          <div className={classes.firstRow}>
+          <div className="spaceBetween">
             <div style={{ display: 'flex', flexDirection: 'row' }}>
               <Typography variant="subtitle1">{book.title}</Typography>
               <Typography variant="subtitle1" style={{ color: '#AAA', marginLeft: '0.4rem' }}>
@@ -123,7 +106,20 @@ const ConciseBook = (props) => {
 };
 
 ConciseBook.propTypes = {
-  book: PropTypes.objectOf(PropTypes.objectOf(PropTypes.string), PropTypes.String).isRequired,
+  book: PropTypes.objectOf(
+    PropTypes.shape({
+      title: PropTypes.string,
+      category: PropTypes.string,
+      available: PropTypes.string,
+      description: PropTypes.string,
+      dueDate: PropTypes.string,
+      owedBy: PropTypes.objectOf(PropTypes.string),
+      reviews: PropTypes.arrayOf(PropTypes.string),
+      reservedBy: PropTypes.arrayOf(PropTypes.string),
+      rating: PropTypes.number,
+      author: PropTypes.string,
+    })
+  ),
   onReturnBook: PropTypes.func,
   lend: PropTypes.func,
   onNotifyUser: PropTypes.func,
@@ -135,6 +131,7 @@ ConciseBook.defaultProps = {
   lend: null,
   onNotifyUser: null,
   sendOverdueReminder: null,
+  book: {},
 };
 
 export default ConciseBook;

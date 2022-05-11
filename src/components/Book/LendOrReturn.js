@@ -15,9 +15,9 @@ import Tab from '@material-ui/core/Tab';
 import { makeStyles, styled } from '@material-ui/core/styles';
 import CustomizedSnackbars from '../Helpers/Snackbar';
 import ConciseBook from './ConciseBook';
-import Profile from '../User/Profile';
 import { getBooks, lendBook, returnBook, setNotification } from '../../actions/books';
 import { getUsers, notifyUser } from '../../actions/users';
+import Profile from '../User/Profile';
 
 const BootstrapInput = styled(InputBase)(({ theme }) => ({
   'label + &': {
@@ -73,17 +73,6 @@ const useStyles = makeStyles(() => ({
     minHeight: '50vh',
     overflow: 'auto',
     marginTop: '2rem',
-  },
-  centered: {
-    display: 'flex',
-    justifyContent: 'center',
-    margin: '5rem 1rem',
-  },
-  firstRow: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: '1rem',
   },
 }));
 
@@ -145,7 +134,7 @@ function LendOrReturn(props) {
   }, [token]);
 
   React.useEffect(async () => {
-    const result = users.filter((u) => u._id === id);
+    const result = await users.filter((u) => u._id === id);
     setUser(result[0]);
     if (result[0].owedBooks?.length) {
       setOwedBooks(result[0].owedBooks);
@@ -248,7 +237,7 @@ function LendOrReturn(props) {
 
       <div className={classes.results}>
         {!searchResults?.length ? (
-          <Typography className={classes.centered}>No results.</Typography>
+          <Typography className="centered">No results.</Typography>
         ) : (
           searchResults.map((bookId) => {
             const match = books.filter((book) => book === bookId);
@@ -262,7 +251,7 @@ function LendOrReturn(props) {
   );
 
   const owedBooksBlock = !owedBooks?.length ? (
-    <Typography className={classes.centered}>No owed books for this user.</Typography>
+    <Typography className="centered">No owed books for this user.</Typography>
   ) : (
     owedBooks.map((bookId) => {
       const match = books.filter((book) => book._id === bookId);
@@ -294,7 +283,7 @@ function LendOrReturn(props) {
           </Tabs>
           <div style={{ paddingTop: '2rem' }}>{value === 0 ? owedBooksBlock : lendBookBlock}</div>
 
-          <div className={classes.centered}>
+          <div className="centered">
             <ButtonGroup variant="outlined" size="large" aria-label="large button group">
               <Button autoFocus onClick={() => history.push(`/manage/users`)}>
                 back to users

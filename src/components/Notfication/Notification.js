@@ -16,11 +16,6 @@ const useStyles = makeStyles(() => ({
   button: {
     padding: '0.1rem 1rem',
   },
-  firstRow: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
 }));
 
 const Notification = (props) => {
@@ -32,7 +27,7 @@ const Notification = (props) => {
       style={{ backgroundColor: notification.seen === 'false' ? '#FFF' : '#f5f5f5' }}
     >
       <Typography variant="h5">{notification.message}</Typography>
-      <div className={classes.firstRow}>
+      <div className="spaceBetween">
         <Typography variant="subtitle1" style={{ color: '#AAA' }}>
           {new Date(notification.timestamp).toDateString()},{' '}
           {new Date(notification.timestamp).getUTCHours()}:
@@ -52,7 +47,7 @@ const Notification = (props) => {
 };
 
 Notification.propTypes = {
-  notification: PropTypes.objectOf(PropTypes.shape({}), PropTypes.string).isRequired,
+  notification: PropTypes.objectOf(PropTypes.string).isRequired,
   dismiss: PropTypes.func.isRequired,
 };
 

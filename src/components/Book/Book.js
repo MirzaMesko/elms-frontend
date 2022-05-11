@@ -11,7 +11,6 @@ import IconButton from '@material-ui/core/IconButton';
 import StarsIcon from '@material-ui/icons/Stars';
 import AddCommentIcon from '@material-ui/icons/AddComment';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
 import Fade from '@material-ui/core/Fade';
 import editionPlaceholder from '../../utils/edition_placeholder2.png';
 import Ratings from '../Helpers/Rating';
@@ -22,18 +21,6 @@ import ReviewDialog from '../Dialogues/ReviewDialogue';
 import Loading from '../Helpers/Loading';
 import Error from '../Helpers/Error';
 import { getBooks, addNewRating, addReview, updateReview, getBookById } from '../../actions/books';
-
-const useStyles = makeStyles(() => ({
-  image: {
-    maxWidth: '50%',
-    display: 'inline-flex',
-  },
-  container: {
-    display: 'flex',
-    maxHeight: '500px',
-    padding: '1rem',
-  },
-}));
 
 function BookDetails(props) {
   const { open, handleClose, bookId, onRateBook, token, authUserRoles, user, onReviewBook } = props;
@@ -49,7 +36,6 @@ function BookDetails(props) {
   const [error, setError] = React.useState({});
 
   const dispatch = useDispatch();
-  const classes = useStyles();
 
   const showSnackbar = (show, status, message) => {
     setSeverity(status);
@@ -171,8 +157,8 @@ function BookDetails(props) {
         </DialogContent>
       </Dialog>
       <Dialog onClose={onClose} aria-labelledby="customized-dialog-title" open={open} maxWidth="md">
-        <div className={classes.container}>
-          <img src={book.image || editionPlaceholder} alt="" className={classes.image} />
+        <div className="dialogueContainer">
+          <img src={book.image || editionPlaceholder} alt="" className="largeImage" />
           <DialogContent>
             {loading ? (
               <Loading />

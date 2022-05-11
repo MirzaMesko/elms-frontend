@@ -159,23 +159,11 @@ function UserDialog(props) {
       <DialogTitle id="form-dialog-title">{title}</DialogTitle>
       <DialogContent>
         <DialogContentText>Please fill in the following information.</DialogContentText>
-        <div style={{ display: 'flex' }}>
+        <div className="dialogueContainer">
           <div>
-            <input
-              type="image"
-              id="image"
-              alt="Login"
-              src={image}
-              style={{
-                height: '250px',
-                width: '300px',
-                objectFit: 'cover',
-                display: 'block',
-                paddingRight: '1rem',
-              }}
-            />
+            <input type="image" id="image" alt="Login" src={image} className="mediumImage" />
           </div>
-          <div>
+          <div style={{ marginLeft: '1rem' }}>
             <TextField
               margin="dense"
               autoComplete="off"

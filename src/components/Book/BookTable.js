@@ -111,7 +111,6 @@ function EnhancedTable(props) {
   };
 
   const onDelete = () => {
-    // eslint-disable-next-line no-underscore-dangle
     onDeleteBook(roles, selectedBook._id, token).then((response) => {
       if (response.status !== 200) {
         onShowSnackbar(true, 'error', response.message);
