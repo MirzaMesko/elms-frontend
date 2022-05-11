@@ -9,13 +9,8 @@ import { connect } from 'react-redux';
 import IconButton from '@material-ui/core/IconButton';
 import EmailIcon from '@material-ui/icons/Email';
 import DialogContent from '@material-ui/core/DialogContent';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
-import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
-import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 import DialogActions from '@material-ui/core/DialogActions';
 import Typography from '@material-ui/core/Typography';
-import { withStyles, makeStyles } from '@material-ui/core/styles';
-import Tooltip from '@material-ui/core/Tooltip';
 import Fade from '@material-ui/core/Fade';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import { notifyUser } from '../../actions/users';
@@ -24,35 +19,8 @@ import EmailDialogue from '../Dialogues/EmailDialogue';
 import NotificationDialogue from '../Dialogues/NotificationDialogue';
 import { sendEmail } from '../../actions/email';
 import profilePlaceholder from '../../utils/profile-picture-default-png.png';
-
-const useStyles = makeStyles(() => ({
-  image: {
-    height: '300px',
-    width: '300px',
-    display: 'inline-flex',
-    objectFit: 'cover',
-  },
-  container: {
-    display: 'flex',
-    maxHeight: '500px',
-    padding: '1rem',
-  },
-  firstRow: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: '0.3rem',
-  },
-}));
-
-const LightTooltip = withStyles((theme) => ({
-  tooltip: {
-    backgroundColor: theme.palette.common.white,
-    color: '#3f51b5',
-    boxShadow: theme.shadows[1],
-    fontSize: 11,
-  },
-}))(Tooltip);
+import * as helpers from '../Helpers/helpers';
+import { LightTooltip } from '../Helpers/Tooltip';
 
 function UserDetails(props) {
   const { open, handleClose, user, onNotifyUser, onSendEmail, token, roles } = props;
@@ -61,30 +29,9 @@ function UserDetails(props) {
   const [severity, setSeverity] = React.useState('');
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [errMessage, setErrMessage] = React.useState('');
-  const classes = useStyles();
   const image = user?.image ? user.image : profilePlaceholder;
 
   const history = useHistory();
-
-  const roleColor = (item) => {
-    if (item === 'Admin') {
-      return 'secondary';
-    }
-    if (item === 'Librarian') {
-      return 'primary';
-    }
-    return 'default';
-  };
-
-  const setIcon = (item) => {
-    if (item === 'Admin') {
-      return <VerifiedUserIcon />;
-    }
-    if (item === 'Librarian') {
-      return <AssignmentIndIcon />;
-    }
-    return <AccountCircleIcon />;
-  };
 
   const showSnackbar = (show, status, message) => {
     setSeverity(status);
@@ -120,7 +67,7 @@ function UserDetails(props) {
   };
 
   return (
-    <div>
+    <>
       <CustomizedSnackbars show={openSnackbar} severity={severity} message={errMessage} />
       <EmailDialogue
         show={showEmailDialogue}
@@ -141,14 +88,14 @@ function UserDetails(props) {
         open={open}
         maxWidth="md"
       >
-        <div className={classes.container}>
-          <img src={image} alt="" className={classes.image} />
+        <div className="dialogueContainer">
+          <img src={image} alt="" className="largeImage" />
           <DialogContent>
-            <div className={classes.firstRow}>
+            <span className="spaceBetween">
               <Typography gutterBottom variant="h4">
                 {user.username}
               </Typography>
-              <div>
+              <span>
                 <LightTooltip
                   TransitionComponent={Fade}
                   TransitionProps={{ timeout: 600 }}
@@ -175,29 +122,19 @@ function UserDetails(props) {
                     <EmailIcon fontSize="large" />
                   </IconButton>
                 </LightTooltip>
-              </div>
-            </div>
-            {user.roles ? (
+              </span>
+            </span>
+            {user.roles &&
               Object.values(user.roles).map((item) => (
                 <Chip
                   key={item + user._id}
-                  icon={setIcon(item)}
+                  icon={helpers.setIcon(item)}
                   size="small"
                   label={item}
-                  color={roleColor(item)}
+                  color={helpers.roleColor(item)}
                   style={{ margin: '3px' }}
                 />
-              ))
-            ) : (
-              <Chip
-                key="Member"
-                icon={setIcon('Member')}
-                size="small"
-                label="Member"
-                color={roleColor('Member')}
-                style={{ margin: '3px' }}
-              />
-            )}
+              ))}
             <Typography gutterBottom variant="subtitle2">
               {user.email}
             </Typography>
@@ -220,14 +157,21 @@ function UserDetails(props) {
           </Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </>
   );
 }
 
 UserDetails.propTypes = {
   open: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
-  user: PropTypes.objectOf(PropTypes.string, PropTypes.objectOf(PropTypes.string)).isRequired,
+  user: PropTypes.objectOf(
+    PropTypes.shape({
+      username: PropTypes.string,
+      roles: PropTypes.objectOf(PropTypes.string),
+      _id: PropTypes.string,
+      email: PropTypes.string,
+    })
+  ).isRequired,
   onNotifyUser: PropTypes.func.isRequired,
   onSendEmail: PropTypes.func.isRequired,
   roles: PropTypes.arrayOf(PropTypes.string).isRequired,
