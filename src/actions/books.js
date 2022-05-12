@@ -145,11 +145,6 @@ export function lendBook(book, user, authUserRoles, token) {
         url,
         {
           id: user._id,
-          email: user.email,
-          roles: Object.values(user.roles),
-          name: user.name,
-          image: user.image,
-          bio: user.bio,
           newOwedBooks: owed,
           readingHistory: history,
         },
@@ -163,17 +158,8 @@ export function lendBook(book, user, authUserRoles, token) {
               {
                 authUserRoles,
                 id: book._id,
-                title: book.title,
-                author: book.author,
-                year: book.year,
-                description: book.description,
-                category: book.category,
-                image: book.image,
-                publisher: book.publisher,
-                serNo: book.serNo,
                 available: 'false',
                 owedBy: { userId: user._id, dueDate: new Date(timeOfLending).toDateString() },
-                token,
               },
               { headers }
             )
