@@ -1,7 +1,8 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable react/jsx-no-comment-textnodes */
 import React from 'react';
 import Button from '@material-ui/core/Button';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import Typography from '@material-ui/core/Typography';
@@ -18,141 +19,140 @@ import profilePlaceholder from '../../utils/profile-picture-default-png.png';
 const roleOptions = ['Admin', 'Librarian', 'Member'];
 
 function UserDialog(props) {
-  const {
-    show,
-    close,
-    token,
-    onGetUsers,
-    onShowSnackbar,
-    user,
-    title,
-    onEditUser,
-    onAddUser,
-    authUserRoles,
-  } = props;
+  const { show, close, token, onShowSnackbar, user, title, authUserRoles } = props;
 
-  const [open, setOpen] = React.useState(show);
-  const [openConfirm, setOpenConfirm] = React.useState(false);
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [username, setUsername] = React.useState('');
-  const [userId, setUserId] = React.useState('');
-  const [bio, setBio] = React.useState('');
-  const [name, setName] = React.useState('');
-  const [image, setImage] = React.useState(profilePlaceholder);
-  const [roles, setRoles] = React.useState([]);
+  const [state, setState] = React.useState({
+    userId: '',
+    username: '',
+    password: '',
+    email: '',
+    image: profilePlaceholder,
+    bio: '',
+    name: '',
+    roles: [],
+    open: show,
+    openConfirm: false,
+  });
 
-  const handleUsernameChange = (event) => {
-    setUsername(event.target.value);
-  };
+  const dispatch = useDispatch();
 
-  const handlePasswordChange = (event) => {
-    setPassword(event.target.value);
-  };
-
-  const handleNameChange = (event) => {
-    setName(event.target.value);
-  };
-
-  const handleBioChange = (event) => {
-    setBio(event.target.value);
-  };
-
-  const handleEmailChange = (event) => {
-    setEmail(event.target.value);
+  const handleChange = (event) => {
+    setState({ ...state, [event.target.name]: event.target.value });
   };
 
   const handleRoleChange = (selectedRoles) => {
-    setRoles(selectedRoles);
-  };
-
-  const handleImageChange = (event) => {
-    setImage(event.target.value);
+    setState({ ...state, roles: selectedRoles });
   };
 
   const resetInput = () => {
-    setEmail('');
-    setBio('');
-    setName('');
-    setPassword('');
-    setUsername('');
-    setUserId('');
-    setRoles([]);
+    setState({
+      ...state,
+      userId: '',
+      username: '',
+      password: '',
+      email: '',
+      image: profilePlaceholder,
+      bio: '',
+      name: '',
+      roles: [],
+      open: false,
+      openConfirm: false,
+    });
   };
 
   const handleClose = () => {
-    setOpen(false);
     close();
-    setOpenConfirm(false);
     resetInput();
+    dispatch(getUsers(token));
   };
 
   const onAddNewUser = (event) => {
     event.preventDefault();
-    if (!email || !username || !password) {
+    if (!state.email || !state.username || !state.password) {
       onShowSnackbar(true, 'error', 'Please fill in the required fileds!');
       return;
     }
-    onAddUser(authUserRoles, email, username, password, roles, name, image, bio, token).then(
-      (response) => {
-        if (response.status !== 201) {
-          onShowSnackbar(true, 'error', `${response.message}`);
-        }
-        if (response.status === 201) {
-          onShowSnackbar(true, 'success', `User ${response.data.username} was created`);
-          onGetUsers(token);
-          close();
-          resetInput();
-        }
+    dispatch(
+      addUser(
+        authUserRoles,
+        state.email,
+        state.username,
+        state.password,
+        state.roles,
+        state.name,
+        state.image,
+        state.bio,
+        token
+      )
+    ).then((response) => {
+      if (response.status !== 201) {
+        onShowSnackbar(true, 'error', `${response.message}`);
       }
-    );
+      if (response.status === 201) {
+        onShowSnackbar(true, 'success', `User ${response.data.username} was created`);
+        handleClose();
+      }
+    });
   };
 
   const onEditSingleUser = (event) => {
     event.preventDefault();
-    onEditUser(authUserRoles, userId, email, roles, name, image, bio, token).then((response) => {
+    dispatch(
+      editUser(
+        authUserRoles,
+        state.userId,
+        state.email,
+        state.roles,
+        state.name,
+        state.image,
+        state.bio,
+        token
+      )
+    ).then((response) => {
       if (response.status === 400 || response.status === 401 || response.status === 403) {
         onShowSnackbar(true, 'error', response.message);
       }
       if (response.status === 200) {
         onShowSnackbar(true, 'success', `User ${response.data.username} was edited`);
-        onGetUsers(token);
-        close();
+        handleClose();
       }
     });
   };
 
   const showConfirm = () => {
-    if (username.length || password.length || email.length || name.length) {
-      setOpenConfirm(true);
+    if (state.username.length || state.password.length || state.email.length || state.name.length) {
+      setState({ ...state, openConfirm: true });
     } else {
       handleClose();
     }
   };
 
   React.useEffect(() => {
-    setOpen(show);
+    setState({ ...state, open: show });
     if (user.username) {
-      setEmail(user.email);
-      setBio(user.bio);
-      setName(user.name);
-      setPassword(user.password);
-      setUsername(user.username);
-      // eslint-disable-next-line no-underscore-dangle
-      setUserId(user._id);
-      setRoles(Object.values(user.roles));
-      setImage(user.image || profilePlaceholder);
+      setState({
+        ...state,
+        userId: user._id,
+        username: user.username,
+        password: user.password,
+        email: user.email,
+        image: user.image || profilePlaceholder,
+        bio: user.bio,
+        name: user.name,
+        roles: Object.values(user.roles),
+        open: show,
+      });
     }
   }, [show, user]);
 
   return (
-    <Dialog open={open} onClose={showConfirm} aria-labelledby="form-dialog-title">
+    <Dialog open={state.open} onClose={showConfirm} aria-labelledby="form-dialog-title">
       <Confirm
-        show={openConfirm}
+        show={state.openConfirm}
         title="Are you sure?"
         message="Entered input will be lost. Are you sure you want to cancel?"
         confirm={handleClose}
-        cancel={() => setOpenConfirm(false)}
+        cancel={() => setState({ ...state, openConfirm: false })}
         cancelText="confirm cancel"
         confirmText="continue editing"
       />
@@ -161,33 +161,35 @@ function UserDialog(props) {
         <DialogContentText>Please fill in the following information.</DialogContentText>
         <div className="dialogueContainer">
           <div>
-            <input type="image" id="image" alt="Login" src={image} className="mediumImage" />
+            <input type="image" id="image" alt="Login" src={state.image} className="mediumImage" />
           </div>
           <div style={{ marginLeft: '1rem' }}>
             <TextField
               margin="dense"
               autoComplete="off"
               label="Username*"
-              defaultValue={username}
-              disabled={username?.length > 1}
+              defaultValue={state.username}
+              disabled={title.includes('Edit')}
               type="username"
               fullWidth
-              onChange={handleUsernameChange}
+              name="username"
+              onChange={handleChange}
             />
             <TextField
               margin="dense"
               autoComplete="off"
               label="Password*"
               type="password"
-              disabled={password?.length > 1}
-              defaultValue={password}
+              disabled={title.includes('Edit')}
+              defaultValue={state.password}
               fullWidth
-              onChange={handlePasswordChange}
+              name="password"
+              onChange={handleChange}
             />
             <MulitpleSelect
               onChange={handleRoleChange}
-              selected={roles}
-              disabled={!roles.includes('Admin')}
+              selected={state.roles}
+              disabled={!authUserRoles.includes('Admin')}
               options={roleOptions}
               label="Roles"
             />
@@ -195,20 +197,22 @@ function UserDialog(props) {
               focus="true"
               margin="dense"
               id="email"
-              defaultValue={email}
+              defaultValue={state.email}
               label="Email Address*"
               type="email"
               fullWidth
-              onChange={handleEmailChange}
+              name="email"
+              onChange={handleChange}
             />
             <TextField
               margin="dense"
               id="name"
               label="Name"
               type="name"
-              defaultValue={name}
+              defaultValue={state.name}
               fullWidth
-              onChange={handleNameChange}
+              name="name"
+              onChange={handleChange}
             />
           </div>
         </div>
@@ -217,9 +221,10 @@ function UserDialog(props) {
           id="image"
           label="Image Url"
           type="text"
-          defaultValue={image}
+          defaultValue={state.image}
           fullWidth
-          onChange={handleImageChange}
+          name="image"
+          onChange={handleChange}
         />
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Typography>or</Typography>
@@ -231,7 +236,8 @@ function UserDialog(props) {
               multiple
               type="file"
               hidden
-              onChange={(event) => handleImageChange(event)}
+              name="image"
+              onChange={handleChange}
             />
             <Button variant="outlined" component="span">
               Upload image
@@ -244,10 +250,11 @@ function UserDialog(props) {
           id="bio"
           label="Bio"
           type="bio"
-          defaultValue={bio}
+          defaultValue={state.bio}
           fullWidth
           multiline
-          onChange={handleBioChange}
+          name="bio"
+          onChange={handleChange}
         />
       </DialogContent>
       <DialogActions>
@@ -266,12 +273,9 @@ UserDialog.propTypes = {
   show: PropTypes.bool.isRequired,
   close: PropTypes.func.isRequired,
   token: PropTypes.string.isRequired,
-  onGetUsers: PropTypes.func.isRequired,
   onShowSnackbar: PropTypes.func.isRequired,
   title: PropTypes.string.isRequired,
   user: PropTypes.objectOf(PropTypes.shape({})),
-  onEditUser: PropTypes.func.isRequired,
-  onAddUser: PropTypes.func.isRequired,
   authUserRoles: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
@@ -284,12 +288,4 @@ const mapStateToProps = (state) => ({
   authUserRoles: state.users.authUser.roles,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  onEditUser: (authUserRoles, userId, email, roles, name, image, bio, token) =>
-    dispatch(editUser(authUserRoles, userId, email, roles, name, image, bio, token)),
-  onGetUsers: (token) => dispatch(getUsers(token)),
-  onAddUser: (authUserRoles, email, username, password, roles, name, image, bio, token) =>
-    dispatch(addUser(authUserRoles, email, username, password, roles, name, image, bio, token)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(UserDialog);
+export default connect(mapStateToProps)(UserDialog);
