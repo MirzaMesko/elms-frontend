@@ -3,7 +3,7 @@ import { Typography } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -24,7 +24,7 @@ import EmailDialogue from '../Dialogues/EmailDialogue';
 import CustomizedSnackbars from '../Helpers/Snackbar';
 import EnhancedTableHead from '../Helpers/EnhancedTableHead';
 import { getBooks } from '../../actions/books';
-import { notifyUser } from '../../actions/users';
+import { notifyUser, getUsers } from '../../actions/users';
 import { sendEmail } from '../../actions/email';
 import * as helpers from '../Helpers/helpers';
 import { LightTooltip } from '../Helpers/Tooltip';
@@ -80,7 +80,9 @@ function EnhancedTable(props) {
   const [openUserDetails, setOpenUserDetails] = React.useState(false);
   const [showEmailDialogue, setShowEmailDialogue] = React.useState(false);
 
-  const { books, roles, token, onNotifyUser, users, onSendEmail } = props;
+  const { books, roles, token, users } = props;
+
+  const dispatch = useDispatch();
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -104,10 +106,12 @@ function EnhancedTable(props) {
     setTimeout(() => {
       setOpenSnackbar(false);
     }, 6000);
+    dispatch(getUsers(token));
+    dispatch(getBooks(token));
   };
 
   const handleSendEmail = (email, subject, text) => {
-    onSendEmail(token, roles, email, subject, text).then((resp) => {
+    dispatch(sendEmail(token, roles, email, subject, text)).then((resp) => {
       if (resp.status !== 200) {
         showSnackbar(true, 'error', resp.message);
       }
@@ -133,11 +137,13 @@ function EnhancedTable(props) {
 
   const sendReminder = (book) => {
     setShowConfirm(false);
-    onNotifyUser(
-      token,
-      roles,
-      book.owedBy.userId,
-      `"${book.title}" by "${book.author}" is overdue. Please return it as soon as possible!`
+    dispatch(
+      notifyUser(
+        token,
+        roles,
+        book.owedBy.userId,
+        `"${book.title}" by "${book.author}" is overdue. Please return it as soon as possible!`
+      )
     ).then((response) => {
       if (response.status !== 200) {
         showSnackbar(true, 'error', response.message);
@@ -150,8 +156,6 @@ function EnhancedTable(props) {
             users?.filter((u) => u._id === selectedBook.owedBy.userId)[0].username
           }.`
         );
-        // onGetUsers(token);
-        // onGetBooks(token);
       }
     });
   };
@@ -385,8 +389,6 @@ EnhancedTable.propTypes = {
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   roles: PropTypes.arrayOf(PropTypes.string).isRequired,
   token: PropTypes.string.isRequired,
-  onNotifyUser: PropTypes.func.isRequired,
-  onSendEmail: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -395,12 +397,4 @@ const mapStateToProps = (state) => ({
   users: state.users.users,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  onGetBooks: (token) => dispatch(getBooks(token)),
-  onSendEmail: (token, authUserRoles, email, subject, text) =>
-    dispatch(sendEmail(token, authUserRoles, email, subject, text)),
-  onNotifyUser: (token, authUserRoles, userId, message) =>
-    dispatch(notifyUser(token, authUserRoles, userId, message)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(EnhancedTable);
+export default connect(mapStateToProps)(EnhancedTable);
