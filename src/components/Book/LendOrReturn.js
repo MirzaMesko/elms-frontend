@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
 import SearchIcon from '@material-ui/icons/Search';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
@@ -77,18 +77,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 function LendOrReturn(props) {
-  const {
-    users,
-    books,
-    onGetBooks,
-    token,
-    authUserRoles,
-    onGetUsers,
-    onLendBook,
-    onReturnBook,
-    onSetNotification,
-    onNotifyUser,
-  } = props;
+  const { users, books, token, authUserRoles } = props;
   const classes = useStyles();
   const [search, setSearch] = React.useState('');
   const [user, setUser] = React.useState({});
@@ -101,6 +90,7 @@ function LendOrReturn(props) {
 
   const { id } = useParams();
   const history = useHistory();
+  const dispatch = useDispatch();
 
   const showSnackbar = (show, status, message) => {
     setSeverity(status);
@@ -109,6 +99,8 @@ function LendOrReturn(props) {
     setTimeout(() => {
       setOpenSnackbar(false);
     }, 6000);
+    dispatch(getBooks(token));
+    dispatch(getUsers(token));
   };
 
   const handleChange = (event, newValue) => {
@@ -130,7 +122,7 @@ function LendOrReturn(props) {
   }, [search]);
 
   React.useEffect(() => {
-    onGetBooks(token);
+    dispatch(getBooks(token));
   }, [token]);
 
   React.useEffect(async () => {
@@ -145,33 +137,34 @@ function LendOrReturn(props) {
 
   const returnABook = (book) => {
     const newOwedBooks = owedBooks.filter((i) => i !== book._id);
-    onReturnBook(token, authUserRoles, book, user, newOwedBooks).then((resp) => {
+    dispatch(returnBook(token, authUserRoles, book, user, newOwedBooks)).then((resp) => {
       if (resp.status !== 200) {
         showSnackbar(true, 'error', resp.message);
       }
       if (resp.status === 200) {
         showSnackbar(true, 'success', `Book ${book.title} was returned`);
-        onNotifyUser(
-          token,
-          authUserRoles,
-          book.reservedBy[0],
-          `${book.title} by ${book.author} is now available.`
-        ).then((response) => {
-          // eslint-disable-next-line no-console
-          console.log(response);
-        });
-        onGetBooks(token);
-        onGetUsers(token);
+        if (book.reservedBy[0]) {
+          dispatch(
+            notifyUser(
+              token,
+              authUserRoles,
+              book.reservedBy[0],
+              `${book.title} by ${book.author} is now available.`
+            )
+          );
+        }
       }
     });
   };
 
   const sendReminder = (book) => {
-    onNotifyUser(
-      token,
-      authUserRoles,
-      book.owedBy.userId,
-      `"${book.title}" by "${book.author}" is overdue. Please return it as soon as possible!`
+    dispatch(
+      notifyUser(
+        token,
+        authUserRoles,
+        book.owedBy.userId,
+        `"${book.title}" by "${book.author}" is overdue. Please return it as soon as possible!`
+      )
     ).then((response) => {
       if (response.status !== 200) {
         showSnackbar(true, 'error', response.message);
@@ -182,26 +175,23 @@ function LendOrReturn(props) {
           'success',
           `A reminder that "${book.title}" by "${book.author}" is overdue was sent to ${user.username}.`
         );
-        onGetUsers(token);
       }
     });
   };
 
   const lend = (book) => {
-    onLendBook(book, user, authUserRoles, token).then((resp) => {
+    dispatch(lendBook(book, user, authUserRoles, token)).then((resp) => {
       if (resp.status !== 200) {
         showSnackbar(true, 'error', resp.message);
       }
       if (resp.status === 200) {
         showSnackbar(true, 'success', `Book ${book.title} was lent to ${user.username}`);
-        onGetBooks(token);
-        onGetUsers(token);
       }
     });
   };
 
   const setNewNotification = (book) => {
-    onSetNotification(token, authUserRoles, book, user._id).then((resp) => {
+    dispatch(setNotification(token, authUserRoles, book, user._id)).then((resp) => {
       if (resp.status !== 200) {
         showSnackbar(true, 'error', resp.message);
       }
@@ -211,8 +201,6 @@ function LendOrReturn(props) {
           'success',
           `User ${user.username} will be notified when ${book.title} by ${book.author} is available.`
         );
-        onGetBooks(token);
-        onGetUsers(token);
       }
     });
   };
@@ -300,13 +288,7 @@ LendOrReturn.propTypes = {
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   books: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   token: PropTypes.string.isRequired,
-  onGetBooks: PropTypes.func.isRequired,
-  onLendBook: PropTypes.func.isRequired,
   authUserRoles: PropTypes.arrayOf(PropTypes.string).isRequired,
-  onGetUsers: PropTypes.func.isRequired,
-  onReturnBook: PropTypes.func.isRequired,
-  onSetNotification: PropTypes.func.isRequired,
-  onNotifyUser: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -315,17 +297,4 @@ const mapStateToProps = (state) => ({
   authUserRoles: state.users.authUser.roles,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  onGetBooks: (token) => dispatch(getBooks(token)),
-  onLendBook: (book, user, authUserRoles, token) =>
-    dispatch(lendBook(book, user, authUserRoles, token)),
-  onReturnBook: (token, authUserRoles, book, user, newOwedBooks) =>
-    dispatch(returnBook(token, authUserRoles, book, user, newOwedBooks)),
-  onGetUsers: (token) => dispatch(getUsers(token)),
-  onSetNotification: (token, authUserRoles, book, userId) =>
-    dispatch(setNotification(token, authUserRoles, book, userId)),
-  onNotifyUser: (token, authUserRoles, userId, message) =>
-    dispatch(notifyUser(token, authUserRoles, userId, message)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(LendOrReturn);
+export default connect(mapStateToProps)(LendOrReturn);
