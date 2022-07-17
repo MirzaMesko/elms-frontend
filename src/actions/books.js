@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable no-underscore-dangle */
 // import { editUser } from './users';
 
@@ -136,6 +137,7 @@ export function lendBook(book, user, authUserRoles, token) {
   const history = user.readingHistory;
   history.push(book._id);
   const timeOfLending = new Date().getTime() + 1000 * 3600 * 168;
+  const dueDate = new Date(timeOfLending).toDateString();
   const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
   const url = `http://localhost:3500/users`;
 
@@ -159,7 +161,7 @@ export function lendBook(book, user, authUserRoles, token) {
                 authUserRoles,
                 id: book._id,
                 available: 'false',
-                owedBy: { userId: user._id, dueDate: new Date(timeOfLending).toDateString() },
+                owedBy: { userId: user._id, dueDate },
               },
               { headers }
             )
@@ -215,7 +217,7 @@ export function setNotification(token, authUserRoles, book, userId) {
         url,
         {
           id: book._id,
-          reservedBy,
+          reservedBy: userId,
         },
         { headers }
       )

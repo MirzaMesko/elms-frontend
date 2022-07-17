@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
@@ -9,6 +9,8 @@ import WarningIcon from '@material-ui/icons/Warning';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import Button from '@material-ui/core/Button';
 import editionPlaceholder from '../../utils/edition_placeholder.png';
+// @ts-ignore
+import type { Book } from '../../types.ts';
 
 const useStyles = makeStyles((theme) => ({
   search: {
@@ -24,11 +26,21 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ConciseBook = (props) => {
+interface OwnProps {
+  book: Book;
+  onReturnBook: (book: Book) => void | undefined;
+  lend: (book: Book) => void | undefined;
+  onNotifyUser: (book: Book) => void | undefined;
+  sendOverdueReminder: (book: Book) => void | undefined;
+}
+
+const ConciseBook: React.FC<OwnProps> = (props: OwnProps) => {
   const { onReturnBook, book, lend, onNotifyUser, sendOverdueReminder } = props;
   const classes = useStyles();
+  const isTaken: string | undefined = book.owedBy?.dueDate;
+  const showActionButtons: boolean = lend !== undefined || onReturnBook !== undefined;
 
-  const isOverdue = new Date(book.owedBy?.dueDate).getTime() < new Date().getTime();
+  const isOverdue: boolean = isTaken ? new Date(isTaken).getTime() < new Date().getTime() : false;
 
   if (!book) {
     return <Typography className="centered">Nothing to show here.</Typography>;
@@ -41,7 +53,7 @@ const ConciseBook = (props) => {
         <div style={{ marginLeft: '2rem', width: '100%' }}>
           <div className="spaceBetween">
             <Typography variant="h6">{book.serNo}</Typography>
-            {lend || onReturnBook ? (
+            {showActionButtons && (
               <div>
                 {book.available === 'false' ? (
                   <div>
@@ -77,7 +89,7 @@ const ConciseBook = (props) => {
                   </Button>
                 )}
               </div>
-            ) : null}
+            )}
           </div>
           <div className="spaceBetween">
             <div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -87,7 +99,7 @@ const ConciseBook = (props) => {
               </Typography>
             </div>
 
-            {(lend || onReturnBook) && book.owedBy?.dueDate.length > 1 && (
+            {showActionButtons && isTaken && (
               <Typography
                 style={{
                   padding: '0.3rem 1rem',
@@ -95,7 +107,7 @@ const ConciseBook = (props) => {
                   color: isOverdue ? 'red' : '#3f51b5',
                 }}
               >
-                Due on {book.owedBy.dueDate}
+                Due on {isTaken}
               </Typography>
             )}
           </div>
@@ -103,35 +115,6 @@ const ConciseBook = (props) => {
       )}
     </div>
   );
-};
-
-ConciseBook.propTypes = {
-  book: PropTypes.objectOf(
-    PropTypes.shape({
-      title: PropTypes.string,
-      category: PropTypes.string,
-      available: PropTypes.string,
-      description: PropTypes.string,
-      dueDate: PropTypes.string,
-      owedBy: PropTypes.objectOf(PropTypes.string),
-      reviews: PropTypes.arrayOf(PropTypes.string),
-      reservedBy: PropTypes.arrayOf(PropTypes.string),
-      rating: PropTypes.number,
-      author: PropTypes.string,
-    })
-  ),
-  onReturnBook: PropTypes.func,
-  lend: PropTypes.func,
-  onNotifyUser: PropTypes.func,
-  sendOverdueReminder: PropTypes.func,
-};
-
-ConciseBook.defaultProps = {
-  onReturnBook: null,
-  lend: null,
-  onNotifyUser: null,
-  sendOverdueReminder: null,
-  book: {},
 };
 
 export default ConciseBook;

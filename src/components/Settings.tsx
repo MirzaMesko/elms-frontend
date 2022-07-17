@@ -1,7 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Chip from '@material-ui/core/Chip';
@@ -12,13 +11,18 @@ import DialogContent from '@material-ui/core/DialogContent';
 import Typography from '@material-ui/core/Typography';
 import UserDialog from './Dialogues/UserDialogue';
 import CustomizedSnackbars from './Helpers/Snackbar';
-import ConciseBook from './Book/ConciseBook';
 import Notification from './Notfication/Notification';
 import TabPanel from './Helpers/TabPanel';
 import LinkTab from './Helpers/LinkTab';
 import profilePlaceholder from '../utils/profile-picture-default-png.png';
 import { updateNotifications, getUsers } from '../actions/users';
 import * as helpers from './Helpers/helpers';
+// @ts-ignore
+import type { RootState, AppDispatch } from '../store.ts';
+// @ts-ignore
+import ConciseBook from './Book/ConciseBook.tsx';
+// @ts-ignore
+import type { User, Book, NotificationType } from '../types.ts';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -34,16 +38,18 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const Settings = (props) => {
-  const [user, setUser] = React.useState({});
-  const [value, setValue] = React.useState(0);
-  const [showEditDialogue, setShowEditDialogue] = React.useState(false);
-  const [selectedUser, setSelectedUser] = React.useState();
-  const [severity, setSeverity] = React.useState('');
-  const [openSnackbar, setOpenSnackbar] = React.useState(false);
-  const [newUser, setNewUser] = React.useState('');
+type Params = {
+  id: string;
+};
 
-  const classes = useStyles();
+interface OwnProps {
+  users: [User];
+  books: [Book];
+}
+
+type Props = RootState & AppDispatch & OwnProps;
+
+const Settings: React.FC<Props> = (props: Props) => {
   const {
     users,
     books,
@@ -53,7 +59,18 @@ const Settings = (props) => {
     onDismissNotification,
     onGetUsers,
   } = props;
-  const { id } = useParams();
+
+  const [user, setUser] = React.useState<User | any>({});
+  const [value, setValue] = React.useState<number>(0);
+  const [showEditDialogue, setShowEditDialogue] = React.useState<boolean>(false);
+  const [selectedUser, setSelectedUser] = React.useState<User | {}>({});
+  const [severity, setSeverity] = React.useState<string>('');
+  const [openSnackbar, setOpenSnackbar] = React.useState<boolean>(false);
+  const [message, setMessage] = React.useState<string>('');
+
+  const classes = useStyles();
+
+  const { id } = useParams<Params>();
 
   React.useEffect(() => {
     if (window.location.href.includes('profile') && value !== 1) {
@@ -67,29 +84,29 @@ const Settings = (props) => {
     }
   }, [window.location.href]);
 
-  const showSnackbar = (show, status, message) => {
+  const showSnackbar = (show: boolean, status: string, msg: string) => {
     setSeverity(status);
-    setNewUser(message);
+    setMessage(msg);
     setOpenSnackbar(show);
     setTimeout(() => {
       setOpenSnackbar(false);
     }, 6000);
   };
 
-  const handleChange = (event, newValue) => {
+  const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setValue(newValue);
   };
 
-  const onEdit = (u) => {
+  const onEdit = (u: {}) => {
     setSelectedUser(u);
     setShowEditDialogue(!showEditDialogue);
   };
 
-  const dismissNotification = (notification) => {
-    const newNotifications = user.notifications.filter(
-      (n) => n.timestamp !== notification.timestamp
+  const dismissNotification = (notification: NotificationType) => {
+    const newNotifications = user?.notifications?.filter(
+      (n: NotificationType) => n.timestamp !== notification.timestamp
     );
-    onDismissNotification(token, roles, user._id, newNotifications).then((response) => {
+    onDismissNotification(token, roles, user._id, newNotifications).then((response: any) => {
       if (response) {
         setUser({ ...user, notifications: newNotifications });
         onGetUsers(token);
@@ -97,9 +114,9 @@ const Settings = (props) => {
     });
   };
 
-  React.useEffect(async () => {
-    const result = users.filter((u) => u.username === id);
-    const notificationsSeen = await result[0].notifications.map((n) => ({
+  React.useEffect(() => {
+    const result = users.filter((u: User) => u.username === id);
+    const notificationsSeen = result[0].notifications.map((n: NotificationType) => ({
       message: n.message,
       timestamp: n.timestamp,
       seen: 'true',
@@ -110,11 +127,11 @@ const Settings = (props) => {
 
   const profile = (
     <div className={classes.container}>
-      <img src={user.image || profilePlaceholder} alt="" className="largeImage" />
+      <img src={user?.image || profilePlaceholder} alt="" className="largeImage" />
       <DialogContent>
         <div className="spaceBetween">
           <Typography gutterBottom variant="h4">
-            {user.username}
+            {user?.username}
           </Typography>
           <Button
             autoFocus
@@ -128,7 +145,7 @@ const Settings = (props) => {
           </Button>
         </div>
         {user.roles &&
-          Object.values(user.roles).map((item) => (
+          Object.values(user.roles).map((item: any) => (
             <Chip
               key={item + user._id}
               icon={helpers.setIcon(item)}
@@ -149,11 +166,11 @@ const Settings = (props) => {
           {user.bio}
         </Typography>
       </DialogContent>
-      <CustomizedSnackbars show={openSnackbar} severity={severity} message={newUser} />
+      <CustomizedSnackbars show={openSnackbar} severity={severity} message={message} />
       <UserDialog
         title="Edit User"
         show={showEditDialogue}
-        close={() => onEdit()}
+        close={() => onEdit(selectedUser)}
         user={selectedUser}
         onShowSnackbar={showSnackbar}
       />
@@ -164,9 +181,9 @@ const Settings = (props) => {
     <Typography className="centered">No reaading history for this user.</Typography>
   ) : (
     user.readingHistory
-      .map((bookId) => {
-        const match = books.filter((book) => book._id === bookId);
-        return match.map((owedBook) => <ConciseBook book={owedBook} key={owedBook._id} />);
+      .map((bookId: string) => {
+        const match = books.filter((book: { _id: string }) => book._id === bookId);
+        return match.map((owedBook: Book) => <ConciseBook book={owedBook} />);
       })
       .reverse()
   );
@@ -175,11 +192,13 @@ const Settings = (props) => {
     <Typography className="centered">Nothing to show here yet.</Typography>
   ) : (
     user.notifications
-      .map((n) => <Notification notification={n} dismiss={dismissNotification} key={n.timestamp} />)
+      .map((n: NotificationType) => (
+        <Notification notification={n} dismiss={dismissNotification} key={n.timestamp} />
+      ))
       .reverse()
   );
 
-  function a11yProps(index) {
+  function a11yProps(index: number) {
     return {
       id: `nav-tab-${index}`,
       'aria-controls': `nav-tabpanel-${index}`,
@@ -222,27 +241,28 @@ const Settings = (props) => {
   );
 };
 
-Settings.propTypes = {
-  users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  books: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  onSetNotificationsSeen: PropTypes.func.isRequired,
-  onDismissNotification: PropTypes.func.isRequired,
-  onGetUsers: PropTypes.func.isRequired,
-  roles: PropTypes.arrayOf(PropTypes.string).isRequired,
-  token: PropTypes.string.isRequired,
-};
-
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: RootState) => ({
   roles: state.users.authUser.roles,
   token: state.users.token,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  onSetNotificationsSeen: (token, authUserRoles, userId, notifications) =>
-    dispatch(updateNotifications(token, authUserRoles, userId, notifications)),
-  onDismissNotification: (token, authUserRoles, userId, notifications) =>
-    dispatch(updateNotifications(token, authUserRoles, userId, notifications)),
-  onGetUsers: (token) => dispatch(getUsers(token)),
+const mapDispatchToProps = (dispatch: AppDispatch) => ({
+  onSetNotificationsSeen: (
+    token: string,
+    authUserRoles: { x: string },
+    userId: string,
+    notifications: [NotificationType]
+  ) => dispatch(updateNotifications(token, authUserRoles, userId, notifications)),
+  onDismissNotification: (
+    token: string,
+    authUserRoles: { x: string },
+    userId: string,
+    notifications: [NotificationType]
+  ) => dispatch(updateNotifications(token, authUserRoles, userId, notifications)),
+  onGetUsers: (token: string) => dispatch(getUsers(token)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Settings);
+export default connect<RootState, AppDispatch, OwnProps>(
+  mapStateToProps,
+  mapDispatchToProps
+)(Settings);

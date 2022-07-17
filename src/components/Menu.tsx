@@ -1,5 +1,4 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
@@ -12,14 +11,20 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Avatar from '@material-ui/core/Avatar';
 
-function BasicMenu(props) {
-  const [anchorEl, setAnchorEl] = React.useState(null);
+interface MenuProps {
+  userAvatar: string;
+  username: string;
+  onLogout: () => void;
+}
+
+const BasicMenu: React.FC<MenuProps> = (props: MenuProps) => {
+  const [anchorEl, setAnchorEl] = React.useState<any>();
   const open = Boolean(anchorEl);
   const { userAvatar, onLogout, username } = props;
 
   const history = useHistory();
 
-  const handleClick = (event) => {
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
     setAnchorEl(event.currentTarget);
   };
 
@@ -72,12 +77,6 @@ function BasicMenu(props) {
       </Menu>
     </div>
   );
-}
-
-BasicMenu.propTypes = {
-  userAvatar: PropTypes.string.isRequired,
-  username: PropTypes.string.isRequired,
-  onLogout: PropTypes.func.isRequired,
 };
 
 export default BasicMenu;

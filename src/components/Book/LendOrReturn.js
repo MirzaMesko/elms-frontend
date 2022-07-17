@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-underscore-dangle */
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -13,8 +14,9 @@ import Tabs from '@material-ui/core/Tabs';
 import InputBase from '@material-ui/core/InputBase';
 import Tab from '@material-ui/core/Tab';
 import { makeStyles, styled } from '@material-ui/core/styles';
+import TabPanel from '../Helpers/TabPanel';
 import CustomizedSnackbars from '../Helpers/Snackbar';
-import ConciseBook from './ConciseBook';
+import ConciseBook from './ConciseBook.tsx';
 import { getBooks, lendBook, returnBook, setNotification } from '../../actions/books';
 import { getUsers, notifyUser } from '../../actions/users';
 import Profile from '../User/Profile';
@@ -121,9 +123,9 @@ function LendOrReturn(props) {
     }
   }, [search]);
 
-  React.useEffect(() => {
-    dispatch(getBooks(token));
-  }, [token]);
+  // React.useEffect(() => {
+  //   dispatch(getBooks(token));
+  // }, [token]);
 
   React.useEffect(async () => {
     const result = await users.filter((u) => u._id === id);
@@ -180,6 +182,8 @@ function LendOrReturn(props) {
   };
 
   const lend = (book) => {
+    setSearchResults('');
+    setSearch('');
     dispatch(lendBook(book, user, authUserRoles, token)).then((resp) => {
       if (resp.status !== 200) {
         showSnackbar(true, 'error', resp.message);
@@ -227,12 +231,9 @@ function LendOrReturn(props) {
         {!searchResults?.length ? (
           <Typography className="centered">No results.</Typography>
         ) : (
-          searchResults.map((bookId) => {
-            const match = books.filter((book) => book === bookId);
-            return match.map((b) => (
-              <ConciseBook book={b} lend={lend} onNotifyUser={setNewNotification} key={b._id} />
-            ));
-          })
+          searchResults.map((book) => (
+            <ConciseBook book={book} lend={lend} onNotifyUser={setNewNotification} key={book._id} />
+          ))
         )}
       </div>
     </>
@@ -244,14 +245,23 @@ function LendOrReturn(props) {
     owedBooks.map((bookId) => {
       const match = books.filter((book) => book._id === bookId);
       return match.map((owedBook) => (
-        <ConciseBook
-          book={owedBook}
-          onReturnBook={returnABook}
-          sendOverdueReminder={sendReminder}
-        />
+        <div key={owedBook._id}>
+          <ConciseBook
+            book={owedBook}
+            onReturnBook={returnABook}
+            sendOverdueReminder={sendReminder}
+          />
+        </div>
       ));
     })
   );
+
+  function a11yProps(index) {
+    return {
+      id: `simple-tab-${index}`,
+      'aria-controls': `simple-tabpanel-${index}`,
+    };
+  }
 
   return (
     <div>
@@ -266,10 +276,19 @@ function LendOrReturn(props) {
             textColor="primary"
             indicatorColor="primary"
           >
-            <Tab label="Owed Books" />
-            <Tab label="Lend new book" />
+            <Tab label="Lend new book" {...a11yProps(0)} />
+            <Tab label="Owed Books" {...a11yProps(1)} />
           </Tabs>
-          <div style={{ paddingTop: '2rem' }}>{value === 0 ? owedBooksBlock : lendBookBlock}</div>
+          <TabPanel value={value} index={0} key={0}>
+            {lendBookBlock}
+          </TabPanel>
+          <TabPanel value={value} index={1} key={1}>
+            {owedBooksBlock}
+          </TabPanel>
+
+          {/* <div style={{ paddingTop: '2rem' }}>
+            {value === 0 ? { owedBooksBlock } : { lendBookBlock }}
+          </div> */}
 
           <div className="centered">
             <ButtonGroup variant="outlined" size="large" aria-label="large button group">
@@ -295,6 +314,7 @@ const mapStateToProps = (state) => ({
   token: state.users.token,
   books: state.books.books,
   authUserRoles: state.users.authUser.roles,
+  users: state.users.users,
 });
 
 export default connect(mapStateToProps)(LendOrReturn);

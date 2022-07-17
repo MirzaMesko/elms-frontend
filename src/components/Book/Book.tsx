@@ -1,8 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable no-underscore-dangle */
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { connect, useDispatch } from 'react-redux';
+import { connect } from 'react-redux';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -21,9 +20,46 @@ import ReviewDialog from '../Dialogues/ReviewDialogue';
 import Loading from '../Helpers/Loading';
 import Error from '../Helpers/Error';
 import { getBooks, addNewRating, addReview, updateReview, getBookById } from '../../actions/books';
+// @ts-ignore
+import { RootState, AppDispatch } from '../../store.ts';
+// @ts-ignore
+import type { User, Book } from '../../types.ts';
 
-function BookDetails(props) {
-  const { open, handleClose, bookId, onRateBook, token, authUserRoles, user, onReviewBook } = props;
+interface OwnProps {
+  open: boolean;
+  handleClose: () => void;
+  addNewRating: () => Promise<any>;
+  onReviewBook: () => Promise<any>;
+  getBookById: () => Promise<any>;
+  addReview: () => Promise<any>;
+  getBooks: () => Promise<any>;
+  updateReview: () => Promise<any>;
+  bookId: string;
+  authUserRoles: string[];
+  token: string;
+  user: User;
+  err: {
+    error: boolean;
+    message: string;
+  };
+}
+type Props = RootState & AppDispatch & OwnProps;
+
+const BookDetails: React.FC<OwnProps> = (props: Props) => {
+  const {
+    open,
+    handleClose,
+    bookId,
+    token,
+    authUserRoles,
+    user,
+    err,
+    onReviewBook,
+    onUpdateReview,
+    onGetBookById,
+    onAddReview,
+  } = props;
+
   const [showRatingDialogue, setShowRatingDialogue] = React.useState(false);
   const [showReviewDialogue, setShowReviewDialogue] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
@@ -31,13 +67,11 @@ function BookDetails(props) {
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [errMessage, setErrMessage] = React.useState('');
   const [bookRating, setBookRating] = React.useState(0);
-  const [bookReviews, setBookReviews] = React.useState({});
-  const [book, setBook] = React.useState({});
-  const [error, setError] = React.useState({});
+  const [bookReviews, setBookReviews] = React.useState<Book.reviews>([]);
+  const [book, setBook] = React.useState<Book>({});
+  const [error, setError] = React.useState<typeof err>();
 
-  const dispatch = useDispatch();
-
-  const showSnackbar = (show, status, message) => {
+  const showSnackbar = (show: boolean, status: string, message: string) => {
     setSeverity(status);
     setErrMessage(message);
     setOpenSnackbar(show);
@@ -46,8 +80,10 @@ function BookDetails(props) {
     }, 3000);
   };
 
-  const calculateRating = (ratings) => {
-    const rating = ratings.map((r) => r.rating).reduce((a, b) => a + b, 0) / ratings.length;
+  const calculateRating = (ratings: [{ userId: string; rating: number }]) => {
+    const rating =
+      ratings.map((r: { userId: string; rating: number }) => r.rating).reduce((a, b) => a + b, 0) /
+      ratings.length;
     setBookRating(rating);
   };
 
@@ -55,82 +91,101 @@ function BookDetails(props) {
     handleClose();
   };
 
-  const rateBook = (ratingValue) => {
+  const rateBook = (ratingValue: number) => {
     setShowRatingDialogue(false);
-    onRateBook(token, authUserRoles, book.title, user[0]._id, ratingValue).then((response) => {
-      if (response.status !== 200) {
-        showSnackbar(true, 'error', response.message);
+    onReviewBook(token, authUserRoles, book.title, user[0]._id, ratingValue).then(
+      (response: { status: number; message: string }) => {
+        if (response.status !== 200) {
+          showSnackbar(true, 'error', response.message);
+        }
+        if (response.status === 200) {
+          showSnackbar(true, 'success', 'Thank you for your rating.');
+          const sum: Array<{ userId: string; rating: number }> | any = [
+            ...book.rating,
+            { userId: user[0]._id, rating: ratingValue },
+          ];
+          calculateRating(sum);
+        }
       }
-      if (response.status === 200) {
-        showSnackbar(true, 'success', 'Thank you for your rating.');
-        const sum = [...book.rating, { userId: user[0]._id, rating: ratingValue }];
-        calculateRating(sum);
-      }
-    });
+    );
   };
 
-  const reviewBook = (review) => {
+  const reviewBook = (review: string) => {
     setShowReviewDialogue(false);
-    onReviewBook(token, authUserRoles, book.title, user[0]._id, review).then((response) => {
-      if (response.status !== 200) {
-        showSnackbar(true, 'error', response.message);
+    onAddReview(token, authUserRoles, book.title, user[0]._id, review).then(
+      (response: { status: number; message: string; data: any }) => {
+        if (response.status !== 200) {
+          showSnackbar(true, 'error', response.message);
+        }
+        if (response.status === 200) {
+          showSnackbar(true, 'success', 'Thank you for your review.');
+          setBookReviews([...bookReviews, response.data]);
+        }
       }
-      if (response.status === 200) {
-        showSnackbar(true, 'success', 'Thank you for your review.');
-        setBookReviews([...bookReviews, response.data]);
-      }
-    });
+    );
   };
 
-  const delReview = (id) => {
-    const afterDelete = bookReviews.filter((r) => r._id !== id);
-    dispatch(updateReview(token, authUserRoles, book.title, afterDelete)).then((response) => {
-      if (response.status !== 200) {
-        showSnackbar(true, 'error', response.message);
+  const delReview = (id: string) => {
+    const afterDelete = bookReviews.filter(
+      (r: { userId: string; rating: number; _id: string }) => r._id !== id
+    );
+    onUpdateReview(token, authUserRoles, book.title, afterDelete).then(
+      (response: { status: number; message: string }) => {
+        if (response.status !== 200) {
+          showSnackbar(true, 'error', response.message);
+        }
+        if (response.status === 200) {
+          showSnackbar(true, 'success', 'The review has been deleted.');
+          setBookReviews(afterDelete);
+        }
       }
-      if (response.status === 200) {
-        showSnackbar(true, 'success', 'The review has been deleted.');
-        setBookReviews(afterDelete);
-      }
-    });
+    );
   };
 
-  const editReview = (id, text) => {
-    const afterEdit = bookReviews.map((r) => {
+  const editReview = (id: string, text: string) => {
+    const afterEdit = bookReviews.map((r: { _id: string }) => {
       if (r._id === id) {
         return { ...r, review: text };
       }
       return r;
     });
-    dispatch(updateReview(token, authUserRoles, book.title, afterEdit)).then((response) => {
-      if (response.status !== 200) {
-        showSnackbar(true, 'error', response.message);
+    onUpdateReview(token, authUserRoles, book.title, afterEdit).then(
+      (response: { status: number; message: string }) => {
+        if (response.status !== 200) {
+          showSnackbar(true, 'error', response.message);
+        }
+        if (response.status === 200) {
+          showSnackbar(true, 'success', 'The review has been edited.');
+          setBookReviews(afterEdit);
+        }
       }
-      if (response.status === 200) {
-        showSnackbar(true, 'success', 'The review has been edited.');
-        setBookReviews(afterEdit);
-      }
-    });
+    );
   };
 
-  const fetchBook = (id) => {
+  const fetchBook = (id: string) => {
     setLoading(true);
-    dispatch(getBookById(token, id)).then((response) => {
-      if (response.status !== 200) {
-        setError({ error: true, message: response.message });
-        setLoading(false);
-      }
-      if (response.status === 200) {
-        setBook(response.data);
-        if (response.data?.rating) {
-          calculateRating(response.data.rating);
-        } else {
-          setBookRating(0);
+    onGetBookById(token, id).then(
+      (response: {
+        status: number;
+        message: any;
+        data: { rating: [{ userId: string; rating: number }]; reviews: any };
+      }) => {
+        if (response.status !== 200) {
+          setError({ error: true, message: response.message });
+          setLoading(false);
         }
-        setBookReviews(response.data.reviews);
-        setLoading(false);
+        if (response.status === 200) {
+          setBook(response.data);
+          if (response.data?.rating) {
+            calculateRating(response.data.rating);
+          } else {
+            setBookRating(0);
+          }
+          setBookReviews(response.data.reviews);
+          setLoading(false);
+        }
       }
-    });
+    );
   };
 
   React.useEffect(() => {
@@ -226,39 +281,38 @@ function BookDetails(props) {
       </Dialog>
     </>
   );
-}
-
-BookDetails.propTypes = {
-  open: PropTypes.bool.isRequired,
-  handleClose: PropTypes.func.isRequired,
-  onRateBook: PropTypes.func.isRequired,
-  onReviewBook: PropTypes.func.isRequired,
-  bookId: PropTypes.string.isRequired,
-  authUserRoles: PropTypes.arrayOf(PropTypes.string).isRequired,
-  token: PropTypes.string.isRequired,
-  user: PropTypes.arrayOf(
-    PropTypes.shape({
-      username: PropTypes.string.isRequired,
-      roles: PropTypes.objectOf(PropTypes.string),
-      _id: PropTypes.string.isRequired,
-      email: PropTypes.string.isRequired,
-    })
-  ).isRequired,
 };
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: RootState) => ({
   token: state.users.token,
   authUserRoles: state.users.authUser.roles,
-  user: state.users.users.filter((u) => u.username === state.users.authUser.username),
+  user: state.users.users.filter((u: User) => u.username === state.users.authUser.username),
   books: state.books.books,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  onRateBook: (token, authUserRoles, bookId, userId, newRating) =>
-    dispatch(addNewRating(token, authUserRoles, bookId, userId, newRating)),
-  onReviewBook: (token, authUserRoles, bookId, userId, review) =>
-    dispatch(addReview(token, authUserRoles, bookId, userId, review)),
-  onGetBooks: (token) => dispatch(getBooks(token)),
+const mapDispatchToProps = (dispatch: AppDispatch) => ({
+  onRateBook: (
+    token: string,
+    authUserRoles: { x: string },
+    bookId: string,
+    userId: string,
+    newRating: number
+  ) => dispatch(addNewRating(token, authUserRoles, bookId, userId, newRating)),
+  onReviewBook: (
+    token: string,
+    authUserRoles: { x: string },
+    bookId: string,
+    userId: string,
+    review: string
+  ) => dispatch(addReview(token, authUserRoles, bookId, userId, review)),
+  onUpdateReview: (token: string, authUserRoles: { x: string }, title: string, afterDelete: []) =>
+    dispatch(updateReview(token, authUserRoles, title, afterDelete)),
+  onGetBooks: (token: string) => dispatch(getBooks(token)),
+  onAddReview: () => dispatch(addReview()),
+  onGetBookById: (token: string, id: string) => dispatch(getBookById(token, id)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(BookDetails);
+export default connect<RootState, AppDispatch, OwnProps>(
+  mapStateToProps,
+  mapDispatchToProps
+)(BookDetails);

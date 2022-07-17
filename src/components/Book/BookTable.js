@@ -18,7 +18,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import PropTypes from 'prop-types';
 import React from 'react';
 import BookDialog from '../Dialogues/BookDialogue';
-import BookDetails from './Book';
+import BookDetails from './Book.tsx';
 import EnhancedTableHead from '../Helpers/EnhancedTableHead';
 import Confirm from '../Helpers/Confirm';
 import { getBooks, deleteBook } from '../../actions/books';

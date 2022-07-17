@@ -8,7 +8,11 @@ import {
 
 const initialState = {
   loggedIn: false,
-  authUser: '',
+  authUser: {
+    username: '',
+    roles: '',
+    image: '',
+  },
   token: '',
   err: {
     error: false,
@@ -34,7 +38,11 @@ const users = (state = initialState, action) => {
       return {
         ...state,
         loggedIn: true,
-        authUser: action.user,
+        authUser: {
+          username: action.user.username,
+          roles: action.user.roles,
+          image: action.user.image,
+        },
       };
     }
     case SET_AUTH_FAIL: {
@@ -50,7 +58,11 @@ const users = (state = initialState, action) => {
       return {
         ...state,
         loggedIn: false,
-        authUser: '',
+        authUser: {
+          username: '',
+          roles: '',
+          image: '',
+        },
         error: false,
       };
     }

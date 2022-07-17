@@ -5,10 +5,11 @@ import Tab from '@material-ui/core/Tab';
 
 function LinkTab(props) {
   const history = useHistory();
-  const { href, username } = props;
+  const { href, username, label } = props;
   return (
     <Tab
       component="a"
+      label={label}
       onClick={(event) => {
         event.preventDefault();
         if (!window.history.href?.includes(`${href}`)) {
@@ -23,6 +24,7 @@ function LinkTab(props) {
 LinkTab.propTypes = {
   href: PropTypes.string.isRequired,
   username: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
 };
 
 export default LinkTab;

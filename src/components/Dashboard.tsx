@@ -11,13 +11,18 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import MenuIcon from '@material-ui/icons/Menu';
 import clsx from 'clsx';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 import React from 'react';
 import { NavLink as RouterLink } from 'react-router-dom';
 import MainListItems from './Helpers/ListItems';
-import BasicMenu from './Menu';
+// @ts-ignore
+import BasicMenu from './Menu.tsx';
 import NotificationsMenu from './Notfication/NotificationsMenu';
 import Copyright from './Helpers/Copyright';
+// @ts-ignore
+import { RootState } from '../store.ts';
+// @ts-ignore
+import type { User } from '../types.ts';
 
 const drawerWidth = 240;
 
@@ -94,32 +99,82 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function Dashboard(props) {
+// type User = {
+//   _id: string;
+//   username: string;
+//   roles: { x: string };
+//   email: string;
+//   password: string;
+//   name: string;
+//   bio?: string;
+//   image: string;
+//   owedBooks?: [];
+//   readingHistory?: [];
+//   notifications?: [
+//     {
+//       timestamp: string;
+//       message: string;
+//       seen: string;
+//     }
+//   ];
+//   refreshToken: string;
+// };
+
+interface OwnProps {
+  onLogout: () => void;
+  children: React.Component<any, any>;
+  roles: string[];
+  userAvatar: string;
+  username: string;
+  users: [User];
+  NotificationType: {
+    timestamp: string;
+    message: string;
+    seen: string;
+  };
+  wrapperType: React.RefObject<HTMLDivElement>;
+}
+
+const Dashboard: React.FC<OwnProps> = (props: OwnProps) => {
+  const {
+    onLogout,
+    children,
+    roles,
+    userAvatar,
+    username,
+    users,
+    NotificationType,
+    wrapperType,
+  } = props;
+
   const classes = useStyles();
-  const [open, setOpen] = React.useState(false);
-  const [newNotifications, setNewNotifications] = React.useState(0);
+  const [open, setOpen] = React.useState<boolean>(false);
+  const [newNotifications, setNewNotifications] = React.useState<any>([]);
   const toggleDrawerOpen = () => {
     setOpen(!open);
   };
 
-  const wrapper = React.createRef();
-  const { onLogout, children, roles, userAvatar, username, users } = props;
-  const isAdmin = roles.includes('Admin') || roles.includes('Librarian');
+  const wrapper: typeof wrapperType = React.createRef();
+  const isAdmin: boolean = roles.includes('Admin') || roles.includes('Librarian');
 
-  const currentUser = users.filter((u) => u.username === username);
+  const currentUser: User | undefined = users.filter((u: User) => u.username === username)[0];
 
   const logout = () => {
     onLogout();
   };
 
   const seeNotifications = () => {
-    setNewNotifications(0);
+    setNewNotifications([]);
   };
 
   React.useEffect(() => {
-    const notSeenNotifications = currentUser[0]?.notifications.filter((n) => n.seen === 'false');
-    if (notSeenNotifications?.length > 0) {
-      setNewNotifications(notSeenNotifications);
+    if (currentUser && currentUser.notifications) {
+      const notSeenNotifications: any = currentUser?.notifications.filter(
+        (n: typeof NotificationType) => n.seen === 'false'
+      );
+      if (notSeenNotifications?.length > 0) {
+        setNewNotifications(notSeenNotifications);
+      }
     }
   }, [users]);
 
@@ -151,8 +206,8 @@ function Dashboard(props) {
           </Typography>
           <NotificationsMenu
             badgeContent={newNotifications?.length || 0}
-            notifications={currentUser[0]?.notifications
-              .slice(currentUser[0]?.notifications.length - 3)
+            notifications={currentUser?.notifications
+              ?.slice(currentUser?.notifications.length - 3)
               .reverse()}
             username={username}
             resetBadge={seeNotifications}
@@ -182,26 +237,13 @@ function Dashboard(props) {
       </main>
     </div>
   );
-}
-
-Dashboard.propTypes = {
-  onLogout: PropTypes.func.isRequired,
-  children: PropTypes.element.isRequired,
-  roles: PropTypes.arrayOf(PropTypes.string),
-  userAvatar: PropTypes.string.isRequired,
-  username: PropTypes.string.isRequired,
-  users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
-Dashboard.defaultProps = {
-  roles: ['Member'],
-};
-
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: RootState) => ({
   token: state.users.token,
   userAvatar: state.users.authUser.image,
   username: state.users.authUser.username,
   users: state.users.users,
 });
 
-export default connect(mapStateToProps)(Dashboard);
+export default connect<RootState>(mapStateToProps)(Dashboard);

@@ -16,6 +16,7 @@ import IconButton from '@material-ui/core/IconButton';
 import ReviewDialog from '../Dialogues/ReviewDialogue';
 import { LightTooltip } from '../Helpers/Tooltip';
 import * as helpers from '../Helpers/helpers';
+import profilePlaceholder from '../../utils/profile-picture-default-png.png';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -67,14 +68,14 @@ function ReviewCard(props) {
           >
             <Avatar
               className={classes.small}
-              src={reviewAuthor.image}
-              alt={reviewAuthor.username}
+              src={reviewAuthor?.image || profilePlaceholder}
+              alt={reviewAuthor?.username || ''}
               {...helpers.stringAvatar(`${reviewAuthor.username} ${reviewAuthor.name}`)}
             >
-              {reviewAuthor.username.slice(0, 1)}
+              {reviewAuthor.username?.slice(0, 1)}
             </Avatar>
             <Typography variant="subtitle1" color="textSecondary">
-              {reviewAuthor.username}
+              {reviewAuthor?.username}
             </Typography>
           </div>
 
@@ -136,7 +137,11 @@ ReviewCard.propTypes = {
       email: PropTypes.string.isRequired,
       slice: PropTypes.string.isRequired,
     })
-  ).isRequired,
+  ),
+};
+
+ReviewCard.defaultProps = {
+  reviewAuthor: {},
 };
 
 const mapStateToProps = (state, props) => ({

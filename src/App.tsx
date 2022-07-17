@@ -1,10 +1,9 @@
-import { history as historyPropTypes } from 'history-prop-types';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 import React from 'react';
-import { Route, Switch, withRouter, Redirect } from 'react-router-dom';
+import { Route, Switch, withRouter, Redirect, useHistory } from 'react-router-dom';
 import './App.css';
-import Dashboard from './components/Dashboard';
+// @ts-ignore
+import Dashboard from './components/Dashboard.tsx';
 import ManageUsers from './components/User/ManageUsers';
 import ManageBooks from './components/Book/ManageBooks';
 import ManageOverdueBooks from './components/Book/ManageOverdueBooks';
@@ -15,12 +14,24 @@ import Links from './components/Helpers/Links';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/SignUp';
 import LendOrReturn from './components/Book/LendOrReturn';
-import Settings from './components/Settings';
+// @ts-ignore
+import Settings from './components/Settings.tsx';
+// @ts-ignore
+import { RootState, AppDispatch } from './store.ts';
+// @ts-ignore
+import type { User, Book } from './types.ts';
 
-function App(props) {
+interface OwnProps {
+  users: [User];
+  books: [Book];
+  error: any;
+}
+
+type Props = RootState & AppDispatch & OwnProps;
+
+const App: React.FC<Props> = (props: Props) => {
   const {
     loggedIn,
-    history,
     error,
     authUser,
     roles,
@@ -32,6 +43,8 @@ function App(props) {
     onGetUsers,
     token,
   } = props;
+
+  const history = useHistory();
 
   React.useEffect(() => {
     onTryAutoSignup();
@@ -46,10 +59,7 @@ function App(props) {
 
   let routes = (
     <Switch>
-      <Route
-        path="/login"
-        render={() => <Login error={error.error} history={history} message={error.message} />}
-      />
+      <Route path="/login" render={() => <Login history={history} />} />
       <Route
         path="/register"
         render={() => <Register error={error.error} history={history} message={error.message} />}
@@ -62,27 +72,18 @@ function App(props) {
     routes = (
       <Dashboard onLogout={onLogout} history={history} roles={roles}>
         <Switch>
-          <Route
-            path="/manage/users"
-            exact
-            render={() => <ManageUsers history={history} users={users} roles={roles} />}
-          />
+          <Route path="/manage/users" exact render={() => <ManageUsers roles={roles} />} />
           <Route
             path="/manage/books"
             exact
-            render={() => <ManageBooks history={history} users={users} roles={roles} />}
+            render={() => <ManageBooks history={history} roles={roles} />}
           />
           <Route
             path="/manage/overdue books"
             exact
-            render={() => <ManageOverdueBooks history={history} users={users} roles={roles} />}
+            render={() => <ManageOverdueBooks history={history} roles={roles} />}
           />
-          <Route
-            path="/users/lend&return/:id"
-            render={() => (
-              <LendOrReturn user={authUser} history={history} books={books} users={users} />
-            )}
-          />
+          <Route path="/users/lend&return/:id" render={() => <LendOrReturn />} />
           <Route
             path="/users/settings/:id"
             render={() => <Settings authUser={authUser} users={users} books={books} />}
@@ -90,9 +91,7 @@ function App(props) {
           <Route
             path="/"
             exact
-            render={() => (
-              <Links history={history} roles={roles} user={authUser} users={users} books={books} />
-            )}
+            render={() => <Links roles={roles} user={authUser} users={users} books={books} />}
           />
           <Redirect to="/" />
         </Switch>
@@ -101,31 +100,31 @@ function App(props) {
   }
 
   return routes;
-}
-
-App.propTypes = {
-  history: PropTypes.shape(historyPropTypes).isRequired,
-  loggedIn: PropTypes.bool.isRequired,
-  error: PropTypes.shape({}).isRequired,
-  authUser: PropTypes.string,
-  onLogout: PropTypes.func.isRequired,
-  onTryAutoSignup: PropTypes.func.isRequired,
-  roles: PropTypes.arrayOf(PropTypes.string).isRequired,
-  users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  books: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  token: PropTypes.string.isRequired,
-  onGetBooks: PropTypes.func.isRequired,
-  onGetUsers: PropTypes.func.isRequired,
 };
 
-App.defaultProps = {
-  roles: [],
-  users: [],
-  books: [],
-  authUser: '',
-};
+// App.propTypes = {
+//   history: PropTypes.shape(historyPropTypes).isRequired,
+//   loggedIn: PropTypes.bool.isRequired,
+//   error: PropTypes.shape({}).isRequired,
+//   authUser: PropTypes.string,
+//   onLogout: PropTypes.func.isRequired,
+//   onTryAutoSignup: PropTypes.func.isRequired,
+//   roles: PropTypes.arrayOf(PropTypes.string).isRequired,
+//   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+//   books: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+//   token: PropTypes.string.isRequired,
+//   onGetBooks: PropTypes.func.isRequired,
+//   onGetUsers: PropTypes.func.isRequired,
+// };
 
-const mapStateToProps = (state) => ({
+// App.defaultProps = {
+//   roles: [],
+//   users: [],
+//   books: [],
+//   authUser: '',
+// };
+
+const mapStateToProps = (state: RootState) => ({
   loggedIn: state.users.loggedIn,
   error: state.users.err,
   authUser: state.users.authUser.username,
@@ -135,11 +134,13 @@ const mapStateToProps = (state) => ({
   books: state.books.books,
 });
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (dispatch: AppDispatch) => ({
   onLogout: () => dispatch(logout()),
   onTryAutoSignup: () => dispatch(authCheckState()),
-  onGetBooks: (token) => dispatch(getBooks(token)),
-  onGetUsers: (token) => dispatch(getUsers(token)),
+  onGetBooks: (token: string) => dispatch(getBooks(token)),
+  onGetUsers: (token: string) => dispatch(getUsers(token)),
 });
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(App));
+export default withRouter(
+  connect<RootState, AppDispatch>(mapStateToProps, mapDispatchToProps)(App)
+);

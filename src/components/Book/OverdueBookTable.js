@@ -17,7 +17,7 @@ import NotificationsIcon from '@material-ui/icons/Notifications';
 import EmailIcon from '@material-ui/icons/Email';
 import PropTypes from 'prop-types';
 import React from 'react';
-import BookDetails from './Book';
+import BookDetails from './Book.tsx';
 import Confirm from '../Helpers/Confirm';
 import UserDetails from '../User/User';
 import EmailDialogue from '../Dialogues/EmailDialogue';
