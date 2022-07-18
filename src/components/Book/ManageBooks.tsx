@@ -1,4 +1,5 @@
 import Box from '@material-ui/core/Box';
+import Button from '@material-ui/core/Button';
 import { makeStyles, styled } from '@material-ui/core/styles';
 import InputBase from '@material-ui/core/InputBase';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -8,12 +9,19 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
 import SearchIcon from '@material-ui/icons/Search';
 import { connect } from 'react-redux';
-import { history as historyPropTypes } from 'history-prop-types';
-import PropTypes from 'prop-types';
+// import { history as historyPropTypes } from 'history-prop-types';
+// import PropTypes from 'prop-types';
 import React from 'react';
+import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
 import CustomizedSnackbars from '../Helpers/Snackbar';
-import OverdueBookTable from './OverdueBookTable';
+import BookDialogue from '../Dialogues/BookDialogue';
+// @ts-ignore
+import BookTable from './BookTable.tsx';
 import { getBooks } from '../../actions/books';
+// @ts-ignore
+import { RootState, AppDispatch } from '../../store.ts';
+// @ts-ignore
+import type { Book } from '../../types.ts';
 
 const BootstrapInput = styled(InputBase)(({ theme }) => ({
   'label + &': {
@@ -88,30 +96,58 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function ManageOverdueBooks(props) {
-  const { token, onGetBooks, books, roles, history } = props;
+interface OwnProps {
+  token: string;
+  onGetBooks: () => Promise<any>;
+  books: [Book];
+  roles: Array<string>;
+}
+
+type Props = OwnProps & RootState & AppDispatch;
+
+const ManageBooks: React.FC<Props> = (props: Props) => {
+  const { token, onGetBooks, books, roles } = props;
   const classes = useStyles();
-  const [severity, setSeverity] = React.useState('');
-  const [openSnackbar, setOpenSnackbar] = React.useState(false);
-  const [errMessage, setErrMessage] = React.useState('');
-  const [searchResults, setSearchResults] = React.useState([]);
+  const [openDialogue, setOpenDialogue] = React.useState<boolean>(false);
+  const [severity, setSeverity] = React.useState<string>('');
+  const [openSnackbar, setOpenSnackbar] = React.useState<boolean>(false);
+  const [errMessage, setErrMessage] = React.useState<string>('');
+  const [searchResults, setSearchResults] = React.useState<Array<Book>>([]);
   const [categorySearchResults, setCategorySearchResults] = React.useState([]);
-  const [search, setSearch] = React.useState('');
-  const [searchFilter, setSearchFilter] = React.useState('title');
-  const [roleFilter, setRoleFilter] = React.useState('all books');
+  const [search, setSearch] = React.useState<string>('');
+  const [searchFilter, setSearchFilter] = React.useState<string>('title');
+  const [roleFilter, setRoleFilter] = React.useState<any>('all books');
+
+  const isAdmin: boolean = roles.includes('Admin');
 
   const categories = [
-    'all books',
-    'Politics',
-    'History',
-    'Romance',
-    'Science Fiction & Fantasy',
-    'Biographies',
-    'Classics',
-    'Course books',
+    { name: 'all books', id: 1 },
+    { name: 'Politics', id: 2 },
+    { name: 'History', id: 3 },
+    { name: 'Romance', id: 4 },
+    { name: 'Science Fiction & Fantasy', id: 5 },
+    { name: 'Biographies', id: 6 },
+    { name: 'Classics', id: 7 },
+    { name: 'Course books', id: 8 },
   ];
 
-  const showSnackbar = (show, status, message) => {
+  const handleOpen = () => {
+    setOpenDialogue(true);
+  };
+
+  const handleClose = () => {
+    setOpenDialogue(false);
+  };
+
+  const handleRoleFilterChange = (event: { target: { value: any } }) => {
+    setRoleFilter(event.target.value);
+  };
+
+  const handleSearchFilterChange = (event: { target: { value: any } }) => {
+    setSearchFilter(event.target.value);
+  };
+
+  const showSnackbar = (show: boolean, status: string, message: string) => {
     setSeverity(status);
     setErrMessage(message);
     setOpenSnackbar(show);
@@ -134,14 +170,14 @@ function ManageOverdueBooks(props) {
       return;
     }
     const filteredResults = books.filter(
-      (book) => book.category?.toLowerCase() === roleFilter.toLowerCase()
+      (book: Book) => book.category?.toLowerCase() === roleFilter.toLowerCase()
     );
     setCategorySearchResults(filteredResults.reverse());
   };
 
   React.useEffect(() => {
     const filteredResults = categorySearchResults.filter(
-      (book) =>
+      (book: Book) =>
         (searchFilter === 'title' && book.title.toLowerCase().includes(search.toLowerCase())) ||
         (searchFilter === 'author' && book.author.toLowerCase().includes(search.toLowerCase())) ||
         (searchFilter === 'year' && book.year.toString().includes(search)) ||
@@ -160,14 +196,26 @@ function ManageOverdueBooks(props) {
     <Box>
       <CustomizedSnackbars show={openSnackbar} severity={severity} message={errMessage} />
       <div className={classes.container}>
+        {isAdmin && (
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            className={classes.submit}
+            onClick={handleOpen}
+          >
+            <LibraryBooksIcon style={{ marginRight: '15px' }} />
+            New Book
+          </Button>
+        )}
         <FormControl variant="standard">
-          <InputLabel htmlFor="demo-customized-textbox">search books</InputLabel>
+          <InputLabel htmlFor="demo-customized-textbox">search users</InputLabel>
           <BootstrapInput
             id="demo-customized-textbox"
             type="text"
             placeholder=""
             value={search}
-            label="search books"
+            title="search books"
             onChange={(e) => setSearch(e.target.value)}
           />
           <SearchIconWrapper>
@@ -179,7 +227,7 @@ function ManageOverdueBooks(props) {
           <InputLabel htmlFor="demo-customized-textbox"> </InputLabel>
           <Select
             value={searchFilter}
-            onChange={(e) => setSearchFilter(e.target.value)}
+            onChange={handleSearchFilterChange}
             input={<BootstrapInput />}
           >
             <MenuItem value="title">title</MenuItem>
@@ -193,42 +241,37 @@ function ManageOverdueBooks(props) {
         <Typography style={{ margin: '2rem 0.5rem 2rem 9rem' }}>showing</Typography>
         <FormControl variant="standard">
           <InputLabel htmlFor="demo-customized-textbox"> </InputLabel>
-          <Select
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-            input={<BootstrapInput />}
-          >
+          <Select value={roleFilter} onChange={handleRoleFilterChange} input={<BootstrapInput />}>
             {categories.map((category) => (
-              <MenuItem value={category} key={category}>
-                {category}
+              <MenuItem value={category.name} key={category.id}>
+                {category.name}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
       </div>
 
-      <OverdueBookTable books={searchResults} onShowSnackbar={showSnackbar} history={history} />
+      <BookTable books={searchResults} onShowSnackbar={showSnackbar} />
+      <BookDialogue
+        show={openDialogue}
+        close={handleClose}
+        onShowSnackbar={showSnackbar}
+        title="Add New Book"
+      />
     </Box>
   );
-}
-
-ManageOverdueBooks.propTypes = {
-  token: PropTypes.string.isRequired,
-  onGetBooks: PropTypes.func.isRequired,
-  books: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  roles: PropTypes.arrayOf(PropTypes.string).isRequired,
-  history: PropTypes.shape(historyPropTypes).isRequired,
 };
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: RootState) => ({
   token: state.users.token,
-  books: state.books.books.filter(
-    (book) => new Date(book.owedBy?.dueDate).getTime() < new Date().getTime()
-  ),
+  books: state.books.books,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  onGetBooks: (token) => dispatch(getBooks(token)),
+const mapDispatchToProps = (dispatch: AppDispatch) => ({
+  onGetBooks: (token: string) => dispatch(getBooks(token)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ManageOverdueBooks);
+export default connect<RootState, AppDispatch, OwnProps>(
+  mapStateToProps,
+  mapDispatchToProps
+)(ManageBooks);

@@ -15,9 +15,10 @@ import Avatar from '@material-ui/core/Avatar';
 import Fade from '@material-ui/core/Fade';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 import React from 'react';
 import BookDialog from '../Dialogues/BookDialogue';
+// @ts-ignore
 import BookDetails from './Book.tsx';
 import EnhancedTableHead from '../Helpers/EnhancedTableHead';
 import Confirm from '../Helpers/Confirm';
@@ -26,6 +27,10 @@ import * as helpers from '../Helpers/helpers';
 import { LightTooltip } from '../Helpers/Tooltip';
 import Loading from '../Helpers/Loading';
 import Error from '../Helpers/Error';
+// @ts-ignore
+import { RootState, AppDispatch } from '../../store.ts';
+// @ts-ignore
+import type { Book } from '../../types.ts';
 
 const headCells = [
   { id: 'title', numeric: false, disablePadding: false, label: 'Title' },
@@ -60,16 +65,36 @@ const useStyles = makeStyles((theme) => ({
     top: 20,
     width: 1,
   },
+  large: {
+    width: '45px',
+    height: '65px',
+  },
 }));
 
-function EnhancedTable(props) {
+interface OwnProps {
+  books: [Book];
+  onShowSnackbar: () => void;
+  roles: Array<string>;
+  token: string;
+  onDeleteBook: () => Promise<any>;
+  onGetBooks: () => Promise<any>;
+  loadingBooks: boolean;
+  error: {
+    error: boolean;
+    message: string;
+  };
+}
+
+type Props = RootState & AppDispatch & OwnProps;
+
+const EnhancedTable: React.FC<Props> = (props: Props) => {
   const classes = useStyles();
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('username');
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [showEditDialogue, setShowEditDialogue] = React.useState(false);
-  const [selectedBook, setSelectedBook] = React.useState();
+  const [selectedBook, setSelectedBook] = React.useState<Book>();
   const [showConfirmDelete, setShowDeleteConfirm] = React.useState(false);
   const [openBookDetails, setOpenBookDetails] = React.useState(false);
   const [chosenBookId, setChosenBookId] = React.useState(null);
@@ -85,45 +110,47 @@ function EnhancedTable(props) {
     error,
   } = props;
 
-  const handleRequestSort = (event, property) => {
+  const handleRequestSort = (event: any, property: React.SetStateAction<string>) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
 
-  const handleChangePage = (event, newPage) => {
+  const handleChangePage = (event: any, newPage: React.SetStateAction<number>) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event) => {
+  const handleChangeRowsPerPage = (event: { target: { value: string } }) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
-  const onEdit = (book) => {
+  const onEdit = (book: Book | undefined) => {
     setSelectedBook(book);
     setShowEditDialogue(!showEditDialogue);
   };
 
-  const onConfirmDelete = (book) => {
+  const onConfirmDelete = (book: Book) => {
     setSelectedBook(book);
     setShowDeleteConfirm(true);
   };
 
   const onDelete = () => {
-    onDeleteBook(roles, selectedBook._id, token).then((response) => {
-      if (response.status !== 200) {
-        onShowSnackbar(true, 'error', response.message);
+    onDeleteBook(roles, selectedBook._id, token).then(
+      (response: { status: number; message: any }) => {
+        if (response.status !== 200) {
+          onShowSnackbar(true, 'error', response.message);
+        }
+        if (response.status === 200) {
+          onShowSnackbar(true, 'success', `Book deleted`);
+          setShowDeleteConfirm(false);
+          onGetBooks(token);
+        }
       }
-      if (response.status === 200) {
-        onShowSnackbar(true, 'success', `Book deleted`);
-        setShowDeleteConfirm(false);
-        onGetBooks(token);
-      }
-    });
+    );
   };
 
-  const onShowBookDetails = (book) => {
+  const onShowBookDetails = (book: Book) => {
     setChosenBookId(book._id);
     setTimeout(() => {
       setOpenBookDetails(true);
@@ -166,7 +193,6 @@ function EnhancedTable(props) {
                 order={order}
                 orderBy={orderBy}
                 onRequestSort={handleRequestSort}
-                rowCount={books.length}
                 isLibrarian={roles.includes('Librarian')}
                 headCells={headCells}
               />
@@ -189,7 +215,7 @@ function EnhancedTable(props) {
                 {helpers
                   .stableSort(books, helpers.getComparator(order, orderBy))
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((book) => (
+                  .map((book: Book) => (
                     <TableRow hover role="checkbox" tabIndex={0} key={book._id + book._id}>
                       <TableCell
                         onClick={() => onShowBookDetails(book)}
@@ -200,7 +226,7 @@ function EnhancedTable(props) {
                           src={book.image}
                           alt={book.title}
                           variant="square"
-                          sx={{ width: 56, height: 56 }}
+                          className={classes.large}
                         >
                           {book.title.slice(0, 1)}
                         </Avatar>
@@ -300,7 +326,7 @@ function EnhancedTable(props) {
                 <BookDialog
                   title="Edit Book"
                   show={showEditDialogue}
-                  close={() => onEdit()}
+                  close={() => onEdit(null)}
                   book={selectedBook}
                   onShowSnackbar={onShowSnackbar}
                 />
@@ -320,32 +346,22 @@ function EnhancedTable(props) {
       </Paper>
     </div>
   );
-}
-
-EnhancedTable.propTypes = {
-  books: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  onShowSnackbar: PropTypes.func.isRequired,
-  roles: PropTypes.arrayOf(PropTypes.string).isRequired,
-  token: PropTypes.string.isRequired,
-  onDeleteBook: PropTypes.func.isRequired,
-  onGetBooks: PropTypes.func.isRequired,
-  loadingBooks: PropTypes.bool.isRequired,
-  error: PropTypes.shape({
-    error: PropTypes.bool,
-    message: PropTypes.string,
-  }).isRequired,
 };
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: RootState) => ({
   token: state.users.token,
   roles: state.users.authUser.roles,
   loadingBooks: state.books.loading,
   error: state.books.error,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  onDeleteBook: (roles, id, token) => dispatch(deleteBook(roles, id, token)),
-  onGetBooks: (token) => dispatch(getBooks(token)),
+const mapDispatchToProps = (dispatch: AppDispatch) => ({
+  onDeleteBook: (roles: Array<string>, id: string, token: string) =>
+    dispatch(deleteBook(roles, id, token)),
+  onGetBooks: (token: string) => dispatch(getBooks(token)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(EnhancedTable);
+export default connect<RootState, AppDispatch, OwnProps>(
+  mapStateToProps,
+  mapDispatchToProps
+)(EnhancedTable);

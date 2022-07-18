@@ -140,7 +140,7 @@ function BookDialog(props) {
 
   React.useEffect(() => {
     setState({ ...state, open: show});
-    if (book.title) {
+    if (book?.title) {
       setState({
         ...state,
         bookId: book._id,

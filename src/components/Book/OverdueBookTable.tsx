@@ -15,8 +15,8 @@ import Avatar from '@material-ui/core/Avatar';
 import Fade from '@material-ui/core/Fade';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import EmailIcon from '@material-ui/icons/Email';
-import PropTypes from 'prop-types';
 import React from 'react';
+// @ts-ignore
 import BookDetails from './Book.tsx';
 import Confirm from '../Helpers/Confirm';
 import UserDetails from '../User/User';
@@ -28,6 +28,10 @@ import { notifyUser, getUsers } from '../../actions/users';
 import { sendEmail } from '../../actions/email';
 import * as helpers from '../Helpers/helpers';
 import { LightTooltip } from '../Helpers/Tooltip';
+// @ts-ignore
+import { RootState, AppDispatch } from '../../store.ts';
+// @ts-ignore
+import type { Book, User } from '../../types.ts';
 
 const headCells = [
   { id: 'title', numeric: false, disablePadding: false, label: 'Title' },
@@ -61,16 +65,29 @@ const useStyles = makeStyles((theme) => ({
     top: 20,
     width: 1,
   },
+  large: {
+    width: '45px',
+    height: '65px',
+  },
 }));
 
-function EnhancedTable(props) {
+interface OwnProps {
+  books: [Book];
+  users: [User];
+  roles: Array<string>;
+  token: string;
+}
+
+type Props = OwnProps & RootState;
+
+const EnhancedTable: React.FC<OwnProps> = (props: Props) => {
   const classes = useStyles();
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('username');
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [selectedBook, setSelectedBook] = React.useState();
-  const [selectedUser, setSelectedUser] = React.useState({});
+  const [selectedBook, setSelectedBook] = React.useState<Book | undefined>();
+  const [selectedUser, setSelectedUser] = React.useState<User | undefined>({});
   const [showConfirm, setShowConfirm] = React.useState(false);
   const [severity, setSeverity] = React.useState('');
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
@@ -82,24 +99,24 @@ function EnhancedTable(props) {
 
   const { books, roles, token, users } = props;
 
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
 
-  const handleRequestSort = (event, property) => {
+  const handleRequestSort = (event: any, property: React.SetStateAction<string>) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
 
-  const handleChangePage = (event, newPage) => {
+  const handleChangePage = (event: any, newPage: React.SetStateAction<number>) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event) => {
+  const handleChangeRowsPerPage = (event: { target: { value: string } }) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
-  const showSnackbar = (show, status, message) => {
+  const showSnackbar = (show: boolean, status: string, message: string) => {
     setSeverity(status);
     setErrMessage(message);
     setOpenSnackbar(show);
@@ -110,32 +127,34 @@ function EnhancedTable(props) {
     dispatch(getBooks(token));
   };
 
-  const handleSendEmail = (email, subject, text) => {
-    dispatch(sendEmail(token, roles, email, subject, text)).then((resp) => {
-      if (resp.status !== 200) {
-        showSnackbar(true, 'error', resp.message);
+  const handleSendEmail = (email: string, subject: string, text: string) => {
+    dispatch(sendEmail(token, roles, email, subject, text)).then(
+      (resp: { status: number; message: any }) => {
+        if (resp.status !== 200) {
+          showSnackbar(true, 'error', resp.message);
+        }
+        if (resp.status === 200) {
+          setShowEmailDialogue(false);
+          showSnackbar(
+            true,
+            'success',
+            `A email reminder that "${selectedBook.title}" by "${
+              selectedBook.author
+            }" is overdue was sent to ${
+              users?.filter((u: { _id: any }) => u._id === selectedBook.owedBy.userId)[0].username
+            }.`
+          );
+        }
       }
-      if (resp.status === 200) {
-        setShowEmailDialogue(false);
-        showSnackbar(
-          true,
-          'success',
-          `A email reminder that "${selectedBook.title}" by "${
-            selectedBook.author
-          }" is overdue was sent to ${
-            users?.filter((u) => u._id === selectedBook.owedBy.userId)[0].username
-          }.`
-        );
-      }
-    });
+    );
   };
 
-  const onConfirmNotify = (book) => {
+  const onConfirmNotify = (book: React.SetStateAction<undefined>) => {
     setSelectedBook(book);
     setShowConfirm(true);
   };
 
-  const sendReminder = (book) => {
+  const sendReminder = (book: Book) => {
     setShowConfirm(false);
     dispatch(
       notifyUser(
@@ -144,7 +163,7 @@ function EnhancedTable(props) {
         book.owedBy.userId,
         `"${book.title}" by "${book.author}" is overdue. Please return it as soon as possible!`
       )
-    ).then((response) => {
+    ).then((response: { status: number; message: any }) => {
       if (response.status !== 200) {
         showSnackbar(true, 'error', response.message);
       }
@@ -153,26 +172,26 @@ function EnhancedTable(props) {
           true,
           'success',
           `A reminder that "${book.title}" by "${book.author}" is overdue was sent to ${
-            users?.filter((u) => u._id === selectedBook.owedBy.userId)[0].username
+            users?.filter((u: { _id: any }) => u._id === selectedBook.owedBy.userId)[0].username
           }.`
         );
       }
     });
   };
 
-  const onShowBookDetails = (book) => {
+  const onShowBookDetails = (book: Book) => {
     setTimeout(() => {
       setOpenBookDetails(true);
     }, 200);
     setChosenBook(book._id);
   };
 
-  const onShowUserDetails = (u) => {
+  const onShowUserDetails = (u: React.SetStateAction<{}>) => {
     setOpenUserDetails(true);
     setSelectedUser(u);
   };
 
-  const setEmailInfo = (book, u) => {
+  const setEmailInfo = (book: React.SetStateAction<undefined>, u: React.SetStateAction<{}>[]) => {
     setSelectedUser(u[0]);
     setSelectedBook(book);
     setShowEmailDialogue(true);
@@ -206,7 +225,6 @@ function EnhancedTable(props) {
                 order={order}
                 orderBy={orderBy}
                 onRequestSort={handleRequestSort}
-                rowCount={books.length}
                 isLibrarian={roles.includes('Librarian')}
                 headCells={headCells}
               />
@@ -216,7 +234,8 @@ function EnhancedTable(props) {
                 message={
                   selectedBook
                     ? `${
-                        users?.filter((u) => u._id === selectedBook.owedBy.userId)[0].username
+                        users?.filter((u: { _id: any }) => u._id === selectedBook.owedBy.userId)[0]
+                          .username
                       } will be notified that ${selectedBook.title.toUpperCase()} by ${
                         selectedBook.author
                       }, serial number ${selectedBook.serNo} is overdue!`
@@ -231,7 +250,7 @@ function EnhancedTable(props) {
                 {helpers
                   .stableSort(books, helpers.getComparator(order, orderBy))
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((book) => (
+                  .map((book: Book) => (
                     <TableRow
                       hover
                       role="checkbox"
@@ -248,7 +267,7 @@ function EnhancedTable(props) {
                           src={book.image}
                           alt={book.title}
                           variant="square"
-                          sx={{ width: 56, height: 56 }}
+                          className={classes.large}
                         >
                           {book.title.slice(0, 1)}
                         </Avatar>
@@ -278,7 +297,7 @@ function EnhancedTable(props) {
                           {book.serNo}
                         </TableCell>
                       )}
-                      {users?.map((u) => {
+                      {users?.map((u: User) => {
                         if (u._id === book.owedBy.userId) {
                           return (
                             <TableCell
@@ -291,7 +310,7 @@ function EnhancedTable(props) {
                                   src={u.image}
                                   alt={u.username}
                                   variant="square"
-                                  sx={{ width: 56, height: 56 }}
+                                  className={classes.large}
                                 >
                                   {u.username.slice(0, 1)}
                                 </Avatar>
@@ -322,7 +341,7 @@ function EnhancedTable(props) {
                                 onClick={() =>
                                   setEmailInfo(
                                     book,
-                                    users?.filter((u) => u._id === book.owedBy.userId)
+                                    users?.filter((u: { _id: any }) => u._id === book.owedBy.userId)
                                   )
                                 }
                               >
@@ -382,19 +401,12 @@ function EnhancedTable(props) {
       </Paper>
     </div>
   );
-}
-
-EnhancedTable.propTypes = {
-  books: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  roles: PropTypes.arrayOf(PropTypes.string).isRequired,
-  token: PropTypes.string.isRequired,
 };
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: RootState) => ({
   token: state.users.token,
   roles: state.users.authUser.roles,
   users: state.users.users,
 });
 
-export default connect(mapStateToProps)(EnhancedTable);
+export default connect<RootState, OwnProps>(mapStateToProps)(EnhancedTable);

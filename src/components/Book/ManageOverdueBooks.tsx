@@ -1,5 +1,4 @@
 import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
 import { makeStyles, styled } from '@material-ui/core/styles';
 import InputBase from '@material-ui/core/InputBase';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -9,14 +8,14 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
 import SearchIcon from '@material-ui/icons/Search';
 import { connect } from 'react-redux';
-import { history as historyPropTypes } from 'history-prop-types';
-import PropTypes from 'prop-types';
 import React from 'react';
-import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
-import CustomizedSnackbars from '../Helpers/Snackbar';
-import BookDialogue from '../Dialogues/BookDialogue';
-import BookTable from './BookTable';
+// @ts-ignore
+import OverdueBookTable from './OverdueBookTable.tsx';
 import { getBooks } from '../../actions/books';
+// @ts-ignore
+import { RootState, AppDispatch } from '../../store.ts';
+// @ts-ignore
+import type { Book } from '../../types.ts';
 
 const BootstrapInput = styled(InputBase)(({ theme }) => ({
   'label + &': {
@@ -91,46 +90,38 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function ManageBooks(props) {
-  const { token, onGetBooks, books, roles, history } = props;
+interface OwnProps {
+  roles: Array<string>;
+}
+
+type Props = OwnProps & RootState & AppDispatch;
+
+const ManageOverdueBooks: React.FC<OwnProps> = (props: Props) => {
+  const { token, onGetBooks, books, roles } = props;
   const classes = useStyles();
-  const [openDialogue, setOpenDialogue] = React.useState(false);
-  const [severity, setSeverity] = React.useState('');
-  const [openSnackbar, setOpenSnackbar] = React.useState(false);
-  const [errMessage, setErrMessage] = React.useState('');
   const [searchResults, setSearchResults] = React.useState([]);
   const [categorySearchResults, setCategorySearchResults] = React.useState([]);
   const [search, setSearch] = React.useState('');
   const [searchFilter, setSearchFilter] = React.useState('title');
   const [roleFilter, setRoleFilter] = React.useState('all books');
 
-  const isAdmin = roles.includes('Admin');
   const categories = [
-    { name: 'all books', id: 1 },
-    { name: 'Politics', id: 2 },
-    { name: 'History', id: 3 },
-    { name: 'Romance', id: 4 },
-    { name: 'Science Fiction & Fantasy', id: 5 },
-    { name: 'Biographies', id: 6 },
-    { name: 'Classics', id: 7 },
-    { name: 'Course books', id: 8 },
+    'all books',
+    'Politics',
+    'History',
+    'Romance',
+    'Science Fiction & Fantasy',
+    'Biographies',
+    'Classics',
+    'Course books',
   ];
 
-  const handleOpen = () => {
-    setOpenDialogue(true);
+  const handleRoleFilterChange = (event: { target: { value: any } }) => {
+    setRoleFilter(event.target.value);
   };
 
-  const handleClose = () => {
-    setOpenDialogue(false);
-  };
-
-  const showSnackbar = (show, status, message) => {
-    setSeverity(status);
-    setErrMessage(message);
-    setOpenSnackbar(show);
-    setTimeout(() => {
-      setOpenSnackbar(false);
-    }, 6000);
+  const handleSearchFilterChange = (event: { target: { value: any } }) => {
+    setSearchFilter(event.target.value);
   };
 
   React.useEffect(() => {
@@ -147,14 +138,14 @@ function ManageBooks(props) {
       return;
     }
     const filteredResults = books.filter(
-      (book) => book.category?.toLowerCase() === roleFilter.toLowerCase()
+      (book: Book) => book.category?.toLowerCase() === roleFilter.toLowerCase()
     );
     setCategorySearchResults(filteredResults.reverse());
   };
 
   React.useEffect(() => {
     const filteredResults = categorySearchResults.filter(
-      (book) =>
+      (book: Book) =>
         (searchFilter === 'title' && book.title.toLowerCase().includes(search.toLowerCase())) ||
         (searchFilter === 'author' && book.author.toLowerCase().includes(search.toLowerCase())) ||
         (searchFilter === 'year' && book.year.toString().includes(search)) ||
@@ -171,28 +162,15 @@ function ManageBooks(props) {
 
   return (
     <Box>
-      <CustomizedSnackbars show={openSnackbar} severity={severity} message={errMessage} />
       <div className={classes.container}>
-        {isAdmin && (
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            className={classes.submit}
-            onClick={handleOpen}
-          >
-            <LibraryBooksIcon style={{ marginRight: '15px' }} />
-            New Book
-          </Button>
-        )}
         <FormControl variant="standard">
-          <InputLabel htmlFor="demo-customized-textbox">search users</InputLabel>
+          <InputLabel htmlFor="demo-customized-textbox">search books</InputLabel>
           <BootstrapInput
             id="demo-customized-textbox"
             type="text"
             placeholder=""
             value={search}
-            label="search books"
+            title="search books"
             onChange={(e) => setSearch(e.target.value)}
           />
           <SearchIconWrapper>
@@ -204,7 +182,7 @@ function ManageBooks(props) {
           <InputLabel htmlFor="demo-customized-textbox"> </InputLabel>
           <Select
             value={searchFilter}
-            onChange={(e) => setSearchFilter(e.target.value)}
+            onChange={handleSearchFilterChange}
             input={<BootstrapInput />}
           >
             <MenuItem value="title">title</MenuItem>
@@ -218,46 +196,32 @@ function ManageBooks(props) {
         <Typography style={{ margin: '2rem 0.5rem 2rem 9rem' }}>showing</Typography>
         <FormControl variant="standard">
           <InputLabel htmlFor="demo-customized-textbox"> </InputLabel>
-          <Select
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-            input={<BootstrapInput />}
-          >
+          <Select value={roleFilter} onChange={handleRoleFilterChange} input={<BootstrapInput />}>
             {categories.map((category) => (
-              <MenuItem value={category.name} key={category.id}>
-                {category.name}
+              <MenuItem value={category} key={category}>
+                {category}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
       </div>
-
-      <BookTable books={searchResults} onShowSnackbar={showSnackbar} history={history} />
-      <BookDialogue
-        show={openDialogue}
-        close={handleClose}
-        onShowSnackbar={showSnackbar}
-        title="Add New Book"
-      />
+      <OverdueBookTable books={searchResults} />
     </Box>
   );
-}
-
-ManageBooks.propTypes = {
-  token: PropTypes.string.isRequired,
-  onGetBooks: PropTypes.func.isRequired,
-  books: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  roles: PropTypes.arrayOf(PropTypes.string).isRequired,
-  history: PropTypes.shape(historyPropTypes).isRequired,
 };
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: RootState) => ({
   token: state.users.token,
-  books: state.books.books,
+  books: state.books.books.filter(
+    (book: Book) => new Date(book.owedBy?.dueDate).getTime() < new Date().getTime()
+  ),
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  onGetBooks: (token) => dispatch(getBooks(token)),
+const mapDispatchToProps = (dispatch: AppDispatch) => ({
+  onGetBooks: (token: string) => dispatch(getBooks(token)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ManageBooks);
+export default connect<RootState, AppDispatch>(
+  mapStateToProps,
+  mapDispatchToProps
+)(ManageOverdueBooks);

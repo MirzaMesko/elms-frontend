@@ -1,7 +1,5 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable no-underscore-dangle */
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
 import { connect, useDispatch } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
@@ -16,10 +14,15 @@ import Tab from '@material-ui/core/Tab';
 import { makeStyles, styled } from '@material-ui/core/styles';
 import TabPanel from '../Helpers/TabPanel';
 import CustomizedSnackbars from '../Helpers/Snackbar';
+// @ts-ignore
 import ConciseBook from './ConciseBook.tsx';
 import { getBooks, lendBook, returnBook, setNotification } from '../../actions/books';
 import { getUsers, notifyUser } from '../../actions/users';
 import Profile from '../User/Profile';
+// @ts-ignore
+import { RootState, AppDispatch } from '../../store.ts';
+// @ts-ignore
+import type { Book, User } from '../../types.ts';
 
 const BootstrapInput = styled(InputBase)(({ theme }) => ({
   'label + &': {
@@ -78,11 +81,24 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function LendOrReturn(props) {
+interface OwnProps {
+  users: [User];
+  books: [Book];
+  token: string;
+  authUserRoles: Array<string>;
+}
+
+type Params = {
+  id: string;
+};
+
+type Props = OwnProps & RootState;
+
+const LendOrReturn: React.FC<OwnProps> = (props: Props) => {
   const { users, books, token, authUserRoles } = props;
   const classes = useStyles();
   const [search, setSearch] = React.useState('');
-  const [user, setUser] = React.useState({});
+  const [user, setUser] = React.useState<User>({});
   const [owedBooks, setOwedBooks] = React.useState([]);
   const [searchResults, setSearchResults] = React.useState(['']);
   const [severity, setSeverity] = React.useState('');
@@ -90,11 +106,15 @@ function LendOrReturn(props) {
   const [errMessage, setErrMessage] = React.useState('');
   const [value, setValue] = React.useState(0);
 
-  const { id } = useParams();
+  const { id } = useParams<Params>();
   const history = useHistory();
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
 
-  const showSnackbar = (show, status, message) => {
+  const showSnackbar = (
+    show: boolean | ((prevState: boolean) => boolean),
+    status: string,
+    message: string
+  ) => {
     setSeverity(status);
     setErrMessage(message);
     setOpenSnackbar(show);
@@ -105,30 +125,26 @@ function LendOrReturn(props) {
     dispatch(getUsers(token));
   };
 
-  const handleChange = (event, newValue) => {
+  const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
     setValue(newValue);
     setSearch('');
   };
 
   React.useEffect(() => {
     const filteredResults = books.filter(
-      (book) =>
+      (book: Book) =>
         book.title.toLowerCase().includes(search.toLowerCase()) ||
         book.serNo.toLowerCase().includes(search.toLowerCase())
     );
     if (search !== '') {
       setSearchResults(filteredResults.reverse());
     } else {
-      setSearchResults('');
+      setSearchResults(['']);
     }
   }, [search]);
 
-  // React.useEffect(() => {
-  //   dispatch(getBooks(token));
-  // }, [token]);
-
-  React.useEffect(async () => {
-    const result = await users.filter((u) => u._id === id);
+  React.useEffect(() => {
+    const result = users.filter((u: { _id: string }) => u._id === id);
     setUser(result[0]);
     if (result[0].owedBooks?.length) {
       setOwedBooks(result[0].owedBooks);
@@ -137,29 +153,31 @@ function LendOrReturn(props) {
     }
   }, [users]);
 
-  const returnABook = (book) => {
+  const returnABook = (book: Book) => {
     const newOwedBooks = owedBooks.filter((i) => i !== book._id);
-    dispatch(returnBook(token, authUserRoles, book, user, newOwedBooks)).then((resp) => {
-      if (resp.status !== 200) {
-        showSnackbar(true, 'error', resp.message);
-      }
-      if (resp.status === 200) {
-        showSnackbar(true, 'success', `Book ${book.title} was returned`);
-        if (book.reservedBy[0]) {
-          dispatch(
-            notifyUser(
-              token,
-              authUserRoles,
-              book.reservedBy[0],
-              `${book.title} by ${book.author} is now available.`
-            )
-          );
+    dispatch(returnBook(token, authUserRoles, book, user, newOwedBooks)).then(
+      (resp: { status: number; message: any }) => {
+        if (resp.status !== 200) {
+          showSnackbar(true, 'error', resp.message);
+        }
+        if (resp.status === 200) {
+          showSnackbar(true, 'success', `Book ${book.title} was returned`);
+          if (book.reservedBy[0]) {
+            dispatch(
+              notifyUser(
+                token,
+                authUserRoles,
+                book.reservedBy[0],
+                `${book.title} by ${book.author} is now available.`
+              )
+            );
+          }
         }
       }
-    });
+    );
   };
 
-  const sendReminder = (book) => {
+  const sendReminder = (book: Book) => {
     dispatch(
       notifyUser(
         token,
@@ -167,7 +185,7 @@ function LendOrReturn(props) {
         book.owedBy.userId,
         `"${book.title}" by "${book.author}" is overdue. Please return it as soon as possible!`
       )
-    ).then((response) => {
+    ).then((response: { status: number; message: any }) => {
       if (response.status !== 200) {
         showSnackbar(true, 'error', response.message);
       }
@@ -181,32 +199,36 @@ function LendOrReturn(props) {
     });
   };
 
-  const lend = (book) => {
-    setSearchResults('');
+  const lend = (book: Book) => {
+    setSearchResults(['']);
     setSearch('');
-    dispatch(lendBook(book, user, authUserRoles, token)).then((resp) => {
-      if (resp.status !== 200) {
-        showSnackbar(true, 'error', resp.message);
+    dispatch(lendBook(book, user, authUserRoles, token)).then(
+      (resp: { status: number; message: any }) => {
+        if (resp.status !== 200) {
+          showSnackbar(true, 'error', resp.message);
+        }
+        if (resp.status === 200) {
+          showSnackbar(true, 'success', `Book ${book.title} was lent to ${user.username}`);
+        }
       }
-      if (resp.status === 200) {
-        showSnackbar(true, 'success', `Book ${book.title} was lent to ${user.username}`);
-      }
-    });
+    );
   };
 
-  const setNewNotification = (book) => {
-    dispatch(setNotification(token, authUserRoles, book, user._id)).then((resp) => {
-      if (resp.status !== 200) {
-        showSnackbar(true, 'error', resp.message);
+  const setNewNotification = (book: Book) => {
+    dispatch(setNotification(token, authUserRoles, book, user._id)).then(
+      (resp: { status: number; message: any }) => {
+        if (resp.status !== 200) {
+          showSnackbar(true, 'error', resp.message);
+        }
+        if (resp.status === 200) {
+          showSnackbar(
+            true,
+            'success',
+            `User ${user.username} will be notified when ${book.title} by ${book.author} is available.`
+          );
+        }
       }
-      if (resp.status === 200) {
-        showSnackbar(
-          true,
-          'success',
-          `User ${user.username} will be notified when ${book.title} by ${book.author} is available.`
-        );
-      }
-    });
+    );
   };
 
   const lendBookBlock = (
@@ -231,7 +253,7 @@ function LendOrReturn(props) {
         {!searchResults?.length ? (
           <Typography className="centered">No results.</Typography>
         ) : (
-          searchResults.map((book) => (
+          searchResults.map((book: Book) => (
             <ConciseBook book={book} lend={lend} onNotifyUser={setNewNotification} key={book._id} />
           ))
         )}
@@ -243,8 +265,8 @@ function LendOrReturn(props) {
     <Typography className="centered">No owed books for this user.</Typography>
   ) : (
     owedBooks.map((bookId) => {
-      const match = books.filter((book) => book._id === bookId);
-      return match.map((owedBook) => (
+      const match = books.filter((book: { _id: string }) => book._id === bookId);
+      return match.map((owedBook: Book) => (
         <div key={owedBook._id}>
           <ConciseBook
             book={owedBook}
@@ -256,7 +278,7 @@ function LendOrReturn(props) {
     })
   );
 
-  function a11yProps(index) {
+  function a11yProps(index: number) {
     return {
       id: `simple-tab-${index}`,
       'aria-controls': `simple-tabpanel-${index}`,
@@ -286,10 +308,6 @@ function LendOrReturn(props) {
             {owedBooksBlock}
           </TabPanel>
 
-          {/* <div style={{ paddingTop: '2rem' }}>
-            {value === 0 ? { owedBooksBlock } : { lendBookBlock }}
-          </div> */}
-
           <div className="centered">
             <ButtonGroup variant="outlined" size="large" aria-label="large button group">
               <Button autoFocus onClick={() => history.push(`/manage/users`)}>
@@ -301,20 +319,13 @@ function LendOrReturn(props) {
       </div>
     </div>
   );
-}
-
-LendOrReturn.propTypes = {
-  users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  books: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  token: PropTypes.string.isRequired,
-  authUserRoles: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: RootState) => ({
   token: state.users.token,
   books: state.books.books,
   authUserRoles: state.users.authUser.roles,
   users: state.users.users,
 });
 
-export default connect(mapStateToProps)(LendOrReturn);
+export default connect<OwnProps, RootState>(mapStateToProps)(LendOrReturn);

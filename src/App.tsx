@@ -5,15 +5,18 @@ import './App.css';
 // @ts-ignore
 import Dashboard from './components/Dashboard.tsx';
 import ManageUsers from './components/User/ManageUsers';
-import ManageBooks from './components/Book/ManageBooks';
-import ManageOverdueBooks from './components/Book/ManageOverdueBooks';
+// @ts-ignore
+import ManageBooks from './components/Book/ManageBooks.tsx';
+// @ts-ignore
+import ManageOverdueBooks from './components/Book/ManageOverdueBooks.tsx';
 import { logout, authCheckState } from './actions/auth';
 import { getBooks } from './actions/books';
 import { getUsers } from './actions/users';
 import Links from './components/Helpers/Links';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/SignUp';
-import LendOrReturn from './components/Book/LendOrReturn';
+// @ts-ignore
+import LendOrReturn from './components/Book/LendOrReturn.tsx';
 // @ts-ignore
 import Settings from './components/Settings.tsx';
 // @ts-ignore
@@ -81,7 +84,7 @@ const App: React.FC<Props> = (props: Props) => {
           <Route
             path="/manage/overdue books"
             exact
-            render={() => <ManageOverdueBooks history={history} roles={roles} />}
+            render={() => <ManageOverdueBooks roles={roles} />}
           />
           <Route path="/users/lend&return/:id" render={() => <LendOrReturn />} />
           <Route
