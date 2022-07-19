@@ -4,7 +4,8 @@ import { Route, Switch, withRouter, Redirect, useHistory } from 'react-router-do
 import './App.css';
 // @ts-ignore
 import Dashboard from './components/Dashboard.tsx';
-import ManageUsers from './components/User/ManageUsers';
+// @ts-ignore
+import ManageUsers from './components/User/ManageUsers.tsx';
 // @ts-ignore
 import ManageBooks from './components/Book/ManageBooks.tsx';
 // @ts-ignore
