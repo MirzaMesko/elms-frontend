@@ -93,3 +93,9 @@ export type Book = {
   image: string;
   serNo: string;
 };
+
+export type Review = {
+  userId: String;
+  timestamp: String;
+  review: String;
+};
