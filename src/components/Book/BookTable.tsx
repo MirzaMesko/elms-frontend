@@ -17,7 +17,8 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 // import PropTypes from 'prop-types';
 import React from 'react';
-import BookDialog from '../Dialogues/BookDialogue';
+// @ts-ignore
+import BookDialog from '../Dialogues/BookDialogue.tsx';
 // @ts-ignore
 import BookDetails from './Book.tsx';
 import EnhancedTableHead from '../Helpers/EnhancedTableHead';

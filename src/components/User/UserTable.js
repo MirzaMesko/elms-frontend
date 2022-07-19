@@ -19,7 +19,8 @@ import CompareArrowsIcon from '@material-ui/icons/CompareArrows';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import UserDialog from '../Dialogues/UserDialogue';
+// @ts-ignore
+import UserDialog from '../Dialogues/UserDialogue.tsx';
 import Confirm from '../Helpers/Confirm';
 import UserDetails from './User';
 import EnhancedTableHead from '../Helpers/EnhancedTableHead';

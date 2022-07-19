@@ -13,7 +13,8 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
 import CustomizedSnackbars from '../Helpers/Snackbar';
-import UserDialogue from '../Dialogues/UserDialogue';
+// @ts-ignore
+import UserDialogue from '../Dialogues/UserDialogue.tsx';
 import UserTable from './UserTable';
 import { getUsers } from '../../actions/users';
 

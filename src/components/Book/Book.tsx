@@ -16,7 +16,8 @@ import Ratings from '../Helpers/Rating';
 import { LightTooltip } from '../Helpers/Tooltip';
 import CustomizedSnackbars from '../Helpers/Snackbar';
 import ReviewsContainer from '../Review/ReviewsContainer';
-import ReviewDialog from '../Dialogues/ReviewDialogue';
+// @ts-ignore
+import ReviewDialog from '../Dialogues/ReviewDialogue.tsx';
 import Loading from '../Helpers/Loading';
 import Error from '../Helpers/Error';
 import { getBooks, addNewRating, addReview, updateReview, getBookById } from '../../actions/books';
@@ -205,6 +206,7 @@ const BookDetails: React.FC<OwnProps> = (props: Props) => {
         show={showReviewDialogue}
         close={() => setShowReviewDialogue(false)}
         addReview={reviewBook}
+        title="Compose new review"
       />
       <Dialog open={showRatingDialogue} onClose={() => setShowRatingDialogue(false)}>
         <DialogContent style={{ padding: '1rem 3rem' }}>

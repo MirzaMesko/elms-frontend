@@ -9,7 +9,8 @@ import EditIcon from '@material-ui/icons/Edit';
 import Button from '@material-ui/core/Button';
 import DialogContent from '@material-ui/core/DialogContent';
 import Typography from '@material-ui/core/Typography';
-import UserDialog from './Dialogues/UserDialogue';
+// @ts-ignore
+import UserDialog from './Dialogues/UserDialogue.tsx';
 import CustomizedSnackbars from './Helpers/Snackbar';
 import Notification from './Notfication/Notification';
 import TabPanel from './Helpers/TabPanel';

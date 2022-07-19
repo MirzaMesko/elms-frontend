@@ -20,7 +20,8 @@ import React from 'react';
 import BookDetails from './Book.tsx';
 import Confirm from '../Helpers/Confirm';
 import UserDetails from '../User/User';
-import EmailDialogue from '../Dialogues/EmailDialogue';
+// @ts-ignore
+import EmailDialogue from '../Dialogues/EmailDialogue.tsx';
 import CustomizedSnackbars from '../Helpers/Snackbar';
 import EnhancedTableHead from '../Helpers/EnhancedTableHead';
 import { getBooks } from '../../actions/books';

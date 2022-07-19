@@ -15,8 +15,10 @@ import Fade from '@material-ui/core/Fade';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import { notifyUser } from '../../actions/users';
 import CustomizedSnackbars from '../Helpers/Snackbar';
-import EmailDialogue from '../Dialogues/EmailDialogue';
-import NotificationDialogue from '../Dialogues/NotificationDialogue';
+// @ts-ignore
+import EmailDialogue from '../Dialogues/EmailDialogue.tsx';
+// @ts-ignore
+import NotificationDialogue from '../Dialogues/NotificationDialogue.tsx';
 import { sendEmail } from '../../actions/email';
 import profilePlaceholder from '../../utils/profile-picture-default-png.png';
 import * as helpers from '../Helpers/helpers';

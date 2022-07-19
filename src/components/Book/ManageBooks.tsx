@@ -14,7 +14,8 @@ import { connect } from 'react-redux';
 import React from 'react';
 import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
 import CustomizedSnackbars from '../Helpers/Snackbar';
-import BookDialogue from '../Dialogues/BookDialogue';
+// @ts-ignore
+import BookDialogue from '../Dialogues/BookDialogue.tsx';
 // @ts-ignore
 import BookTable from './BookTable.tsx';
 import { getBooks } from '../../actions/books';

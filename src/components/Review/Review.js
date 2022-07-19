@@ -13,7 +13,8 @@ import CardContent from '@material-ui/core/CardContent';
 // import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
-import ReviewDialog from '../Dialogues/ReviewDialogue';
+// @ts-ignore
+import ReviewDialog from '../Dialogues/ReviewDialogue.tsx';
 import { LightTooltip } from '../Helpers/Tooltip';
 import * as helpers from '../Helpers/helpers';
 import profilePlaceholder from '../../utils/profile-picture-default-png.png';

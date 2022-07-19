@@ -39,7 +39,7 @@ const MenuProps = {
 };
 
 export default function MultipleSelect(props) {
-  const { onChange, selected, options, label } = props;
+  const { onChange, selected, options, label, disabled } = props;
   const classes = useStyles();
 
   return (
@@ -53,6 +53,7 @@ export default function MultipleSelect(props) {
           value={selected}
           onChange={(event) => onChange(event.target.value)}
           input={<Input />}
+          disabled={disabled}
           renderValue={(chosen) => chosen.join(', ')}
           MenuProps={MenuProps}
         >
@@ -73,4 +74,5 @@ MultipleSelect.propTypes = {
   selected: PropTypes.arrayOf(PropTypes.string).isRequired,
   options: PropTypes.arrayOf(PropTypes.string).isRequired,
   label: PropTypes.string.isRequired,
+  disabled: PropTypes.bool.isRequired,
 };
