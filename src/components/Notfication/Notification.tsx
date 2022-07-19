@@ -1,8 +1,14 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
+// @ts-ignore
+import type { NotificationType } from '../../types.ts';
+
+interface OwnProps {
+  notification: NotificationType;
+  dismiss: (notification: NotificationType) => void;
+}
 
 const useStyles = makeStyles(() => ({
   notification: {
@@ -18,7 +24,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const Notification = (props) => {
+const Notification: React.FC<OwnProps> = (props: OwnProps) => {
   const { notification, dismiss } = props;
   const classes = useStyles();
   return (
@@ -44,11 +50,6 @@ const Notification = (props) => {
       </div>
     </div>
   );
-};
-
-Notification.propTypes = {
-  notification: PropTypes.objectOf(PropTypes.string).isRequired,
-  dismiss: PropTypes.func.isRequired,
 };
 
 export default Notification;

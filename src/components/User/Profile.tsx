@@ -1,12 +1,13 @@
 /* eslint-disable no-underscore-dangle */
 import React from 'react';
-import PropTypes from 'prop-types';
 import Typography from '@material-ui/core/Typography';
 import Chip from '@material-ui/core/Chip';
 import { makeStyles } from '@material-ui/core/styles';
 import profilePlaceholder from '../../utils/profile-picture-default-png.png';
 import * as helpers from '../Helpers/helpers';
 import Loading from '../Helpers/Loading';
+// @ts-ignore
+import type { User } from '../../types.ts';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -20,7 +21,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function Profile(props) {
+const Profile: React.FC<User> = (props: User) => {
   const classes = useStyles();
   const { user } = props;
 
@@ -41,7 +42,7 @@ function Profile(props) {
           key={item + user._id}
           icon={helpers.setIcon(item)}
           size="small"
-          label={item}
+          label={`${item}`}
           color={helpers.roleColor(item)}
           style={{ margin: '3px' }}
         />
@@ -52,14 +53,6 @@ function Profile(props) {
       <Typography gutterBottom>{user.name}</Typography>
     </div>
   );
-}
-
-Profile.defaultProps = {
-  user: {},
-};
-
-Profile.propTypes = {
-  user: PropTypes.objectOf(PropTypes.shape({})),
 };
 
 export default Profile;

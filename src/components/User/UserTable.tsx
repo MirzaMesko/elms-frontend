@@ -16,19 +16,23 @@ import EditIcon from '@material-ui/icons/Edit';
 import Fade from '@material-ui/core/Fade';
 import DeleteIcon from '@material-ui/icons/Delete';
 import CompareArrowsIcon from '@material-ui/icons/CompareArrows';
-import PropTypes from 'prop-types';
 import React from 'react';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 // @ts-ignore
 import UserDialog from '../Dialogues/UserDialogue.tsx';
 import Confirm from '../Helpers/Confirm';
-import UserDetails from './User';
+// @ts-ignore
+import UserDetails from './User.tsx';
 import EnhancedTableHead from '../Helpers/EnhancedTableHead';
 import { getUsers, deleteUser } from '../../actions/users';
 import * as helpers from '../Helpers/helpers';
 import { LightTooltip } from '../Helpers/Tooltip';
 import Loading from '../Helpers/Loading';
 import Error from '../Helpers/Error';
+// @ts-ignore
+import { RootState, AppDispatch } from '../../store.ts';
+// @ts-ignore
+import type { User } from '../../types.ts';
 
 const headCells = [
   { id: 'username', numeric: false, disablePadding: false, label: 'Username' },
@@ -63,70 +67,78 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function EnhancedTable(props) {
+interface OwnProps {
+  users: [User];
+  onShowSnackbar: () => void;
+  roles: Array<string>;
+  token: string;
+  loadingUsers: boolean;
+  error: {
+    error: boolean;
+    message: string;
+  };
+}
+
+type Props = OwnProps & RootState & AppDispatch;
+
+const EnhancedTable: React.FC<OwnProps> = (props: Props) => {
   const classes = useStyles();
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('username');
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [showEditDialogue, setShowEditDialogue] = React.useState(false);
-  const [selectedUser, setSelectedUser] = React.useState();
+  const [selectedUser, setSelectedUser] = React.useState<User | null>();
   const [showConfirmDelete, setShowDeleteConfirm] = React.useState(false);
   const [openUserDetails, setOpenUserDetails] = React.useState(false);
   const [chosenUser, setChosenUser] = React.useState({});
 
-  const {
-    users,
-    onShowSnackbar,
-    roles,
-    token,
-    onDeleteUser,
-    onGetUsers,
-    loadingUsers,
-    error,
-  } = props;
-  const history = useHistory();
+  const { users, onShowSnackbar, roles, token, loadingUsers, error } = props;
 
-  const handleRequestSort = (event, property) => {
+  const history = useHistory();
+  const dispatch: AppDispatch = useDispatch();
+  const isLibrarian: boolean = roles.includes('Librarian');
+
+  const handleRequestSort = (event: any, property: string) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
 
-  const handleChangePage = (event, newPage) => {
+  const handleChangePage = (event: any, newPage: number) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event) => {
+  const handleChangeRowsPerPage = (event: any) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
-  const onEdit = (user) => {
+  const onEdit = (user: User | null) => {
     setSelectedUser(user);
     setShowEditDialogue(!showEditDialogue);
   };
 
-  const onConfirmDelete = (user) => {
+  const onConfirmDelete = (user: User) => {
     setSelectedUser(user);
     setShowDeleteConfirm(true);
   };
 
   const onDelete = () => {
     // eslint-disable-next-line no-underscore-dangle
-    onDeleteUser(roles, selectedUser._id, token).then((response) => {
+    dispatch(deleteUser(roles, selectedUser._id, token)).then((response: any) => {
       if (response.status === 400 || response.status === 401 || response.status === 403) {
         onShowSnackbar(true, 'error', response.message);
       }
       if (response.status === 200) {
         onShowSnackbar(true, 'success', `User deleted`);
         setShowDeleteConfirm(false);
-        onGetUsers(token);
+        dispatch(getUsers(token));
       }
     });
   };
 
-  const onShowUserDetails = (user) => {
+  const onShowUserDetails = (user: User) => {
     setOpenUserDetails(true);
     setChosenUser(user);
   };
@@ -162,11 +174,12 @@ function EnhancedTable(props) {
               aria-label="enhanced table"
             >
               <EnhancedTableHead
+                isLibrarian={isLibrarian}
                 classes={classes}
                 order={order}
                 orderBy={orderBy}
                 onRequestSort={handleRequestSort}
-                rowCount={users.length}
+                // rowCount={users.length}
                 headCells={headCells}
               />
               <Confirm
@@ -187,7 +200,7 @@ function EnhancedTable(props) {
                 {helpers
                   .stableSort(users, helpers.getComparator(order, orderBy))
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((user) => (
+                  .map((user: User) => (
                     <TableRow hover role="checkbox" tabIndex={-1} key={user.username}>
                       <TableCell
                         onClick={() => onShowUserDetails(user)}
@@ -234,7 +247,7 @@ function EnhancedTable(props) {
                             key={item + user._id}
                             icon={helpers.setIcon(item)}
                             size="small"
-                            label={item}
+                            label={`${item}`}
                             color={helpers.roleColor(item)}
                             style={{ margin: '3px' }}
                           />
@@ -292,7 +305,7 @@ function EnhancedTable(props) {
                 <UserDialog
                   title="Edit User"
                   show={showEditDialogue}
-                  close={() => onEdit()}
+                  close={() => onEdit(null)}
                   user={selectedUser}
                   onShowSnackbar={onShowSnackbar}
                 />
@@ -312,32 +325,13 @@ function EnhancedTable(props) {
       </Paper>
     </div>
   );
-}
-
-EnhancedTable.propTypes = {
-  users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  onShowSnackbar: PropTypes.func.isRequired,
-  roles: PropTypes.arrayOf(PropTypes.string).isRequired,
-  token: PropTypes.string.isRequired,
-  onDeleteUser: PropTypes.func.isRequired,
-  onGetUsers: PropTypes.func.isRequired,
-  loadingUsers: PropTypes.bool.isRequired,
-  error: PropTypes.shape({
-    error: PropTypes.bool,
-    message: PropTypes.string,
-  }).isRequired,
 };
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: RootState) => ({
   token: state.users.token,
   roles: state.users.authUser.roles,
   loadingUsers: state.users.loading,
   error: state.users.err,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  onDeleteUser: (roles, id, token) => dispatch(deleteUser(roles, id, token)),
-  onGetUsers: (token) => dispatch(getUsers(token)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(EnhancedTable);
+export default connect<RootState>(mapStateToProps)(EnhancedTable);

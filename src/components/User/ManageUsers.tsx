@@ -9,14 +9,18 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
 import SearchIcon from '@material-ui/icons/Search';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 import React from 'react';
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
 import CustomizedSnackbars from '../Helpers/Snackbar';
 // @ts-ignore
 import UserDialogue from '../Dialogues/UserDialogue.tsx';
-import UserTable from './UserTable';
+// @ts-ignore
+import UserTable from './UserTable.tsx';
 import { getUsers } from '../../actions/users';
+// @ts-ignore
+import { RootState, AppDispatch } from '../../store.ts';
+// @ts-ignore
+import type { User } from '../../types.ts';
 
 const BootstrapInput = styled(InputBase)(({ theme }) => ({
   'label + &': {
@@ -90,7 +94,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function ManageUsers(props) {
+interface OwnProps {
+  token: string;
+  onGetUsers: () => void;
+  users: [User];
+  roles: Array<string>;
+}
+
+type Props = RootState & AppDispatch & OwnProps;
+
+const ManageUsers: React.FC<OwnProps> = (props: Props) => {
   const { token, onGetUsers, users, roles } = props;
   const classes = useStyles();
   const [openDialogue, setOpenDialogue] = React.useState(false);
@@ -102,7 +115,7 @@ function ManageUsers(props) {
   const [filter, setFilter] = React.useState('username');
   const [roleFilter, setRoleFilter] = React.useState('All');
 
-  const isAdmin = roles.includes('Admin');
+  const isAdmin: boolean = roles.includes('Admin');
 
   const handleOpen = () => {
     setOpenDialogue(true);
@@ -112,7 +125,15 @@ function ManageUsers(props) {
     setOpenDialogue(false);
   };
 
-  const showSnackbar = (show, status, message) => {
+  const handleFilterChange = (event: any) => {
+    setFilter(event.target.value);
+  };
+
+  const handleRoleFilterChange = (event: any) => {
+    setRoleFilter(event.target.value);
+  };
+
+  const showSnackbar = (show: boolean, status: string, message: string) => {
     setSeverity(status);
     setNewUser(message);
     setOpenSnackbar(show);
@@ -131,7 +152,7 @@ function ManageUsers(props) {
 
   React.useEffect(() => {
     const filteredResults = users.filter(
-      (user) =>
+      (user: User) =>
         (filter === 'username' && user.username.toLowerCase().includes(search.toLowerCase())) ||
         (filter === 'email' && user.email.toLowerCase().includes(search.toLowerCase())) ||
         (filter === 'name' && user.name && user.name.toLowerCase().includes(search.toLowerCase()))
@@ -141,7 +162,7 @@ function ManageUsers(props) {
 
   React.useEffect(() => {
     const filteredResults = users.filter(
-      (user) =>
+      (user: User) =>
         (roleFilter === 'Admin' && Object.values(user.roles).includes(roleFilter)) ||
         (roleFilter === 'Librarian' && Object.values(user.roles).includes(roleFilter)) ||
         (roleFilter === 'Member' && Object.values(user.roles).length === 1) ||
@@ -173,7 +194,7 @@ function ManageUsers(props) {
             type="text"
             placeholder="Search…"
             value={search}
-            label="search users"
+            title="search users"
             onChange={(e) => setSearch(e.target.value)}
           />
           <SearchIconWrapper>
@@ -183,11 +204,7 @@ function ManageUsers(props) {
         <Typography style={{ margin: '2rem 0.5rem' }}>by</Typography>
         <FormControl variant="standard">
           <InputLabel htmlFor="demo-customized-textbox"> </InputLabel>
-          <Select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            input={<BootstrapInput />}
-          >
+          <Select value={filter} onChange={handleFilterChange} input={<BootstrapInput />}>
             <MenuItem value="username">username</MenuItem>
             <MenuItem value="email">email</MenuItem>
             <MenuItem value="name">name</MenuItem>
@@ -196,11 +213,7 @@ function ManageUsers(props) {
         <Typography style={{ margin: '2rem 0.5rem 2rem 9rem' }}>showing</Typography>
         <FormControl variant="standard">
           <InputLabel htmlFor="demo-customized-textbox"> </InputLabel>
-          <Select
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-            input={<BootstrapInput />}
-          >
+          <Select value={roleFilter} onChange={handleRoleFilterChange} input={<BootstrapInput />}>
             <MenuItem value="All">all users</MenuItem>
             <MenuItem value="Admin">Admins</MenuItem>
             <MenuItem value="Member">Members</MenuItem>
@@ -218,22 +231,18 @@ function ManageUsers(props) {
       />
     </Box>
   );
-}
-
-ManageUsers.propTypes = {
-  token: PropTypes.string.isRequired,
-  onGetUsers: PropTypes.func.isRequired,
-  users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  roles: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: RootState) => ({
   token: state.users.token,
   users: state.users.users,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  onGetUsers: (token) => dispatch(getUsers(token)),
+const mapDispatchToProps = (dispatch: AppDispatch) => ({
+  onGetUsers: (token: string) => dispatch(getUsers(token)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ManageUsers);
+export default connect<RootState, AppDispatch, OwnProps>(
+  mapStateToProps,
+  mapDispatchToProps
+)(ManageUsers);

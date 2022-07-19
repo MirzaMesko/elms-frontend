@@ -2,15 +2,12 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 import Card from '@material-ui/core/Card';
 import Avatar from '@material-ui/core/Avatar';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Fade from '@material-ui/core/Fade';
-// import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
-// import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 // @ts-ignore
@@ -18,6 +15,10 @@ import ReviewDialog from '../Dialogues/ReviewDialogue.tsx';
 import { LightTooltip } from '../Helpers/Tooltip';
 import * as helpers from '../Helpers/helpers';
 import profilePlaceholder from '../../utils/profile-picture-default-png.png';
+// @ts-ignore
+import { RootState, AppDispatch } from '../../store.ts';
+// @ts-ignore
+import { User, Review } from '../../types.ts';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -45,7 +46,23 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function ReviewCard(props) {
+interface OwnProps {
+  review: Array<Review>;
+  authUser: string;
+  onDelete: () => void;
+  onEdit: () => void;
+  reviewAuthor: {
+    username: string;
+    roles: any;
+    _id: string;
+    email: string;
+    slice: string;
+  };
+}
+
+type Props = OwnProps & RootState & AppDispatch;
+
+const ReviewCard: React.FC<OwnProps> = (props: Props) => {
   const { review, reviewAuthor, authUser, onDelete, onEdit } = props;
   const [showReviewDialogue, setShowReviewDialogue] = React.useState(false);
   const classes = useStyles();
@@ -123,31 +140,11 @@ function ReviewCard(props) {
       </CardActions> */}
     </Card>
   );
-}
-
-ReviewCard.propTypes = {
-  review: PropTypes.objectOf(PropTypes.string, PropTypes.objectOf(PropTypes.string)).isRequired,
-  authUser: PropTypes.string.isRequired,
-  onDelete: PropTypes.func.isRequired,
-  onEdit: PropTypes.func.isRequired,
-  reviewAuthor: PropTypes.objectOf(
-    PropTypes.shape({
-      username: PropTypes.string.isRequired,
-      roles: PropTypes.objectOf(PropTypes.string).isRequired,
-      _id: PropTypes.string.isRequired,
-      email: PropTypes.string.isRequired,
-      slice: PropTypes.string.isRequired,
-    })
-  ),
 };
 
-ReviewCard.defaultProps = {
-  reviewAuthor: {},
-};
-
-const mapStateToProps = (state, props) => ({
-  reviewAuthor: state.users.users.filter((u) => u._id === props.review.userId)[0],
+const mapStateToProps = (state: RootState, props: Props) => ({
+  reviewAuthor: state.users.users.filter((u: User) => u._id === props.review.userId)[0],
   authUser: state.users.authUser.username,
 });
 
-export default connect(mapStateToProps)(ReviewCard);
+export default connect<RootState, AppDispatch, OwnProps>(mapStateToProps)(ReviewCard);

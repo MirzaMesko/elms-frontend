@@ -17,7 +17,8 @@ import { NavLink as RouterLink } from 'react-router-dom';
 import MainListItems from './Helpers/ListItems';
 // @ts-ignore
 import BasicMenu from './Menu.tsx';
-import NotificationsMenu from './Notfication/NotificationsMenu';
+// @ts-ignore
+import NotificationsMenu from './Notfication/NotificationsMenu.tsx';
 import Copyright from './Helpers/Copyright';
 // @ts-ignore
 import { RootState } from '../store.ts';

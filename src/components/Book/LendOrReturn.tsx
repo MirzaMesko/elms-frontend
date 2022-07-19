@@ -18,7 +18,8 @@ import CustomizedSnackbars from '../Helpers/Snackbar';
 import ConciseBook from './ConciseBook.tsx';
 import { getBooks, lendBook, returnBook, setNotification } from '../../actions/books';
 import { getUsers, notifyUser } from '../../actions/users';
-import Profile from '../User/Profile';
+// @ts-ignore
+import Profile from '../User/Profile.tsx';
 // @ts-ignore
 import { RootState, AppDispatch } from '../../store.ts';
 // @ts-ignore

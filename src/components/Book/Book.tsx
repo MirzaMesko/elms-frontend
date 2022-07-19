@@ -15,7 +15,8 @@ import editionPlaceholder from '../../utils/edition_placeholder2.png';
 import Ratings from '../Helpers/Rating';
 import { LightTooltip } from '../Helpers/Tooltip';
 import CustomizedSnackbars from '../Helpers/Snackbar';
-import ReviewsContainer from '../Review/ReviewsContainer';
+// @ts-ignore
+import ReviewsContainer from '../Review/ReviewsContainer.tsx';
 // @ts-ignore
 import ReviewDialog from '../Dialogues/ReviewDialogue.tsx';
 import Loading from '../Helpers/Loading';

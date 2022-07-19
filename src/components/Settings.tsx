@@ -12,7 +12,8 @@ import Typography from '@material-ui/core/Typography';
 // @ts-ignore
 import UserDialog from './Dialogues/UserDialogue.tsx';
 import CustomizedSnackbars from './Helpers/Snackbar';
-import Notification from './Notfication/Notification';
+// @ts-ignore
+import Notification from './Notfication/Notification.tsx';
 import TabPanel from './Helpers/TabPanel';
 import LinkTab from './Helpers/LinkTab';
 import profilePlaceholder from '../utils/profile-picture-default-png.png';

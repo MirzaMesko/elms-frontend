@@ -1,14 +1,16 @@
 /* eslint-disable no-underscore-dangle */
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import PropTypes from 'prop-types';
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Ratings from '../Helpers/Rating';
-import ReviewCard from './Review';
+// @ts-ignore
+import ReviewCard from './Review.tsx';
+// @ts-ignore
+import { Review } from '../../types.ts';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -22,7 +24,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function ReviewsContainer(props) {
+interface Props {
+  currentRating: number;
+  reviews: Array<Review>;
+  onDelete: () => void;
+  onEdit: () => void;
+}
+
+const ReviewsContainer: React.FC<Props> = (props: Props) => {
   const { currentRating, reviews, onDelete, onEdit } = props;
   const classes = useStyles();
 
@@ -55,17 +64,6 @@ function ReviewsContainer(props) {
       </Accordion>
     </div>
   );
-}
-
-ReviewsContainer.defaultProps = {
-  reviews: [],
-};
-
-ReviewsContainer.propTypes = {
-  currentRating: PropTypes.number.isRequired,
-  reviews: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.string)),
-  onDelete: PropTypes.func.isRequired,
-  onEdit: PropTypes.func.isRequired,
 };
 
 export default ReviewsContainer;

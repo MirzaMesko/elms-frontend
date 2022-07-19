@@ -19,7 +19,8 @@ import React from 'react';
 // @ts-ignore
 import BookDetails from './Book.tsx';
 import Confirm from '../Helpers/Confirm';
-import UserDetails from '../User/User';
+// @ts-ignore
+import UserDetails from '../User/User.tsx';
 // @ts-ignore
 import EmailDialogue from '../Dialogues/EmailDialogue.tsx';
 import CustomizedSnackbars from '../Helpers/Snackbar';

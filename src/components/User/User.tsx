@@ -1,11 +1,10 @@
 /* eslint-disable no-underscore-dangle */
 import * as React from 'react';
 import { useHistory } from 'react-router-dom';
-import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import Chip from '@material-ui/core/Chip';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import IconButton from '@material-ui/core/IconButton';
 import EmailIcon from '@material-ui/icons/Email';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -23,9 +22,25 @@ import { sendEmail } from '../../actions/email';
 import profilePlaceholder from '../../utils/profile-picture-default-png.png';
 import * as helpers from '../Helpers/helpers';
 import { LightTooltip } from '../Helpers/Tooltip';
+// @ts-ignore
+import { RootState, AppDispatch } from '../../store.ts';
+// @ts-ignore
+import type { User } from '../../types.ts';
 
-function UserDetails(props) {
-  const { open, handleClose, user, onNotifyUser, onSendEmail, token, roles } = props;
+interface OwnProps {
+  open: boolean;
+  handleClose: () => void;
+  user: User;
+  onNotifyUser: () => void;
+  onSendEmail: () => void;
+  roles: Array<string>;
+  token: string;
+}
+
+type Props = OwnProps & RootState & AppDispatch;
+
+const UserDetails: React.FC<OwnProps> = (props: Props) => {
+  const { open, handleClose, user, token, roles } = props;
   const [showEmailDialogue, setShowEmailDialogue] = React.useState(false);
   const [showNotificationDialogue, setShowNotificationDialogue] = React.useState(false);
   const [severity, setSeverity] = React.useState('');
@@ -34,8 +49,9 @@ function UserDetails(props) {
   const image = user?.image ? user.image : profilePlaceholder;
 
   const history = useHistory();
+  const dispatch: AppDispatch = useDispatch();
 
-  const showSnackbar = (show, status, message) => {
+  const showSnackbar = (show: boolean, status: string, message: string) => {
     setSeverity(status);
     setErrMessage(message);
     setOpenSnackbar(show);
@@ -44,8 +60,8 @@ function UserDetails(props) {
     }, 6000);
   };
 
-  const handleSendEmail = (email, subject, text) => {
-    onSendEmail(token, roles, email, subject, text).then((resp) => {
+  const handleSendEmail = (email: string, subject: string, text: string) => {
+    dispatch(sendEmail(token, roles, email, subject, text)).then((resp: any) => {
       if (resp.status !== 200) {
         showSnackbar(true, 'error', resp.message);
       }
@@ -56,8 +72,8 @@ function UserDetails(props) {
     });
   };
 
-  const handleSendNotification = (text) => {
-    onNotifyUser(token, roles, user._id, text).then((resp) => {
+  const handleSendNotification = (text: string) => {
+    dispatch(notifyUser(token, roles, user._id, text)).then((resp: any) => {
       if (resp.status !== 200) {
         showSnackbar(true, 'error', resp.message);
       }
@@ -132,7 +148,7 @@ function UserDetails(props) {
                   key={item + user._id}
                   icon={helpers.setIcon(item)}
                   size="small"
-                  label={item}
+                  label={`${item}`}
                   color={helpers.roleColor(item)}
                   style={{ margin: '3px' }}
                 />
@@ -161,35 +177,11 @@ function UserDetails(props) {
       </Dialog>
     </>
   );
-}
-
-UserDetails.propTypes = {
-  open: PropTypes.bool.isRequired,
-  handleClose: PropTypes.func.isRequired,
-  user: PropTypes.objectOf(
-    PropTypes.shape({
-      username: PropTypes.string,
-      roles: PropTypes.objectOf(PropTypes.string),
-      _id: PropTypes.string,
-      email: PropTypes.string,
-    })
-  ).isRequired,
-  onNotifyUser: PropTypes.func.isRequired,
-  onSendEmail: PropTypes.func.isRequired,
-  roles: PropTypes.arrayOf(PropTypes.string).isRequired,
-  token: PropTypes.string.isRequired,
 };
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: RootState) => ({
   token: state.users.token,
   roles: state.users.authUser.roles,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  onSendEmail: (token, authUserRoles, email, subject, text) =>
-    dispatch(sendEmail(token, authUserRoles, email, subject, text)),
-  onNotifyUser: (token, authUserRoles, userId, message) =>
-    dispatch(notifyUser(token, authUserRoles, userId, message)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(UserDetails);
+export default connect<RootState>(mapStateToProps)(UserDetails);
