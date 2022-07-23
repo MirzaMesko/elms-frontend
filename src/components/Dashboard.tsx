@@ -100,27 +100,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-// type User = {
-//   _id: string;
-//   username: string;
-//   roles: { x: string };
-//   email: string;
-//   password: string;
-//   name: string;
-//   bio?: string;
-//   image: string;
-//   owedBooks?: [];
-//   readingHistory?: [];
-//   notifications?: [
-//     {
-//       timestamp: string;
-//       message: string;
-//       seen: string;
-//     }
-//   ];
-//   refreshToken: string;
-// };
-
 interface OwnProps {
   onLogout: () => void;
   children: React.Component<any, any>;
