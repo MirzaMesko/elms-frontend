@@ -14,8 +14,10 @@ import { logout, authCheckState } from './actions/auth';
 import { getBooks } from './actions/books';
 import { getUsers } from './actions/users';
 import Links from './components/Helpers/Links';
-import Login from './components/Auth/Login';
-import Register from './components/Auth/SignUp';
+// @ts-ignore
+import Login from './components/Auth/Login.tsx';
+// @ts-ignore
+import Register from './components/Auth/SignUp.tsx';
 // @ts-ignore
 import LendOrReturn from './components/Book/LendOrReturn.tsx';
 // @ts-ignore
