@@ -11,11 +11,14 @@ import DialogContent from '@material-ui/core/DialogContent';
 import Typography from '@material-ui/core/Typography';
 // @ts-ignore
 import UserDialog from './Dialogues/UserDialogue.tsx';
-import CustomizedSnackbars from './Helpers/Snackbar';
+// @ts-ignore
+import CustomizedSnackbars from './Helpers/Snackbar.tsx';
 // @ts-ignore
 import Notification from './Notfication/Notification.tsx';
-import TabPanel from './Helpers/TabPanel';
-import LinkTab from './Helpers/LinkTab';
+// @ts-ignore
+import TabPanel from './Helpers/TabPanel.tsx';
+// @ts-ignore
+import LinkTab from './Helpers/LinkTab.tsx';
 import profilePlaceholder from '../utils/profile-picture-default-png.png';
 import { updateNotifications, getUsers } from '../actions/users';
 import * as helpers from './Helpers/helpers';
@@ -217,14 +220,14 @@ const Settings: React.FC<Props> = (props: Props) => {
         indicatorColor="primary"
       >
         <LinkTab
-          label="notifications"
+          title="notifications"
           href="notifications"
           username={user.username}
           {...a11yProps(0)}
         />
-        <LinkTab label="profile" href="profile" username={user.username} {...a11yProps(1)} />
+        <LinkTab title="profile" href="profile" username={user.username} {...a11yProps(1)} />
         <LinkTab
-          label="reading history"
+          title="reading history"
           href="reading history"
           username={user.username}
           {...a11yProps(2)}

@@ -14,7 +14,8 @@ import clsx from 'clsx';
 // import PropTypes from 'prop-types';
 import React from 'react';
 import { NavLink as RouterLink } from 'react-router-dom';
-import MainListItems from './Helpers/ListItems';
+// @ts-ignore
+import MainListItems from './Helpers/ListItems.tsx';
 // @ts-ignore
 import BasicMenu from './Menu.tsx';
 // @ts-ignore
