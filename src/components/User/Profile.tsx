@@ -5,7 +5,8 @@ import Chip from '@material-ui/core/Chip';
 import { makeStyles } from '@material-ui/core/styles';
 import profilePlaceholder from '../../utils/profile-picture-default-png.png';
 import * as helpers from '../Helpers/helpers';
-import Loading from '../Helpers/Loading';
+// @ts-ignore
+import Loading from '../Helpers/Loading.tsx';
 // @ts-ignore
 import type { User } from '../../types.ts';
 

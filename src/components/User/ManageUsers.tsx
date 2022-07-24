@@ -11,7 +11,8 @@ import SearchIcon from '@material-ui/icons/Search';
 import { connect } from 'react-redux';
 import React from 'react';
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
-import CustomizedSnackbars from '../Helpers/Snackbar';
+// @ts-ignore
+import CustomizedSnackbars from '../Helpers/Snackbar.tsx';
 // @ts-ignore
 import UserDialogue from '../Dialogues/UserDialogue.tsx';
 // @ts-ignore

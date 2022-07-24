@@ -13,15 +13,18 @@ import Typography from '@material-ui/core/Typography';
 import Fade from '@material-ui/core/Fade';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import { notifyUser } from '../../actions/users';
-import CustomizedSnackbars from '../Helpers/Snackbar';
+// @ts-ignore
+import CustomizedSnackbars from '../Helpers/Snackbar.tsx';
 // @ts-ignore
 import EmailDialogue from '../Dialogues/EmailDialogue.tsx';
 // @ts-ignore
 import NotificationDialogue from '../Dialogues/NotificationDialogue.tsx';
-import { sendEmail } from '../../actions/email';
+// @ts-ignore
+import { sendEmail } from '../../actions/email.tsx';
 import profilePlaceholder from '../../utils/profile-picture-default-png.png';
 import * as helpers from '../Helpers/helpers';
-import { LightTooltip } from '../Helpers/Tooltip';
+// @ts-ignore
+import { LightTooltip } from '../Helpers/Tooltip.tsx';
 // @ts-ignore
 import { RootState, AppDispatch } from '../../store.ts';
 // @ts-ignore
