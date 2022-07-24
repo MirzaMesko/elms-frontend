@@ -13,7 +13,8 @@ import ManageOverdueBooks from './components/Book/ManageOverdueBooks.tsx';
 import { logout, authCheckState } from './actions/auth';
 import { getBooks } from './actions/books';
 import { getUsers } from './actions/users';
-import Links from './components/Helpers/Links';
+// @ts-ignore
+import Links from './components/Helpers/Links.tsx';
 // @ts-ignore
 import Login from './components/Auth/Login.tsx';
 // @ts-ignore
