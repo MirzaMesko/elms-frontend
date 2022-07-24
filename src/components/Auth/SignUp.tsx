@@ -18,7 +18,8 @@ import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import { FormControl, OutlinedInput, FormHelperText, InputLabel } from '@material-ui/core';
 import { login, register, dismissAlert } from '../../actions/auth';
 import Alert from '../Helpers/Alert';
-import CustomizedSnackbars from '../Helpers/Snackbar';
+// @ts-ignore
+import CustomizedSnackbars from '../Helpers/Snackbar.tsx';
 import logo from '../../utils/logo.png';
 import Copyright from '../Helpers/Copyright';
 // @ts-ignore
