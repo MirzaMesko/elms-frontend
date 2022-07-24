@@ -6,7 +6,8 @@ import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import Ratings from '../Helpers/Rating';
+// @ts-ignore
+import Ratings from '../Helpers/Rating.tsx';
 // @ts-ignore
 import ReviewCard from './Review.tsx';
 // @ts-ignore

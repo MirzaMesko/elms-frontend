@@ -12,7 +12,8 @@ import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 // @ts-ignore
 import ReviewDialog from '../Dialogues/ReviewDialogue.tsx';
-import { LightTooltip } from '../Helpers/Tooltip';
+// @ts-ignore
+import { LightTooltip } from '../Helpers/Tooltip.tsx';
 import * as helpers from '../Helpers/helpers';
 import profilePlaceholder from '../../utils/profile-picture-default-png.png';
 // @ts-ignore
