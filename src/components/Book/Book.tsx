@@ -12,15 +12,20 @@ import AddCommentIcon from '@material-ui/icons/AddComment';
 import Typography from '@material-ui/core/Typography';
 import Fade from '@material-ui/core/Fade';
 import editionPlaceholder from '../../utils/edition_placeholder2.png';
-import Ratings from '../Helpers/Rating';
-import { LightTooltip } from '../Helpers/Tooltip';
-import CustomizedSnackbars from '../Helpers/Snackbar';
+// @ts-ignore
+import Ratings from '../Helpers/Rating.tsx';
+// @ts-ignore
+import { LightTooltip } from '../Helpers/Tooltip.tsx';
+// @ts-ignore
+import CustomizedSnackbars from '../Helpers/Snackbar.tsx';
 // @ts-ignore
 import ReviewsContainer from '../Review/ReviewsContainer.tsx';
 // @ts-ignore
 import ReviewDialog from '../Dialogues/ReviewDialogue.tsx';
-import Loading from '../Helpers/Loading';
-import Error from '../Helpers/Error';
+// @ts-ignore
+import Loading from '../Helpers/Loading.tsx';
+// @ts-ignore
+import Error from '../Helpers/Error.tsx';
 import { getBooks, addNewRating, addReview, updateReview, getBookById } from '../../actions/books';
 // @ts-ignore
 import { RootState, AppDispatch } from '../../store.ts';
@@ -59,7 +64,7 @@ const BookDetails: React.FC<OwnProps> = (props: Props) => {
     onReviewBook,
     onUpdateReview,
     onGetBookById,
-    onAddReview,
+    onRateBook,
   } = props;
 
   const [showRatingDialogue, setShowRatingDialogue] = React.useState(false);
@@ -95,7 +100,7 @@ const BookDetails: React.FC<OwnProps> = (props: Props) => {
 
   const rateBook = (ratingValue: number) => {
     setShowRatingDialogue(false);
-    onReviewBook(token, authUserRoles, book.title, user[0]._id, ratingValue).then(
+    onRateBook(token, authUserRoles, book.title, user[0]._id, ratingValue).then(
       (response: { status: number; message: string }) => {
         if (response.status !== 200) {
           showSnackbar(true, 'error', response.message);
@@ -114,7 +119,7 @@ const BookDetails: React.FC<OwnProps> = (props: Props) => {
 
   const reviewBook = (review: string) => {
     setShowReviewDialogue(false);
-    onAddReview(token, authUserRoles, book.title, user[0]._id, review).then(
+    onReviewBook(token, authUserRoles, book.title, user[0]._id, review).then(
       (response: { status: number; message: string; data: any }) => {
         if (response.status !== 200) {
           showSnackbar(true, 'error', response.message);
@@ -311,7 +316,6 @@ const mapDispatchToProps = (dispatch: AppDispatch) => ({
   onUpdateReview: (token: string, authUserRoles: { x: string }, title: string, afterDelete: []) =>
     dispatch(updateReview(token, authUserRoles, title, afterDelete)),
   onGetBooks: (token: string) => dispatch(getBooks(token)),
-  onAddReview: () => dispatch(addReview()),
   onGetBookById: (token: string, id: string) => dispatch(getBookById(token, id)),
 });
 

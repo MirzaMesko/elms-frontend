@@ -12,8 +12,10 @@ import Tabs from '@material-ui/core/Tabs';
 import InputBase from '@material-ui/core/InputBase';
 import Tab from '@material-ui/core/Tab';
 import { makeStyles, styled } from '@material-ui/core/styles';
-import TabPanel from '../Helpers/TabPanel';
-import CustomizedSnackbars from '../Helpers/Snackbar';
+// @ts-ignore
+import TabPanel from '../Helpers/TabPanel.tsx';
+// @ts-ignore
+import CustomizedSnackbars from '../Helpers/Snackbar.tsx';
 // @ts-ignore
 import ConciseBook from './ConciseBook.tsx';
 import { getBooks, lendBook, returnBook, setNotification } from '../../actions/books';
@@ -255,7 +257,7 @@ const LendOrReturn: React.FC<OwnProps> = (props: Props) => {
           <Typography className="centered">No results.</Typography>
         ) : (
           searchResults.map((book: Book) => (
-            <ConciseBook book={book} lend={lend} onNotifyUser={setNewNotification} key={book._id} />
+            <ConciseBook book={book} lend={lend} onNotifyUser={setNewNotification} id={book._id} />
           ))
         )}
       </div>
@@ -268,13 +270,12 @@ const LendOrReturn: React.FC<OwnProps> = (props: Props) => {
     owedBooks.map((bookId) => {
       const match = books.filter((book: { _id: string }) => book._id === bookId);
       return match.map((owedBook: Book) => (
-        <div key={owedBook._id}>
-          <ConciseBook
-            book={owedBook}
-            onReturnBook={returnABook}
-            sendOverdueReminder={sendReminder}
-          />
-        </div>
+        <ConciseBook
+          book={owedBook}
+          onReturnBook={returnABook}
+          sendOverdueReminder={sendReminder}
+          id={owedBook._id}
+        />
       ));
     })
   );

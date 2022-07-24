@@ -18,18 +18,23 @@ import EmailIcon from '@material-ui/icons/Email';
 import React from 'react';
 // @ts-ignore
 import BookDetails from './Book.tsx';
-import Confirm from '../Helpers/Confirm';
+// @ts-ignore
+import Confirm from '../Helpers/Confirm.tsx';
 // @ts-ignore
 import UserDetails from '../User/User.tsx';
 // @ts-ignore
 import EmailDialogue from '../Dialogues/EmailDialogue.tsx';
-import CustomizedSnackbars from '../Helpers/Snackbar';
-import EnhancedTableHead from '../Helpers/EnhancedTableHead';
+// @ts-ignore
+import CustomizedSnackbars from '../Helpers/Snackbar.tsx';
+// @ts-ignore
+import EnhancedTableHead from '../Helpers/EnhancedTableHead.tsx';
 import { getBooks } from '../../actions/books';
 import { notifyUser, getUsers } from '../../actions/users';
-import { sendEmail } from '../../actions/email';
+// @ts-ignore
+import { sendEmail } from '../../actions/email.tsx';
 import * as helpers from '../Helpers/helpers';
-import { LightTooltip } from '../Helpers/Tooltip';
+// @ts-ignore
+import { LightTooltip } from '../Helpers/Tooltip.tsx';
 // @ts-ignore
 import { RootState, AppDispatch } from '../../store.ts';
 // @ts-ignore

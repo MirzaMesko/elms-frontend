@@ -32,10 +32,11 @@ interface OwnProps {
   lend: (book: Book) => void | undefined;
   onNotifyUser: (book: Book) => void | undefined;
   sendOverdueReminder: (book: Book) => void | undefined;
+  id: string;
 }
 
 const ConciseBook: React.FC<OwnProps> = (props: OwnProps) => {
-  const { onReturnBook, book, lend, onNotifyUser, sendOverdueReminder } = props;
+  const { onReturnBook, book, lend, onNotifyUser, sendOverdueReminder, id } = props;
   const classes = useStyles();
   const isTaken: string | undefined = book.owedBy?.dueDate;
   const showActionButtons: boolean = lend !== undefined || onReturnBook !== undefined;
@@ -47,7 +48,7 @@ const ConciseBook: React.FC<OwnProps> = (props: OwnProps) => {
   }
 
   return (
-    <div className={classes.selectedBook} key={book._id}>
+    <div className={classes.selectedBook} key={id}>
       <img src={book.image || editionPlaceholder} alt="" className="smallImage" />
       {book.serNo && (
         <div style={{ marginLeft: '2rem', width: '100%' }}>

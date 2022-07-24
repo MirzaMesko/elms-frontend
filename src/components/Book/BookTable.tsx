@@ -21,13 +21,18 @@ import React from 'react';
 import BookDialog from '../Dialogues/BookDialogue.tsx';
 // @ts-ignore
 import BookDetails from './Book.tsx';
-import EnhancedTableHead from '../Helpers/EnhancedTableHead';
-import Confirm from '../Helpers/Confirm';
+// @ts-ignore
+import EnhancedTableHead from '../Helpers/EnhancedTableHead.tsx';
+// @ts-ignore
+import Confirm from '../Helpers/Confirm.tsx';
 import { getBooks, deleteBook } from '../../actions/books';
 import * as helpers from '../Helpers/helpers';
-import { LightTooltip } from '../Helpers/Tooltip';
-import Loading from '../Helpers/Loading';
-import Error from '../Helpers/Error';
+// @ts-ignore
+import { LightTooltip } from '../Helpers/Tooltip.tsx';
+// @ts-ignore
+import Loading from '../Helpers/Loading.tsx';
+// @ts-ignore
+import Error from '../Helpers/Error.tsx';
 // @ts-ignore
 import { RootState, AppDispatch } from '../../store.ts';
 // @ts-ignore

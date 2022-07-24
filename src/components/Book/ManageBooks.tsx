@@ -13,7 +13,8 @@ import { connect } from 'react-redux';
 // import PropTypes from 'prop-types';
 import React from 'react';
 import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
-import CustomizedSnackbars from '../Helpers/Snackbar';
+// @ts-ignore
+import CustomizedSnackbars from '../Helpers/Snackbar.tsx';
 // @ts-ignore
 import BookDialogue from '../Dialogues/BookDialogue.tsx';
 // @ts-ignore
