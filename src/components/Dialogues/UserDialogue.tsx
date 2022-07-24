@@ -11,8 +11,10 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { addUser, editUser, getUsers } from '../../actions/users';
-import Confirm from '../Helpers/Confirm';
-import MulitpleSelect from '../Helpers/MulitpleSelect';
+// @ts-ignore
+import Confirm from '../Helpers/Confirm.tsx';
+// @ts-ignore
+import MulitpleSelect from '../Helpers/MulitpleSelect.tsx';
 import profilePlaceholder from '../../utils/profile-picture-default-png.png';
 // @ts-ignore
 import { RootState, AppDispatch } from '../../store.ts';

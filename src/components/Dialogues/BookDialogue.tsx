@@ -15,8 +15,10 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import { addBook, getBooks, editBook } from '../../actions/books';
-import Confirm from '../Helpers/Confirm';
-import BasicSelect from '../Helpers/Select';
+// @ts-ignore
+import Confirm from '../Helpers/Confirm.tsx';
+// @ts-ignore
+import BasicSelect from '../Helpers/Select.tsx';
 import editionPlaceholder from '../../utils/edition_placeholder2.png';
 // @ts-ignore
 import { RootState, AppDispatch } from '../../store.ts';
