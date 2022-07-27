@@ -1,8 +1,10 @@
 /* eslint-disable global-require */
 import { configureStore } from '@reduxjs/toolkit';
 import thunk from 'redux-thunk';
-import books from './reducers/books';
-import users from './reducers/users';
+// @ts-ignore
+import books from './reducers/books.tsx';
+// @ts-ignore
+import users from './reducers/users.tsx';
 
 export const store = configureStore({
   reducer: {

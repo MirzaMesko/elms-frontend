@@ -10,9 +10,12 @@ import ManageUsers from './components/User/ManageUsers.tsx';
 import ManageBooks from './components/Book/ManageBooks.tsx';
 // @ts-ignore
 import ManageOverdueBooks from './components/Book/ManageOverdueBooks.tsx';
-import { logout, authCheckState } from './actions/auth';
-import { getBooks } from './actions/books';
-import { getUsers } from './actions/users';
+// @ts-ignore
+import { logout, authCheckState } from './actions/auth.tsx';
+// @ts-ignore
+import { getBooks } from './actions/books.tsx';
+// @ts-ignore
+import { getUsers } from './actions/users.tsx';
 // @ts-ignore
 import Links from './components/Helpers/Links.tsx';
 // @ts-ignore
@@ -108,28 +111,6 @@ const App: React.FC<Props> = (props: Props) => {
 
   return routes;
 };
-
-// App.propTypes = {
-//   history: PropTypes.shape(historyPropTypes).isRequired,
-//   loggedIn: PropTypes.bool.isRequired,
-//   error: PropTypes.shape({}).isRequired,
-//   authUser: PropTypes.string,
-//   onLogout: PropTypes.func.isRequired,
-//   onTryAutoSignup: PropTypes.func.isRequired,
-//   roles: PropTypes.arrayOf(PropTypes.string).isRequired,
-//   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-//   books: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-//   token: PropTypes.string.isRequired,
-//   onGetBooks: PropTypes.func.isRequired,
-//   onGetUsers: PropTypes.func.isRequired,
-// };
-
-// App.defaultProps = {
-//   roles: [],
-//   users: [],
-//   books: [],
-//   authUser: '',
-// };
 
 const mapStateToProps = (state: RootState) => ({
   loggedIn: state.users.loggedIn,

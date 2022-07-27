@@ -1,6 +1,8 @@
 import { combineReducers } from 'redux';
-import books from './books';
-import users from './users';
+// @ts-ignore
+import books from './books.tsx';
+// @ts-ignore
+import users from './users.tsx';
 
 export default combineReducers({
   books,
