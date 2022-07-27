@@ -1,0 +1,159 @@
+// @ts-ignore
+import { authFail } from './auth.tsx';
+// @ts-ignore
+import { AppDispatch } from '../store.ts';
+// @ts-ignore
+import type { User, NotificationType, Roles } from '../types.ts';
+
+const axios = require('axios');
+
+export const RETRIEVE_USERS_SUCCESS = 'RETRIEVE_USERS_SUCCESS';
+export const RETRIEVE_USERS_FAIL = 'RETRIEVE_USERS_FAIL';
+export const RETRIEVE_USERS_PENDING = 'RETRIEVE_USERS_PENDING';
+export const CURRENT_USER_INFO = 'CURRENT_USER_INFO';
+
+function currentUser(user: User) {
+  return {
+    type: CURRENT_USER_INFO,
+    user,
+  };
+}
+
+export function addUser(
+  authUserRoles: Roles,
+  email: User,
+  username: User,
+  password: User,
+  roles: User,
+  name: User,
+  image: User,
+  bio: User,
+  token: string
+) {
+  const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
+  return () =>
+    axios
+      .post(
+        'http://localhost:3500/users',
+        { email, username, password, roles, name, image, bio },
+        { headers }
+      )
+      .then((response: any) => response)
+      .catch((error: any) => error.response.data);
+}
+
+function retrieveUsersPending() {
+  return {
+    type: RETRIEVE_USERS_PENDING,
+  };
+}
+
+function retrieveUsersSuccess(users: [User]) {
+  return {
+    type: RETRIEVE_USERS_SUCCESS,
+    users,
+  };
+}
+
+function retrieveUsersFail(error: string) {
+  return {
+    type: RETRIEVE_USERS_FAIL,
+    error,
+  };
+}
+
+export function getUsers(token: string) {
+  return (dispatch: AppDispatch) => {
+    dispatch(retrieveUsersPending());
+    const headers = { Authorization: `Bearer ${token}` };
+    const url = 'http://localhost:3500/users';
+    return axios
+      .get(url, { headers })
+      .then((response: any) => {
+        dispatch(retrieveUsersSuccess(response.data));
+      })
+      .catch((error: any) => {
+        if (error.response.data.statusCode !== 200) {
+          dispatch(retrieveUsersFail(error.message));
+        }
+      });
+  };
+}
+
+export function getCurrentUser(token: string) {
+  const headers = { Authorization: `Bearer ${token}` };
+  const url = 'http://localhost:8888/api/user';
+
+  return (dispatch: AppDispatch) =>
+    axios
+      .get(url, { headers })
+      .then((response: any) => {
+        dispatch(currentUser(response.data));
+      })
+      .catch((error: any) => {
+        if (error.message.includes('401')) {
+          dispatch(authFail(error));
+        }
+      });
+}
+
+export function editUser(
+  authUserRoles: Roles,
+  id: User,
+  email: User,
+  roles: User,
+  name: User,
+  image: User,
+  bio: User,
+  token: string
+) {
+  const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
+  const url = `http://localhost:3500/users`;
+
+  return () =>
+    axios
+      .put(url, { id, email, roles, name, image, bio }, { headers })
+      .then((response: any) => response)
+      .catch((error: any) => error.response.data);
+}
+
+export function deleteUser(authUserRoles: Roles, id: string, token: string) {
+  const config = {
+    headers: { authorization: `Bearer ${token}`, roles: authUserRoles },
+    data: { id },
+  };
+  const url = `http://localhost:3500/users`;
+
+  return () =>
+    axios
+      .delete(url, config)
+      .then((response: any) => response)
+      .catch((error: any) => error.response.data);
+}
+
+export function notifyUser(token: string, authUserRoles: Roles, userId: string, message: string) {
+  const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
+  const url = `http://localhost:3500/users`;
+
+  return () =>
+    axios
+      .put(url, { id: userId, newNotification: message, seen: 'false' }, { headers })
+      .then((response: any) => response)
+      .catch((error: any) => error.response.data);
+}
+
+export function updateNotifications(
+  token: string,
+  roles: Roles,
+  userId: string,
+  notifications: [NotificationType]
+) {
+  const headers = { Authorization: `Bearer ${token}`, roles };
+  const url = `http://localhost:3500/users`;
+
+  return () =>
+    axios
+      .put(url, { id: userId, notifications }, { headers })
+      .then((response: any) => response)
+      .catch((error: any) => error.response.data);
+}
