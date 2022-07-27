@@ -17,7 +17,8 @@ import CustomizedSnackbars from '../Helpers/Snackbar.tsx';
 import UserDialogue from '../Dialogues/UserDialogue.tsx';
 // @ts-ignore
 import UserTable from './UserTable.tsx';
-import { getUsers } from '../../actions/users';
+// @ts-ignore
+import { getUsers } from '../../actions/users.tsx';
 // @ts-ignore
 import { RootState, AppDispatch } from '../../store.ts';
 // @ts-ignore

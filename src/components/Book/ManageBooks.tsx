@@ -19,7 +19,8 @@ import CustomizedSnackbars from '../Helpers/Snackbar.tsx';
 import BookDialogue from '../Dialogues/BookDialogue.tsx';
 // @ts-ignore
 import BookTable from './BookTable.tsx';
-import { getBooks } from '../../actions/books';
+// @ts-ignore
+import { getBooks } from '../../actions/books.tsx';
 // @ts-ignore
 import { RootState, AppDispatch } from '../../store.ts';
 // @ts-ignore

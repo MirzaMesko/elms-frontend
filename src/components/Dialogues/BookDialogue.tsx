@@ -14,7 +14,8 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 // import PropTypes from 'prop-types';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
-import { addBook, getBooks, editBook } from '../../actions/books';
+// @ts-ignore
+import { addBook, getBooks, editBook } from '../../actions/books.tsx';
 // @ts-ignore
 import Confirm from '../Helpers/Confirm.tsx';
 // @ts-ignore

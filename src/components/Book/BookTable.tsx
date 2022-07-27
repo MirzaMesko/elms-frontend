@@ -25,7 +25,8 @@ import BookDetails from './Book.tsx';
 import EnhancedTableHead from '../Helpers/EnhancedTableHead.tsx';
 // @ts-ignore
 import Confirm from '../Helpers/Confirm.tsx';
-import { getBooks, deleteBook } from '../../actions/books';
+// @ts-ignore
+import { getBooks, deleteBook } from '../../actions/books.tsx';
 import * as helpers from '../Helpers/helpers';
 // @ts-ignore
 import { LightTooltip } from '../Helpers/Tooltip.tsx';

@@ -15,7 +15,8 @@ import VisibilityIcon from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import { FormControl, OutlinedInput, InputLabel } from '@material-ui/core';
 import { NavLink } from 'react-router-dom';
-import { login, dismissAlert } from '../../actions/auth';
+// @ts-ignore
+import { login, dismissAlert } from '../../actions/auth.tsx';
 import Alert from '../Helpers/Alert';
 import logo from '../../utils/logo.png';
 import Copyright from '../Helpers/Copyright';

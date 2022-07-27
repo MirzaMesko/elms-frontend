@@ -10,7 +10,8 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import { addUser, editUser, getUsers } from '../../actions/users';
+// @ts-ignore
+import { addUser, editUser, getUsers } from '../../actions/users.tsx';
 // @ts-ignore
 import Confirm from '../Helpers/Confirm.tsx';
 // @ts-ignore

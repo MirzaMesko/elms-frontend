@@ -28,8 +28,10 @@ import EmailDialogue from '../Dialogues/EmailDialogue.tsx';
 import CustomizedSnackbars from '../Helpers/Snackbar.tsx';
 // @ts-ignore
 import EnhancedTableHead from '../Helpers/EnhancedTableHead.tsx';
-import { getBooks } from '../../actions/books';
-import { notifyUser, getUsers } from '../../actions/users';
+// @ts-ignore
+import { getBooks } from '../../actions/books.tsx';
+// @ts-ignore
+import { notifyUser, getUsers } from '../../actions/users.tsx';
 // @ts-ignore
 import { sendEmail } from '../../actions/email.tsx';
 import * as helpers from '../Helpers/helpers';

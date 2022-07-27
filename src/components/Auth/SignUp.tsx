@@ -16,7 +16,8 @@ import Typography from '@material-ui/core/Typography';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import { FormControl, OutlinedInput, FormHelperText, InputLabel } from '@material-ui/core';
-import { login, register, dismissAlert } from '../../actions/auth';
+// @ts-ignore
+import { login, register, dismissAlert } from '../../actions/auth.tsx';
 import Alert from '../Helpers/Alert';
 // @ts-ignore
 import CustomizedSnackbars from '../Helpers/Snackbar.tsx';

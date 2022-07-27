@@ -26,7 +26,14 @@ import ReviewDialog from '../Dialogues/ReviewDialogue.tsx';
 import Loading from '../Helpers/Loading.tsx';
 // @ts-ignore
 import Error from '../Helpers/Error.tsx';
-import { getBooks, addNewRating, addReview, updateReview, getBookById } from '../../actions/books';
+import {
+  getBooks,
+  addNewRating,
+  addReview,
+  updateReview,
+  getBookById,
+  // @ts-ignore
+} from '../../actions/books.tsx';
 // @ts-ignore
 import { RootState, AppDispatch } from '../../store.ts';
 // @ts-ignore

@@ -11,7 +11,8 @@ import { connect } from 'react-redux';
 import React from 'react';
 // @ts-ignore
 import OverdueBookTable from './OverdueBookTable.tsx';
-import { getBooks } from '../../actions/books';
+// @ts-ignore
+import { getBooks } from '../../actions/books.tsx';
 // @ts-ignore
 import { RootState, AppDispatch } from '../../store.ts';
 // @ts-ignore

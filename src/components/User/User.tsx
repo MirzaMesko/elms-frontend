@@ -12,7 +12,8 @@ import DialogActions from '@material-ui/core/DialogActions';
 import Typography from '@material-ui/core/Typography';
 import Fade from '@material-ui/core/Fade';
 import NotificationsIcon from '@material-ui/icons/Notifications';
-import { notifyUser } from '../../actions/users';
+// @ts-ignore
+import { notifyUser } from '../../actions/users.tsx';
 // @ts-ignore
 import CustomizedSnackbars from '../Helpers/Snackbar.tsx';
 // @ts-ignore

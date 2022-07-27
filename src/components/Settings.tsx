@@ -20,7 +20,8 @@ import TabPanel from './Helpers/TabPanel.tsx';
 // @ts-ignore
 import LinkTab from './Helpers/LinkTab.tsx';
 import profilePlaceholder from '../utils/profile-picture-default-png.png';
-import { updateNotifications, getUsers } from '../actions/users';
+// @ts-ignore
+import { updateNotifications, getUsers } from '../actions/users.tsx';
 import * as helpers from './Helpers/helpers';
 // @ts-ignore
 import type { RootState, AppDispatch } from '../store.ts';

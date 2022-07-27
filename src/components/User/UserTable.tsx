@@ -26,7 +26,8 @@ import Confirm from '../Helpers/Confirm.tsx';
 import UserDetails from './User.tsx';
 // @ts-ignore
 import EnhancedTableHead from '../Helpers/EnhancedTableHead.tsx';
-import { getUsers, deleteUser } from '../../actions/users';
+// @ts-ignore
+import { getUsers, deleteUser } from '../../actions/users.tsx';
 import * as helpers from '../Helpers/helpers';
 // @ts-ignore
 import { LightTooltip } from '../Helpers/Tooltip.tsx';

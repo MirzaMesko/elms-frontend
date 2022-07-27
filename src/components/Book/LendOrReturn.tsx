@@ -18,8 +18,10 @@ import TabPanel from '../Helpers/TabPanel.tsx';
 import CustomizedSnackbars from '../Helpers/Snackbar.tsx';
 // @ts-ignore
 import ConciseBook from './ConciseBook.tsx';
-import { getBooks, lendBook, returnBook, setNotification } from '../../actions/books';
-import { getUsers, notifyUser } from '../../actions/users';
+// @ts-ignore
+import { getBooks, lendBook, returnBook, setNotification } from '../../actions/books.tsx';
+// @ts-ignore
+import { getUsers, notifyUser } from '../../actions/users.tsx';
 // @ts-ignore
 import Profile from '../User/Profile.tsx';
 // @ts-ignore
