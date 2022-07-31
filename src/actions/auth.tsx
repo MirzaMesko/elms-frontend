@@ -18,10 +18,14 @@ export const SET_AUTH_FAIL = 'SET_AUTH_FAIL';
 export const LOG_OUT = 'LOG_OUT';
 export const DISMISS_ALERT = 'DISMISS_ALERT';
 
-export function authSuccess(
-  token: string,
-  user: { username: string | null; roles: Array<string> | undefined; image: string | null }
-) {
+export function authSuccess(accessToken: string) {
+  const token = accessToken;
+  const decoded: Decoded = jwt_decode(token);
+  const user = {
+    username: decoded.UserInfo.username,
+    roles: Object.values(decoded.UserInfo.roles),
+    image: decoded.UserInfo.image,
+  };
   return {
     type: SET_AUTH_USER,
     token,
@@ -41,63 +45,56 @@ export function dismissAlert() {
   };
 }
 
-export const logout = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('expirationDate');
-  localStorage.removeItem('user');
+export function logoutSuccess() {
   return {
     type: LOG_OUT,
   };
-};
-
-export function checkAuthTimeout(expirationTime: number) {
-  return (dispatch: AppDispatch) => {
-    setTimeout(() => {
-      dispatch(logout());
-    }, expirationTime * 1000);
-  };
 }
 
-export function authCheckState() {
-  return (dispatch: AppDispatch) => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      dispatch(logout());
-    } else {
-      const date = localStorage.getItem('expirationDate');
-      const expirationDate = date ? new Date(date) : null;
-      if (expirationDate && expirationDate >= new Date()) {
-        const username = localStorage.getItem('username');
-        const roles = localStorage.getItem('roles')?.split(',');
-        const image = localStorage.getItem('userImage');
-        dispatch(authSuccess(token, { username, roles, image }));
-        dispatch(checkAuthTimeout((expirationDate.getTime() - new Date().getTime()) / 1000));
-      } else {
-        dispatch(logout());
-      }
-    }
-  };
+export function logout() {
+  return (dispatch: AppDispatch) =>
+    axios
+      .get('http://localhost:3500/logout', { withCredentials: true, credentials: 'include' })
+      .then(() => {
+        dispatch(logoutSuccess());
+      });
+}
+
+export function refresh(prevRequest?: any) {
+  return (dispatch: AppDispatch) =>
+    axios
+      .get('http://localhost:3500/refresh', { withCredentials: true, credentials: 'include' })
+      // eslint-disable-next-line consistent-return
+      .then((response: { data: { accessToken: string } }) => {
+        dispatch(authSuccess(response.data.accessToken));
+        if (prevRequest) {
+          // eslint-disable-next-line no-param-reassign
+          prevRequest.headers.Authorization = `Bearer ${response.data.accessToken}`;
+          return axios(prevRequest)
+            .then((resp: any) => resp)
+            .catch((error: any) => error);
+        }
+      })
+      .catch((error: { message: string | string[] }) => {
+        if (error.message.includes('403')) {
+          dispatch(logout());
+          dispatch(authFail('Please log in to continue.'));
+        } else {
+          dispatch(logout());
+        }
+      });
 }
 
 export function login(username: string, password: string) {
   return (dispatch: AppDispatch) =>
     axios
-      .post('http://localhost:3500/login', { username, password })
+      .post(
+        'http://localhost:3500/login',
+        { username, password },
+        { withCredentials: true, credentials: 'include' }
+      )
       .then((response: { data: { accessToken: string } }) => {
-        const expirationDate = new Date(new Date().getTime() + 3600 * 1000).toString();
-        localStorage.setItem('token', response.data.accessToken);
-        localStorage.setItem('expirationDate', expirationDate);
-        const token = response.data.accessToken;
-        const decoded: Decoded = jwt_decode(token);
-        const user = {
-          username: decoded.UserInfo.username,
-          roles: Object.values(decoded.UserInfo.roles),
-          image: decoded.UserInfo.image,
-        };
-        localStorage.setItem('username', decoded.UserInfo.username);
-        localStorage.setItem('roles', Object.values(decoded.UserInfo.roles).toString());
-        localStorage.setItem('userImage', decoded.UserInfo.image);
-        dispatch(authSuccess(response.data.accessToken, user));
+        dispatch(authSuccess(response.data.accessToken));
       })
       .catch((error: { message: string | string[] }) => {
         if (error.message.includes('401')) {
