@@ -1,10 +1,12 @@
+/* eslint-disable consistent-return */
 /* eslint-disable no-console */
 /* eslint-disable no-underscore-dangle */
-// import { editUser } from './users';
 // @ts-ignore
 import { AppDispatch } from '../store.ts';
 // @ts-ignore
 import type { Book, User, Review, Roles } from '../types.ts';
+// @ts-ignore
+import { refresh } from './auth.tsx';
 
 const axios = require('axios');
 
@@ -32,18 +34,45 @@ function retrieveBooksFail(error: string) {
   };
 }
 
+const responseInterceptor = (dispatch: AppDispatch) => {
+  // Add a response interceptor
+  axios.interceptors.response.use(
+    (response: any) => response,
+    async (error: any) => {
+      console.log('it was here');
+      const prevRequest = error?.config;
+      if (error?.response?.status === 403 && !prevRequest?.sent) {
+        // eslint-disable-next-line no-unused-expressions
+        prevRequest.sent === true;
+        const newAccessToken = await dispatch(refresh());
+        console.log(newAccessToken);
+        if (prevRequest.config) {
+          prevRequest.config.headers.Authorization = `Bearer ${newAccessToken}`;
+        } else {
+          prevRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        }
+        return axios(prevRequest);
+      }
+    }
+  );
+  axios.interceptors.response.eject();
+};
+
 export function getBookById(token: string, bookId: string) {
-  const headers = { Authorization: `Bearer ${token}` };
-  const url = `http://localhost:3500/books/${bookId}`;
-  return () =>
-    axios
+  return (dispatch: AppDispatch) => {
+    responseInterceptor(dispatch);
+    const headers = { Authorization: `Bearer ${token}` };
+    const url = `http://localhost:3500/books/${bookId}`;
+    return axios
       .get(url, { headers })
       .then((response: any) => response)
-      .catch((error: any) => error.response.data);
+      .catch((error: any) => error);
+  };
 }
 
 export function getBooks(token: string) {
   return (dispatch: AppDispatch) => {
+    responseInterceptor(dispatch);
     dispatch(retrieveBooksPending());
     const headers = { Authorization: `Bearer ${token}` };
     const url = 'http://localhost:3500/books';
@@ -53,9 +82,7 @@ export function getBooks(token: string) {
         dispatch(retrieveBooksSuccess(response.data));
       })
       .catch((error: any) => {
-        if (error.response.data.statusCode !== 200) {
-          dispatch(retrieveBooksFail(error.message));
-        }
+        dispatch(retrieveBooksFail(error.message));
       });
   };
 }
@@ -72,17 +99,18 @@ export function addBook(
   serNo: Book,
   token: string
 ) {
-  console.log(title, author, year, description, category, image, publisher, serNo);
-  const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
-  return () =>
-    axios
+  return (dispatch: AppDispatch) => {
+    responseInterceptor(dispatch);
+    const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
+    return axios
       .post(
         'http://localhost:3500/books',
         { title, author, year, description, category, image, publisher, serNo },
         { headers }
       )
       .then((response: any) => response)
-      .catch((error: any) => error.response.data);
+      .catch((error: any) => error);
+  };
 }
 
 export function editBook(
@@ -98,11 +126,12 @@ export function editBook(
   serNo: Book,
   token: string
 ) {
-  const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
-  const url = `http://localhost:3500/books`;
+  return (dispatch: AppDispatch) => {
+    responseInterceptor(dispatch);
+    const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
+    const url = `http://localhost:3500/books`;
 
-  return () =>
-    axios
+    return axios
       .put(
         url,
         {
@@ -120,40 +149,44 @@ export function editBook(
       )
       .then((response: any) => response)
       .catch((error: any) => error.response.data);
+  };
 }
 
 export function deleteBook(authUserRoles: Roles, id: string, token: string) {
-  const config = {
-    headers: { authorization: `Bearer ${token}`, roles: authUserRoles },
-    data: { id },
-  };
-  const url = `http://localhost:3500/books`;
+  return (dispatch: AppDispatch) => {
+    responseInterceptor(dispatch);
+    const config = {
+      headers: { authorization: `Bearer ${token}`, roles: authUserRoles },
+      data: { id },
+    };
+    const url = `http://localhost:3500/books`;
 
-  return () =>
-    axios
+    return axios
       .delete(url, config)
       .then((response: any) => response)
       .catch((error: any) => error.response.data);
+  };
 }
 
 export function lendBook(book: Book, user: User, authUserRoles: Roles, token: string) {
-  const owed = user.owedBooks;
-  owed.push(book._id);
-  const history = user.readingHistory;
-  history.push(book._id);
-  const timeOfLending = new Date().getTime() + 1000 * 3600 * 168;
-  const dueDate = new Date(timeOfLending).toDateString();
-  const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
-  const url = `http://localhost:3500/users`;
+  return (dispatch: AppDispatch) => {
+    responseInterceptor(dispatch);
+    const owed = user.owedBooks;
+    owed.push(book._id);
+    const { readingHistory } = user;
+    readingHistory.push(book._id);
+    const timeOfLending = new Date().getTime() + 1000 * 3600 * 168;
+    const dueDate = new Date(timeOfLending).toDateString();
+    const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
+    const url = `http://localhost:3500/users`;
 
-  return () =>
-    axios
+    return axios
       .put(
         url,
         {
           id: user._id,
           newOwedBooks: owed,
-          readingHistory: history,
+          readingHistory,
         },
         { headers }
       )
@@ -175,6 +208,7 @@ export function lendBook(book: Book, user: User, authUserRoles: Roles, token: st
         }
         return response;
       });
+  };
 }
 
 export function returnBook(
@@ -184,11 +218,12 @@ export function returnBook(
   user: User,
   newOwedBooks: [Book]
 ) {
-  const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
-  const url = `http://localhost:3500/users`;
+  return (dispatch: AppDispatch) => {
+    responseInterceptor(dispatch);
+    const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
+    const url = `http://localhost:3500/users`;
 
-  return () =>
-    axios
+    return axios
       .put(
         url,
         {
@@ -214,16 +249,18 @@ export function returnBook(
         }
         return response;
       });
+  };
 }
 
 export function setNotification(token: string, authUserRoles: Roles, book: Book, userId: string) {
-  const { reservedBy } = book;
-  reservedBy.push(userId);
-  const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
-  const url = `http://localhost:3500/books`;
+  return (dispatch: AppDispatch) => {
+    responseInterceptor(dispatch);
+    const { reservedBy } = book;
+    reservedBy.push(userId);
+    const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
+    const url = `http://localhost:3500/books`;
 
-  return () =>
-    axios
+    return axios
       .put(
         url,
         {
@@ -234,6 +271,7 @@ export function setNotification(token: string, authUserRoles: Roles, book: Book,
       )
       .then((resp: any) => resp)
       .catch((error: any) => error.response.data);
+  };
 }
 
 export function addNewRating(
@@ -243,11 +281,12 @@ export function addNewRating(
   userId: string,
   newRating: number
 ) {
-  const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
-  const url = `http://localhost:3500/books/rate/`;
+  return (dispatch: AppDispatch) => {
+    responseInterceptor(dispatch);
+    const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
+    const url = `http://localhost:3500/books/rate/`;
 
-  return () =>
-    axios
+    return axios
       .put(
         url,
         {
@@ -261,6 +300,7 @@ export function addNewRating(
       )
       .then((resp: any) => resp)
       .catch((error: any) => error);
+  };
 }
 
 export function addReview(
@@ -270,11 +310,12 @@ export function addReview(
   userId: string,
   newReview: string
 ) {
-  const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
-  const url = `http://localhost:3500/books/review/`;
+  return (dispatch: AppDispatch) => {
+    responseInterceptor(dispatch);
+    const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
+    const url = `http://localhost:3500/books/review/`;
 
-  return () =>
-    axios
+    return axios
       .put(
         url,
         {
@@ -288,6 +329,7 @@ export function addReview(
       )
       .then((resp: any) => resp)
       .catch((error: any) => error);
+  };
 }
 
 export function updateReview(
@@ -296,11 +338,12 @@ export function updateReview(
   bookTitle: string,
   reviews: [Review]
 ) {
-  const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
-  const url = `http://localhost:3500/books/review/`;
+  return (dispatch: AppDispatch) => {
+    responseInterceptor(dispatch);
+    const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
+    const url = `http://localhost:3500/books/review/`;
 
-  return () =>
-    axios
+    return axios
       .put(
         url,
         {
@@ -311,4 +354,5 @@ export function updateReview(
       )
       .then((resp: any) => resp)
       .catch((error: any) => error);
+  };
 }
