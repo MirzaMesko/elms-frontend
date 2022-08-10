@@ -1,12 +1,11 @@
 /* eslint-disable consistent-return */
-/* eslint-disable no-console */
 /* eslint-disable no-underscore-dangle */
 // @ts-ignore
 import { AppDispatch } from '../store.ts';
 // @ts-ignore
 import type { Book, User, Review, Roles } from '../types.ts';
 // @ts-ignore
-import { refresh } from './auth.tsx';
+import responseInterceptor from './refreshToken.tsx';
 
 const axios = require('axios');
 
@@ -33,30 +32,6 @@ function retrieveBooksFail(error: string) {
     error,
   };
 }
-
-const responseInterceptor = (dispatch: AppDispatch) => {
-  // Add a response interceptor
-  axios.interceptors.response.use(
-    (response: any) => response,
-    async (error: any) => {
-      console.log('it was here');
-      const prevRequest = error?.config;
-      if (error?.response?.status === 403 && !prevRequest?.sent) {
-        // eslint-disable-next-line no-unused-expressions
-        prevRequest.sent === true;
-        const newAccessToken = await dispatch(refresh());
-        console.log(newAccessToken);
-        if (prevRequest.config) {
-          prevRequest.config.headers.Authorization = `Bearer ${newAccessToken}`;
-        } else {
-          prevRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-        }
-        return axios(prevRequest);
-      }
-    }
-  );
-  axios.interceptors.response.eject();
-};
 
 export function getBookById(token: string, bookId: string) {
   return (dispatch: AppDispatch) => {
@@ -156,7 +131,7 @@ export function deleteBook(authUserRoles: Roles, id: string, token: string) {
   return (dispatch: AppDispatch) => {
     responseInterceptor(dispatch);
     const config = {
-      headers: { authorization: `Bearer ${token}`, roles: authUserRoles },
+      headers: { Authorization: `Bearer ${token}`, roles: authUserRoles },
       data: { id },
     };
     const url = `http://localhost:3500/books`;
