@@ -1,9 +1,9 @@
 // @ts-ignore
-import { authFail } from './auth.tsx';
-// @ts-ignore
 import { AppDispatch } from '../store.ts';
 // @ts-ignore
 import type { User, NotificationType, Roles } from '../types.ts';
+// @ts-ignore
+import responseInterceptor from './refreshToken.tsx';
 
 const axios = require('axios');
 
@@ -30,9 +30,10 @@ export function addUser(
   bio: User,
   token: string
 ) {
-  const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
-  return () =>
-    axios
+  return (dispatch: AppDispatch) => {
+    responseInterceptor(dispatch);
+    const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
+    return axios
       .post(
         'http://localhost:3500/users',
         { email, username, password, roles, name, image, bio },
@@ -40,6 +41,7 @@ export function addUser(
       )
       .then((response: any) => response)
       .catch((error: any) => error.response.data);
+  };
 }
 
 function retrieveUsersPending() {
@@ -64,6 +66,7 @@ function retrieveUsersFail(error: string) {
 
 export function getUsers(token: string) {
   return (dispatch: AppDispatch) => {
+    responseInterceptor(dispatch);
     dispatch(retrieveUsersPending());
     const headers = { Authorization: `Bearer ${token}` };
     const url = 'http://localhost:3500/users';
@@ -73,28 +76,24 @@ export function getUsers(token: string) {
         dispatch(retrieveUsersSuccess(response.data));
       })
       .catch((error: any) => {
-        if (error.response.data.statusCode !== 200) {
-          dispatch(retrieveUsersFail(error.message));
-        }
+        dispatch(retrieveUsersFail(error.message));
       });
   };
 }
 
 export function getCurrentUser(token: string) {
-  const headers = { Authorization: `Bearer ${token}` };
-  const url = 'http://localhost:8888/api/user';
+  return (dispatch: AppDispatch) => {
+    responseInterceptor(dispatch);
+    const headers = { Authorization: `Bearer ${token}` };
+    const url = 'http://localhost:8888/api/user';
 
-  return (dispatch: AppDispatch) =>
-    axios
+    return axios
       .get(url, { headers })
       .then((response: any) => {
         dispatch(currentUser(response.data));
       })
-      .catch((error: any) => {
-        if (error.message.includes('401')) {
-          dispatch(authFail(error));
-        }
-      });
+      .catch((error: any) => error);
+  };
 }
 
 export function editUser(
@@ -107,39 +106,45 @@ export function editUser(
   bio: User,
   token: string
 ) {
-  const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
-  const url = `http://localhost:3500/users`;
+  return (dispatch: AppDispatch) => {
+    responseInterceptor(dispatch);
+    const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
+    const url = `http://localhost:3500/users`;
 
-  return () =>
-    axios
+    return axios
       .put(url, { id, email, roles, name, image, bio }, { headers })
       .then((response: any) => response)
       .catch((error: any) => error.response.data);
+  };
 }
 
 export function deleteUser(authUserRoles: Roles, id: string, token: string) {
-  const config = {
-    headers: { authorization: `Bearer ${token}`, roles: authUserRoles },
-    data: { id },
-  };
-  const url = `http://localhost:3500/users`;
+  return (dispatch: AppDispatch) => {
+    responseInterceptor(dispatch);
+    const config = {
+      headers: { Authorization: `Bearer ${token}`, roles: authUserRoles },
+      data: { id },
+    };
+    const url = `http://localhost:3500/users`;
 
-  return () =>
-    axios
+    return axios
       .delete(url, config)
       .then((response: any) => response)
       .catch((error: any) => error.response.data);
+  };
 }
 
 export function notifyUser(token: string, authUserRoles: Roles, userId: string, message: string) {
-  const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
-  const url = `http://localhost:3500/users`;
+  return (dispatch: AppDispatch) => {
+    responseInterceptor(dispatch);
+    const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
+    const url = `http://localhost:3500/users`;
 
-  return () =>
-    axios
+    return axios
       .put(url, { id: userId, newNotification: message, seen: 'false' }, { headers })
       .then((response: any) => response)
       .catch((error: any) => error.response.data);
+  };
 }
 
 export function updateNotifications(
@@ -148,12 +153,14 @@ export function updateNotifications(
   userId: string,
   notifications: [NotificationType]
 ) {
-  const headers = { Authorization: `Bearer ${token}`, roles };
-  const url = `http://localhost:3500/users`;
+  return (dispatch: AppDispatch) => {
+    responseInterceptor(dispatch);
+    const headers = { Authorization: `Bearer ${token}`, roles };
+    const url = `http://localhost:3500/users`;
 
-  return () =>
-    axios
+    return axios
       .put(url, { id: userId, notifications }, { headers })
       .then((response: any) => response)
       .catch((error: any) => error.response.data);
+  };
 }
