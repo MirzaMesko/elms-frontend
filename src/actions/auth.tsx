@@ -60,31 +60,6 @@ export function logout() {
       });
 }
 
-export function refresh(prevRequest?: any) {
-  return (dispatch: AppDispatch) =>
-    axios
-      .get('http://localhost:3500/refresh', { withCredentials: true, credentials: 'include' })
-      // eslint-disable-next-line consistent-return
-      .then((response: { data: { accessToken: string } }) => {
-        dispatch(authSuccess(response.data.accessToken));
-        if (prevRequest) {
-          // eslint-disable-next-line no-param-reassign
-          prevRequest.headers.Authorization = `Bearer ${response.data.accessToken}`;
-          return axios(prevRequest)
-            .then((resp: any) => resp)
-            .catch((error: any) => error);
-        }
-      })
-      .catch((error: { message: string | string[] }) => {
-        if (error.message.includes('403')) {
-          dispatch(logout());
-          dispatch(authFail('Please log in to continue.'));
-        } else {
-          dispatch(logout());
-        }
-      });
-}
-
 export function login(username: string, password: string) {
   return (dispatch: AppDispatch) =>
     axios
