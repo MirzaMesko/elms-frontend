@@ -22,6 +22,7 @@ const initialState = {
     message: '',
   },
   users: [],
+  loading: false,
 };
 
 const users = (state = initialState, action: AnyAction) => {
@@ -55,6 +56,7 @@ const users = (state = initialState, action: AnyAction) => {
           error: true,
           message: action.error,
         },
+        loggedIn: false,
       };
     }
     case LOG_OUT: {
