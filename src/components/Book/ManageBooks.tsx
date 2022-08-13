@@ -161,7 +161,7 @@ const ManageBooks: React.FC<Props> = (props: Props) => {
 
   React.useEffect(() => {
     onGetBooks(token);
-  }, [token]);
+  }, []);
 
   React.useEffect(() => {
     setSearchResults(books);
