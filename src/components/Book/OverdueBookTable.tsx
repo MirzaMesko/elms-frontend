@@ -102,7 +102,7 @@ const EnhancedTable: React.FC<OwnProps> = (props: Props) => {
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [errMessage, setErrMessage] = React.useState('');
   const [openBookDetails, setOpenBookDetails] = React.useState(false);
-  const [chosenBook, setChosenBook] = React.useState({});
+  const [chosenBook, setChosenBook] = React.useState(null);
   const [openUserDetails, setOpenUserDetails] = React.useState(false);
   const [showEmailDialogue, setShowEmailDialogue] = React.useState(false);
 
@@ -189,10 +189,10 @@ const EnhancedTable: React.FC<OwnProps> = (props: Props) => {
   };
 
   const onShowBookDetails = (book: Book) => {
+    setChosenBook(book._id);
     setTimeout(() => {
       setOpenBookDetails(true);
     }, 200);
-    setChosenBook(book._id);
   };
 
   const onShowUserDetails = (u: React.SetStateAction<{}>) => {
@@ -205,6 +205,7 @@ const EnhancedTable: React.FC<OwnProps> = (props: Props) => {
     setSelectedBook(book);
     setShowEmailDialogue(true);
   };
+
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, books.length - page * rowsPerPage);
 
   return (
@@ -418,4 +419,4 @@ const mapStateToProps = (state: RootState) => ({
   users: state.users.users,
 });
 
-export default connect<RootState, OwnProps>(mapStateToProps)(EnhancedTable);
+export default connect<RootState, OwnProps, AppDispatch>(mapStateToProps)(EnhancedTable);
