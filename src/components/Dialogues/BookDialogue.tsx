@@ -27,14 +27,14 @@ import { RootState, AppDispatch } from '../../store.ts';
 import type { Book } from '../../types.ts';
 
 const categoryOptions = [
-  'All Books', 'Politics', 'History', 'Romance', 'Science Fiction & Fantasy', 'Biographies', 'Classics', 'Course books',
+  'All books', 'Politics', 'History', 'Romance', 'Science Fiction & Fantasy', 'Biographies', 'Classics', 'Course books',
 ];
 
 interface OwnProps {
   show: boolean;
   close: () => void;
   token: string;
-  onShowSnackbar: () => void;
+  onShowSnackbar: () => void;  
   title: string;
   book: Book;
   authUserRoles: Array<string>;
@@ -108,8 +108,7 @@ const BookDialog: React.FC<OwnProps> = (props: Props) => {
       onShowSnackbar(true, 'error', 'Please fill in the required fileds!');
       return;
     }
-    dispatch(
-      addBook(
+    dispatch(addBook(
         authUserRoles, state.bookTitle, state.author, state.year, state.description, state.category, state.image,
         state.publisher, state.serNo,token
       )
@@ -127,6 +126,9 @@ const BookDialog: React.FC<OwnProps> = (props: Props) => {
           handleClose();
         }
       }
+    })
+    .catch((err: any) => {
+      onShowSnackbar(true, 'error', `${err.message}`);
     });
   };
 
@@ -138,8 +140,8 @@ const BookDialog: React.FC<OwnProps> = (props: Props) => {
         state.description, state.category, state.image, state.publisher, state.serNo,
         token
       )
-    ).then((response: any) => {
-      if (response.status === 400 || response.status === 401 || response.status === 403) {
+    ).then(( response: any) => {
+      if (response.status !== 200) {
         onShowSnackbar(true, 'error', response.message);
       }
       if (response.status === 200) {
@@ -328,27 +330,6 @@ const BookDialog: React.FC<OwnProps> = (props: Props) => {
     </Dialog>
   );
 }
-
-// BookDialog.propTypes = {
-//   show: PropTypes.bool.isRequired,
-//   close: PropTypes.func.isRequired,
-//   token: PropTypes.string.isRequired,
-//   onShowSnackbar: PropTypes.func.isRequired,
-//   title: PropTypes.string.isRequired,
-//   book: PropTypes.objectOf(
-//     PropTypes.oneOfType([
-//       PropTypes.string,
-//       PropTypes.array,
-//       PropTypes.number,
-//       PropTypes.objectOf({}),
-//     ])
-//   ),
-//   authUserRoles: PropTypes.arrayOf(PropTypes.string).isRequired,
-// };
-
-// BookDialog.defaultProps = {
-//   book: {},
-// };
 
 const mapStateToProps = (state: RootState) => ({
   token: state.users.token,
