@@ -11,7 +11,9 @@ import ManageBooks from './components/Book/ManageBooks.tsx';
 // @ts-ignore
 import ManageOverdueBooks from './components/Book/ManageOverdueBooks.tsx';
 // @ts-ignore
-import { logout, authCheckState } from './actions/auth.tsx';
+import { logout } from './actions/auth.tsx';
+// @ts-ignore
+import { refresh } from './actions/refreshToken.tsx';
 // @ts-ignore
 import { getBooks } from './actions/books.tsx';
 // @ts-ignore
@@ -40,32 +42,13 @@ interface OwnProps {
 type Props = RootState & AppDispatch & OwnProps;
 
 const App: React.FC<Props> = (props: Props) => {
-  const {
-    loggedIn,
-    error,
-    authUser,
-    roles,
-    onLogout,
-    users,
-    onTryAutoSignup,
-    books,
-    onGetBooks,
-    onGetUsers,
-    token,
-  } = props;
+  const { loggedIn, error, authUser, roles, onLogout, users, onTryAutoSignup, books } = props;
 
   const history = useHistory();
 
   React.useEffect(() => {
     onTryAutoSignup();
   }, []);
-
-  React.useEffect(() => {
-    if (token) {
-      onGetBooks(token);
-      onGetUsers(token);
-    }
-  }, [token]);
 
   let routes = (
     <Switch>
@@ -124,7 +107,7 @@ const mapStateToProps = (state: RootState) => ({
 
 const mapDispatchToProps = (dispatch: AppDispatch) => ({
   onLogout: () => dispatch(logout()),
-  onTryAutoSignup: () => dispatch(authCheckState()),
+  onTryAutoSignup: () => dispatch(refresh()),
   onGetBooks: (token: string) => dispatch(getBooks(token)),
   onGetUsers: (token: string) => dispatch(getUsers(token)),
 });
