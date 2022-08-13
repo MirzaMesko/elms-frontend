@@ -146,7 +146,7 @@ const ManageUsers: React.FC<OwnProps> = (props: Props) => {
 
   React.useEffect(() => {
     onGetUsers(token);
-  }, [token]);
+  }, []);
 
   React.useEffect(() => {
     setSearchResults(users);
