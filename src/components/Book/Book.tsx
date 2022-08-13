@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /* eslint-disable no-underscore-dangle */
 import * as React from 'react';
 import { connect } from 'react-redux';
@@ -176,36 +175,42 @@ const BookDetails: React.FC<OwnProps> = (props: Props) => {
     );
   };
 
-  const fetchBook = (id: string) => {
+  const fetchBook = async (id: string) => {
     setLoading(true);
-    onGetBookById(token, id).then(
-      (response: {
-        status: number;
-        message: any;
-        data: { rating: [{ userId: string; rating: number }]; reviews: any };
-      }) => {
-        if (response.status !== 200) {
-          setError({ error: true, message: response.message });
-          setLoading(false);
-        }
-        if (response.status === 200) {
-          setBook(response.data);
-          if (response.data?.rating) {
-            calculateRating(response.data.rating);
-          } else {
-            setBookRating(0);
+    await onGetBookById(token, id)
+      .then(
+        (response: {
+          status: number;
+          message: any;
+          data: { rating: [{ userId: string; rating: number }]; reviews: any };
+        }) => {
+          if (response?.status === 200) {
+            setBook(response.data);
+            if (response.data?.rating) {
+              calculateRating(response.data.rating);
+            } else {
+              setBookRating(0);
+            }
+            setBookReviews(response.data.reviews);
+            setLoading(false);
           }
-          setBookReviews(response.data.reviews);
-          setLoading(false);
         }
-      }
-    );
+      )
+      .catch((e: any) => {
+        setError({ error: true, message: e.response.message });
+        setLoading(false);
+      });
   };
 
   React.useEffect(() => {
-    if (bookId) {
+    let isMounted = true;
+    if (bookId && isMounted) {
       fetchBook(bookId);
     }
+    return () => {
+      isMounted = false;
+      setBook({});
+    };
   }, [bookId]);
 
   if (error?.error) {
