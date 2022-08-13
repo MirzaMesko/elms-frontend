@@ -22,9 +22,13 @@ import BasicMenu from './Menu.tsx';
 import NotificationsMenu from './Notfication/NotificationsMenu.tsx';
 import Copyright from './Helpers/Copyright';
 // @ts-ignore
-import { RootState } from '../store.ts';
+import { RootState, AppDispatch } from '../store.ts';
 // @ts-ignore
 import type { User } from '../types.ts';
+// @ts-ignore
+import { getBooks } from '../actions/books.tsx';
+// @ts-ignore
+import { getUsers } from '../actions/users.tsx';
 
 const drawerWidth = 240;
 
@@ -116,7 +120,9 @@ interface OwnProps {
   wrapperType: React.RefObject<HTMLDivElement>;
 }
 
-const Dashboard: React.FC<OwnProps> = (props: OwnProps) => {
+type Props = RootState & AppDispatch & OwnProps;
+
+const Dashboard: React.FC<OwnProps> = (props: Props) => {
   const {
     onLogout,
     children,
@@ -126,6 +132,9 @@ const Dashboard: React.FC<OwnProps> = (props: OwnProps) => {
     users,
     NotificationType,
     wrapperType,
+    onGetBooks,
+    onGetUsers,
+    token,
   } = props;
 
   const classes = useStyles();
@@ -158,6 +167,11 @@ const Dashboard: React.FC<OwnProps> = (props: OwnProps) => {
       }
     }
   }, [users]);
+
+  React.useEffect(() => {
+    onGetBooks(token);
+    onGetUsers(token);
+  }, []);
 
   return (
     <div className={classes.root}>
@@ -227,4 +241,9 @@ const mapStateToProps = (state: RootState) => ({
   users: state.users.users,
 });
 
-export default connect<RootState>(mapStateToProps)(Dashboard);
+const mapDispatchToProps = (dispatch: AppDispatch) => ({
+  onGetBooks: (token: string) => dispatch(getBooks(token)),
+  onGetUsers: (token: string) => dispatch(getUsers(token)),
+});
+
+export default connect<RootState, AppDispatch>(mapStateToProps, mapDispatchToProps)(Dashboard);
