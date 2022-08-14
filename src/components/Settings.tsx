@@ -64,6 +64,7 @@ const Settings: React.FC<Props> = (props: Props) => {
     roles,
     onDismissNotification,
     onGetUsers,
+    authUser,
   } = props;
 
   const [user, setUser] = React.useState<User | any>({});
@@ -112,12 +113,18 @@ const Settings: React.FC<Props> = (props: Props) => {
     const newNotifications = user?.notifications?.filter(
       (n: NotificationType) => n.timestamp !== notification.timestamp
     );
+    if (authUser === user.username) {
+      roles.push('Admin');
+    }
     onDismissNotification(token, roles, user._id, newNotifications).then((response: any) => {
       if (response) {
         setUser({ ...user, notifications: newNotifications });
         onGetUsers(token);
       }
     });
+    if (authUser === user.username) {
+      roles.pop();
+    }
   };
 
   React.useEffect(() => {
@@ -250,6 +257,7 @@ const Settings: React.FC<Props> = (props: Props) => {
 const mapStateToProps = (state: RootState) => ({
   roles: state.users.authUser.roles,
   token: state.users.token,
+  authUser: state.users.authUser.username,
 });
 
 const mapDispatchToProps = (dispatch: AppDispatch) => ({
