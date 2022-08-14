@@ -38,7 +38,7 @@ const roleOptions = ['Admin', 'Librarian', 'Member'];
 type Props = OwnProps & RootState;
 
 const UserDialog: React.FC<OwnProps> = (props: Props) => {
-  const { show, close, token, onShowSnackbar, user, title, authUserRoles } = props;
+  const { show, close, token, onShowSnackbar, user, title, authUserRoles, authUser } = props;
 
   const [state, setState] = React.useState({
     userId: '',
@@ -116,6 +116,9 @@ const UserDialog: React.FC<OwnProps> = (props: Props) => {
 
   const onEditSingleUser = (event: { preventDefault: () => void }) => {
     event.preventDefault();
+    if (authUser === state.username) {
+      authUserRoles.push('Admin');
+    }
     dispatch(
       editUser(
         authUserRoles,
@@ -136,6 +139,9 @@ const UserDialog: React.FC<OwnProps> = (props: Props) => {
         handleClose();
       }
     });
+    if (authUser === state.username) {
+      authUserRoles.pop();
+    }
   };
 
   const showConfirm = () => {
@@ -290,6 +296,7 @@ const UserDialog: React.FC<OwnProps> = (props: Props) => {
 const mapStateToProps = (state: RootState) => ({
   token: state.users.token,
   authUserRoles: state.users.authUser.roles,
+  authUser: state.users.authUser.username,
 });
 
 export default connect<RootState, OwnProps>(mapStateToProps)(UserDialog);
