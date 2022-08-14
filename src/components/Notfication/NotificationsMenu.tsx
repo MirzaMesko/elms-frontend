@@ -103,15 +103,4 @@ const NotificationsMenu: React.FC<OwnProps> = (props: OwnProps) => {
   );
 };
 
-// NotificationsMenu.defaultProps = {
-//   notifications: [],
-// };
-
-// NotificationsMenu.propTypes = {
-//   notifications: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.string)),
-//   username: PropTypes.string.isRequired,
-//   badgeContent: PropTypes.number.isRequired,
-//   resetBadge: PropTypes.func.isRequired,
-// };
-
 export default NotificationsMenu;
