@@ -45,6 +45,7 @@ const BasicMenu: React.FC<MenuProps> = (props: MenuProps) => {
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
+        data-testid="avatar-button"
       >
         <Avatar src={userAvatar} />
       </Button>
@@ -52,23 +53,26 @@ const BasicMenu: React.FC<MenuProps> = (props: MenuProps) => {
         id="basic-menu"
         anchorEl={anchorEl}
         open={open}
+        data-testid="menu"
         onClose={handleClose}
         MenuListProps={{
           'aria-labelledby': 'basic-button',
         }}
       >
         <MenuItem onClick={handleClose}>
-          <Avatar src={userAvatar} />
-          <Typography style={{ marginLeft: '1rem' }}>{username}</Typography>
+          <Avatar src={userAvatar} data-testid="avatar" />
+          <Typography style={{ marginLeft: '1rem' }} data-testid="username">
+            {username}
+          </Typography>
         </MenuItem>
         <MenuItem onClick={goToSettings}>
           <ListItemIcon>
             <SettingsIcon />
           </ListItemIcon>
-          <ListItemText>Settings</ListItemText>
+          <ListItemText data-testid="settings">Settings</ListItemText>
         </MenuItem>
         <Divider />
-        <MenuItem onClick={onLogout}>
+        <MenuItem onClick={onLogout} data-testid="logout">
           <ListItemIcon>
             <ExitToAppIcon />
           </ListItemIcon>
