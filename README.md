@@ -1,6 +1,6 @@
-# Getting Started with Create React App
+# ELMS - Easy Library Managament System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+ELMS is a simple app intended for small libraries allowing administrators and librarians to keep track of users and books but also memebers to search for books, learn about them and write their own feedback about books they have read through ratings and reviews. It is still work in progress with some rough edges but I'm working on them :) It was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ![image](https://user-images.githubusercontent.com/54722233/186245349-fc3e1d44-669d-4e42-a433-9d7970da285d.png)
 ![image](https://user-images.githubusercontent.com/54722233/186245780-a82f90b0-91ad-4310-ab94-9a4c75dfd936.png)
