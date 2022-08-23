@@ -2,6 +2,14 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+![image](https://user-images.githubusercontent.com/54722233/186245349-fc3e1d44-669d-4e42-a433-9d7970da285d.png)
+![image](https://user-images.githubusercontent.com/54722233/186245780-a82f90b0-91ad-4310-ab94-9a4c75dfd936.png)
+![image](https://user-images.githubusercontent.com/54722233/186245996-87a79d03-e1b4-4f99-acbf-c38409fbee6d.png)
+![image](https://user-images.githubusercontent.com/54722233/186246198-885a618f-fe99-41da-8fc0-421a44e41392.png)
+![image](https://user-images.githubusercontent.com/54722233/186246389-08e86b5e-127c-4f3e-8029-c2f37796e6e6.png)
+![image](https://user-images.githubusercontent.com/54722233/186246569-85725a9a-7459-4c0c-815e-763625bb224a.png)
+
+
 https://user-images.githubusercontent.com/54722233/186242342-624a816b-53aa-4312-a6c1-db51b6b098a7.mp4
 
 ## Available Scripts
