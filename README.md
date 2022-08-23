@@ -2,14 +2,14 @@
 
 ELMS is a simple app intended for small libraries allowing administrators and librarians to keep track of users and books but also memebers to search for books, learn about them and write their own feedback about books they have read through ratings and reviews. It is still work in progress with some rough edges but I'm working on them :) It was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-![Screenshot 2022-08-23 213115](https://user-images.githubusercontent.com/54722233/186250655-50f72e71-5cbf-4302-b5ec-baab60d23b65.png)
-![image](https://user-images.githubusercontent.com/54722233/186245349-fc3e1d44-669d-4e42-a433-9d7970da285d.png)
-![image](https://user-images.githubusercontent.com/54722233/186245780-a82f90b0-91ad-4310-ab94-9a4c75dfd936.png)
-![image](https://user-images.githubusercontent.com/54722233/186245996-87a79d03-e1b4-4f99-acbf-c38409fbee6d.png)
-![image](https://user-images.githubusercontent.com/54722233/186246198-885a618f-fe99-41da-8fc0-421a44e41392.png)
-![image](https://user-images.githubusercontent.com/54722233/186246389-08e86b5e-127c-4f3e-8029-c2f37796e6e6.png)
-![image](https://user-images.githubusercontent.com/54722233/186246569-85725a9a-7459-4c0c-815e-763625bb224a.png)
-
+![Screenshot 2022-08-23 213914](https://user-images.githubusercontent.com/54722233/186252153-1428526d-6da2-44ae-b146-458d2bc54d3e.png)
+![Screenshot 2022-08-23 213943](https://user-images.githubusercontent.com/54722233/186252256-8faae5aa-8fe9-4f29-93af-8a2794bff173.png)
+![Screenshot 2022-08-23 214013](https://user-images.githubusercontent.com/54722233/186252268-75ed9f4a-e77d-4b4f-aa57-0b50e5693435.png)
+![Screenshot 2022-08-23 214029](https://user-images.githubusercontent.com/54722233/186252284-3729815a-7f49-4833-b0cf-83a51c353629.png)
+![Screenshot 2022-08-23 214058](https://user-images.githubusercontent.com/54722233/186252298-ccafb4bb-9090-4568-ae96-841ee0d27502.png)
+![Screenshot 2022-08-23 214116](https://user-images.githubusercontent.com/54722233/186252307-c6d2d03b-9770-460a-99fe-fa3162ea807d.png)
+![Screenshot 2022-08-23 214138](https://user-images.githubusercontent.com/54722233/186252331-60297a2f-ae07-494e-9e78-20f916678aaf.png)
+![Screenshot 2022-08-23 214200](https://user-images.githubusercontent.com/54722233/186252367-075091bc-8920-4aa0-b0c1-1952447d58e0.png)
 
 https://user-images.githubusercontent.com/54722233/186242342-624a816b-53aa-4312-a6c1-db51b6b098a7.mp4
 
