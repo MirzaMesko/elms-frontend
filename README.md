@@ -1,4 +1,4 @@
-# ELMS - Easy Library Managament System
+# ELMS - Easy Library Management System
 
 ELMS is a simple app intended for small libraries allowing administrators and librarians to keep track of users and books but also memebers to search for books, learn about them and write their own feedback about books they have read through ratings and reviews. It is still work in progress with some rough edges but I'm working on them :) It was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
