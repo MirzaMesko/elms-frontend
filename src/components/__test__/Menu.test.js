@@ -5,7 +5,9 @@ import Menu from '../Menu.tsx';
 // @ts-ignore
 import '@testing-library/jest-dom/extend-expect';
 
-const setup = () => render(<Menu />);
+const logoutFn = jest.fn(() => null);
+
+const setup = () => render(<Menu username="Mirza" onLogout={logoutFn} />);
 
 afterEach(() => cleanup());
 
@@ -32,6 +34,7 @@ describe('Menu', () => {
     fireEvent.click(button);
     expect(screen.getByTestId('avatar')).toBeInTheDocument();
     expect(screen.getByTestId('username')).toBeInTheDocument();
+    expect(screen.getByTestId('username').textContent).toBe('Mirza');
   });
   it('menu contains the link to Settings', () => {
     setup();
@@ -47,15 +50,13 @@ describe('Menu', () => {
     fireEvent.click(button);
     expect(screen.getByTestId('logout').textContent).toBe('Log out');
   });
-  it('redirects to login page after log out button is clicked', async () => {
+  it('calls logout fn when logout button is clicked', () => {
     setup();
     const button = screen.getByTestId('avatar-button');
 
     fireEvent.click(button);
     const logout = screen.getByTestId('logout');
-    await fireEvent.click(logout);
-    setTimeout(() => {
-      expect(global.window.location.href).toContain('/login');
-    }, 300);
+    fireEvent.click(logout);
+    expect(logoutFn).toHaveBeenCalledTimes(1);
   });
 });
