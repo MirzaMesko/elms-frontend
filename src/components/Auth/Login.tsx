@@ -14,7 +14,7 @@ import React, { useState } from 'react';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import { FormControl, OutlinedInput, InputLabel } from '@material-ui/core';
-import { NavLink } from 'react-router-dom';
+// import { NavLink } from 'react-router-dom';
 // @ts-ignore
 import { login, dismissAlert } from '../../actions/auth.tsx';
 import Alert from '../Helpers/Alert';
@@ -54,8 +54,8 @@ interface OwnProps {
 type Props = OwnProps & RootState & AppDispatch;
 
 const Login: React.FC<OwnProps> = (props: Props) => {
-  const [username, setUsername] = useState<string>();
-  const [password, setPassword] = useState<string>();
+  const [username, setUsername] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState(true);
 
   const classes = useStyles();
@@ -76,34 +76,34 @@ const Login: React.FC<OwnProps> = (props: Props) => {
     setShowPassword(!showPassword);
   };
 
-  const { error, history, message, onDismissAlert, onLogin } = props;
+  const { error, message, onDismissAlert, onLogin } = props;
 
   const logIn = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    onLogin(username, password).then(() => {
-      history.push('/');
-    });
+    onLogin(username, password);
   };
 
   return (
     <Container component="main" maxWidth="xs">
       <Alert show={error} title="Error" message={message} onClose={onDismissAlert} />
       <CssBaseline />
-      <div className={classes.paper}>
+      <div className={classes.paper} data-testid="login-page">
         <img src={logo} alt="logo" style={{ marginBottom: '2rem' }} />
         <Avatar className={classes.avatar}>
           <LockOutlinedIcon />
         </Avatar>
-        <Typography component="h1" variant="h5">
+        <Typography component="h1" variant="h5" data-testid="log-in-text">
           Log in
         </Typography>
-        <form className={classes.form}>
+        <form className={classes.form} data-testid="log-in-form">
           <TextField
             variant="outlined"
             margin="normal"
             required
             fullWidth
+            inputProps={{ 'data-testid': 'username-input' }}
             label="Username"
+            value={username}
             name="username"
             autoComplete="username"
             autoFocus
@@ -120,9 +120,11 @@ const Login: React.FC<OwnProps> = (props: Props) => {
             </InputLabel>
             <OutlinedInput
               name="password"
+              value={password}
               type={showPassword ? 'text' : 'password'}
               id="outlined-adornment-password"
               onChange={handlePasswordChange}
+              inputProps={{ 'data-testid': 'password-input' }}
               endAdornment={
                 <InputAdornment position="end">
                   <IconButton
@@ -131,7 +133,7 @@ const Login: React.FC<OwnProps> = (props: Props) => {
                     onMouseDown={handleMouseDownPassword}
                     edge="end"
                   >
-                    {showPassword ? <VisibilityOff /> : <VisibilityIcon />}
+                    {showPassword ? <VisibilityIcon /> : <VisibilityOff />}
                   </IconButton>
                 </InputAdornment>
               }
@@ -145,12 +147,16 @@ const Login: React.FC<OwnProps> = (props: Props) => {
             color="primary"
             className={classes.submit}
             onClick={logIn}
+            data-testid="login-button"
           >
             Login
           </Button>
         </form>
-        <p>
-          Don&#39;t have an account? <NavLink to="/register">Sign up</NavLink>
+        <p data-testid="signup-message">
+          Don&#39;t have an account?{' '}
+          <a href="/register" data-testid="signup-link">
+            Sign up
+          </a>
         </p>
       </div>
       <Box mt={8}>
@@ -160,14 +166,14 @@ const Login: React.FC<OwnProps> = (props: Props) => {
   );
 };
 
-const mapStateToProps = (state: RootState) => ({
-  error: state.users.err.error,
-  message: state.users.err.message,
-});
+// const mapStateToProps = (state: RootState) => ({
+//   error: state.users.err.error,
+//   message: state.users.err.message,
+// });
 
 const mapDispatchToProps = (dispatch: AppDispatch) => ({
   onLogin: (username: string, password: string) => dispatch(login(username, password)),
   onDismissAlert: () => dispatch(dismissAlert()),
 });
 
-export default connect<RootState, AppDispatch>(mapStateToProps, mapDispatchToProps)(Login);
+export default connect<RootState, AppDispatch>(null, mapDispatchToProps)(Login);
