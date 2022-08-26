@@ -1,6 +1,17 @@
-# Getting Started with Create React App
+# ELMS - Easy Library Management System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+ELMS is a simple app intended for small libraries allowing administrators and librarians to keep track of users and books but also members to search for books, learn about them and write their own feedback about books they have read through ratings and reviews. It is still work in progress with some rough edges but I'm working on them :) It was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
+![Screenshot 2022-08-23 213914](https://user-images.githubusercontent.com/54722233/186252153-1428526d-6da2-44ae-b146-458d2bc54d3e.png)
+![Screenshot 2022-08-23 213943](https://user-images.githubusercontent.com/54722233/186252256-8faae5aa-8fe9-4f29-93af-8a2794bff173.png)
+![Screenshot 2022-08-23 214013](https://user-images.githubusercontent.com/54722233/186252268-75ed9f4a-e77d-4b4f-aa57-0b50e5693435.png)
+![Screenshot 2022-08-23 214029](https://user-images.githubusercontent.com/54722233/186252284-3729815a-7f49-4833-b0cf-83a51c353629.png)
+![Screenshot 2022-08-23 214058](https://user-images.githubusercontent.com/54722233/186252298-ccafb4bb-9090-4568-ae96-841ee0d27502.png)
+![Screenshot 2022-08-23 214116](https://user-images.githubusercontent.com/54722233/186252307-c6d2d03b-9770-460a-99fe-fa3162ea807d.png)
+![Screenshot 2022-08-23 214138](https://user-images.githubusercontent.com/54722233/186252331-60297a2f-ae07-494e-9e78-20f916678aaf.png)
+![Screenshot 2022-08-23 214200](https://user-images.githubusercontent.com/54722233/186252367-075091bc-8920-4aa0-b0c1-1952447d58e0.png)
+
+https://user-images.githubusercontent.com/54722233/186242342-624a816b-53aa-4312-a6c1-db51b6b098a7.mp4
 
 ## Available Scripts
 
