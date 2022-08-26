@@ -64,13 +64,15 @@ function Alert(props) {
   };
 
   return (
-    <div>
+    <div data-testid="error-alert">
       <Dialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
         <DialogTitle id="customized-dialog-title" onClose={handleClose}>
           {title}
         </DialogTitle>
         <DialogContent dividers>
-          <Typography gutterBottom>{message || 'Something went wrong. Try again .'}</Typography>
+          <Typography gutterBottom data-testid="error-message">
+            {message || 'Something went wrong. Try again .'}
+          </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
