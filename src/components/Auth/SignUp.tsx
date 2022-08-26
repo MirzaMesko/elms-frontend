@@ -11,7 +11,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import TextField from '@material-ui/core/TextField';
-import { NavLink } from 'react-router-dom';
+// import { NavLink } from 'react-router-dom';
 import Typography from '@material-ui/core/Typography';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
@@ -161,18 +161,19 @@ const Register: React.FC<OwnProps> = (props: Props) => {
       <Alert show={error} title="Error" message={message} onClose={onDismissAlert} />
       <CustomizedSnackbars show={openSnackbar} severity={severity} message={errMessage} />
       <CssBaseline />
-      <div className={classes.paper}>
+      <div className={classes.paper} data-testid="signup-page">
         <img src={logo} alt="logo" style={{ marginBottom: '2rem' }} />
         <Avatar className={classes.avatar}>
           <LockOutlinedIcon />
         </Avatar>
-        <Typography component="h1" variant="h5">
+        <Typography component="h1" variant="h5" data-testid="sign-up-text">
           Sign up
         </Typography>
-        <form className={classes.form}>
+        <form className={classes.form} data-testid="sign-up-form">
           <TextField
             variant="outlined"
             margin="normal"
+            inputProps={{ 'data-testid': 'email-input' }}
             required
             error={emailWarning.length > 2}
             helperText={emailWarning}
@@ -187,6 +188,7 @@ const Register: React.FC<OwnProps> = (props: Props) => {
           <TextField
             variant="outlined"
             margin="normal"
+            inputProps={{ 'data-testid': 'username-input' }}
             required
             fullWidth
             id="username"
@@ -212,6 +214,7 @@ const Register: React.FC<OwnProps> = (props: Props) => {
             </InputLabel>
             <OutlinedInput
               name="password"
+              inputProps={{ 'data-testid': 'password-input' }}
               type={showPassword ? 'text' : 'password'}
               id="outlined-adornment-password"
               onBlur={passwordValidator}
@@ -238,6 +241,7 @@ const Register: React.FC<OwnProps> = (props: Props) => {
 
           <Button
             type="submit"
+            data-testid="signup-button"
             fullWidth
             variant="contained"
             disabled={!username || !password || !email}
@@ -248,8 +252,11 @@ const Register: React.FC<OwnProps> = (props: Props) => {
             Sign Up
           </Button>
         </form>
-        <p>
-          Have an account? <NavLink to="/login">Log in now.</NavLink>
+        <p data-testid="login-message">
+          Have an account?{' '}
+          <a href="/login" data-testid="login-link">
+            Log in now.
+          </a>
         </p>
       </div>
       <Box mt={8}>
