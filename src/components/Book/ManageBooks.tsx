@@ -212,7 +212,7 @@ const ManageBooks: React.FC<Props> = (props: Props) => {
           </Button>
         )}
         <FormControl variant="standard">
-          <InputLabel htmlFor="demo-customized-textbox">search users</InputLabel>
+          <InputLabel htmlFor="demo-customized-textbox">search books</InputLabel>
           <BootstrapInput
             id="demo-customized-textbox"
             type="text"
