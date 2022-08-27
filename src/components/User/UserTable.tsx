@@ -1,5 +1,4 @@
 import { Typography } from '@material-ui/core';
-import Chip from '@material-ui/core/Chip';
 import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
@@ -24,6 +23,8 @@ import UserDialog from '../Dialogues/UserDialogue.tsx';
 import Confirm from '../Helpers/Confirm.tsx';
 // @ts-ignore
 import UserDetails from './User.tsx';
+// @ts-ignore
+import RoleChip from '../Helpers/Chip.tsx';
 // @ts-ignore
 import EnhancedTableHead from '../Helpers/EnhancedTableHead.tsx';
 // @ts-ignore
@@ -247,17 +248,7 @@ const EnhancedTable: React.FC<OwnProps> = (props: Props) => {
                         onClick={() => onShowUserDetails(user)}
                         style={{ cursor: 'pointer' }}
                       >
-                        {Object.values(user.roles).map((item) => (
-                          <Chip
-                            // eslint-disable-next-line no-underscore-dangle
-                            key={item + user._id}
-                            icon={helpers.setIcon(item)}
-                            size="small"
-                            label={`${item}`}
-                            color={helpers.roleColor(item)}
-                            style={{ margin: '3px' }}
-                          />
-                        ))}
+                        <RoleChip user={user} />
                       </TableCell>
                       <TableCell>
                         {roles.includes('Admin') && (

@@ -3,7 +3,6 @@ import * as React from 'react';
 import { useHistory } from 'react-router-dom';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
-import Chip from '@material-ui/core/Chip';
 import { connect, useDispatch } from 'react-redux';
 import IconButton from '@material-ui/core/IconButton';
 import EmailIcon from '@material-ui/icons/Email';
@@ -12,6 +11,8 @@ import DialogActions from '@material-ui/core/DialogActions';
 import Typography from '@material-ui/core/Typography';
 import Fade from '@material-ui/core/Fade';
 import NotificationsIcon from '@material-ui/icons/Notifications';
+// @ts-ignore
+import RoleChip from '../Helpers/Chip.tsx';
 // @ts-ignore
 import { notifyUser } from '../../actions/users.tsx';
 // @ts-ignore
@@ -23,7 +24,6 @@ import NotificationDialogue from '../Dialogues/NotificationDialogue.tsx';
 // @ts-ignore
 import { sendEmail } from '../../actions/email.tsx';
 import profilePlaceholder from '../../utils/profile-picture-default-png.png';
-import * as helpers from '../Helpers/helpers';
 // @ts-ignore
 import { LightTooltip } from '../Helpers/Tooltip.tsx';
 // @ts-ignore
@@ -146,17 +146,7 @@ const UserDetails: React.FC<OwnProps> = (props: Props) => {
                 </LightTooltip>
               </span>
             </span>
-            {user.roles &&
-              Object.values(user.roles).map((item) => (
-                <Chip
-                  key={item + user._id}
-                  icon={helpers.setIcon(item)}
-                  size="small"
-                  label={`${item}`}
-                  color={helpers.roleColor(item)}
-                  style={{ margin: '3px' }}
-                />
-              ))}
+            <RoleChip user={user} />
             <Typography gutterBottom variant="subtitle2">
               {user.email}
             </Typography>
