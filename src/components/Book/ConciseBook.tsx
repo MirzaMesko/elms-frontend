@@ -32,11 +32,10 @@ interface OwnProps {
   lend: (book: Book) => void | undefined;
   onNotifyUser: (book: Book) => void | undefined;
   sendOverdueReminder: (book: Book) => void | undefined;
-  id: string;
 }
 
 const ConciseBook: React.FC<OwnProps> = (props: OwnProps) => {
-  const { onReturnBook, book, lend, onNotifyUser, sendOverdueReminder, id } = props;
+  const { onReturnBook, book, lend, onNotifyUser, sendOverdueReminder } = props;
   const classes = useStyles();
   const isTaken: string | undefined = book.owedBy?.dueDate;
   const showActionButtons: boolean = lend !== undefined || onReturnBook !== undefined;
@@ -48,7 +47,7 @@ const ConciseBook: React.FC<OwnProps> = (props: OwnProps) => {
   }
 
   return (
-    <div className={classes.selectedBook} key={id}>
+    <div className={classes.selectedBook} data-testid="owedBook">
       <img src={book.image || editionPlaceholder} alt="" className="smallImage" />
       {book.serNo && (
         <div style={{ marginLeft: '2rem', width: '100%' }}>
@@ -94,8 +93,14 @@ const ConciseBook: React.FC<OwnProps> = (props: OwnProps) => {
           </div>
           <div className="spaceBetween">
             <div style={{ display: 'flex', flexDirection: 'row' }}>
-              <Typography variant="subtitle1">{book.title}</Typography>
-              <Typography variant="subtitle1" style={{ color: '#AAA', marginLeft: '0.4rem' }}>
+              <Typography variant="subtitle1" data-testid="owedBook-title">
+                {book.title}
+              </Typography>
+              <Typography
+                variant="subtitle1"
+                style={{ color: '#AAA', marginLeft: '0.4rem' }}
+                data-testid="owedBook-author"
+              >
                 by {book.author}
               </Typography>
             </div>
