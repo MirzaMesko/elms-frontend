@@ -13,14 +13,21 @@ interface Props {
 
 const ReadingHistory: React.FC<Props> = ({ user, books }: Props) =>
   !user.readingHistory?.length ? (
-    <Typography className="centered">No reading history for this user.</Typography>
+    <Typography className="centered" data-testid="no-history-message">
+      No reading history for this user.
+    </Typography>
   ) : (
-    user.readingHistory
-      .map((bookId: string) => {
-        const match = books.filter((book: { _id: string }) => book._id === bookId);
-        return match.map((owedBook: Book) => <ConciseBook book={owedBook} key={owedBook._id} />);
-      })
-      .reverse()
+    <>
+      {user.readingHistory
+        .map((bookId: string) => {
+          const match = books.filter((book: { _id: string }) => book._id === bookId);
+          const owed = match.map((owedBook: Book) => (
+            <ConciseBook book={owedBook} key={owedBook._id} />
+          ));
+          return owed;
+        })
+        .reverse()}
+    </>
   );
 
 export default ReadingHistory;
