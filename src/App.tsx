@@ -27,7 +27,7 @@ import Register from './components/Auth/SignUp.tsx';
 // @ts-ignore
 import LendOrReturn from './components/Book/LendOrReturn.tsx';
 // @ts-ignore
-import Settings from './components/Settings.tsx';
+import Settings from './components/Settings/Settings.tsx';
 // @ts-ignore
 import { RootState, AppDispatch } from './store.ts';
 // @ts-ignore
