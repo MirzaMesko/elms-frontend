@@ -12,7 +12,9 @@ interface Props {
 
 const NotificationsContainer: React.FC<Props> = ({ user, dismissNotification }: Props) =>
   !user.notifications?.length ? (
-    <Typography className="centered">Nothing to show here yet.</Typography>
+    <Typography className="centered" data-testid="no-notifications">
+      Nothing to show here yet.
+    </Typography>
   ) : (
     user.notifications
       .map((n: NotificationType) => (
