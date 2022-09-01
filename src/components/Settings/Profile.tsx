@@ -51,15 +51,21 @@ const Profile: React.FC<Props> = ({ user }: Props) => {
 
   return (
     <div className={classes.container}>
-      <img src={user?.image || profilePlaceholder} alt="" className="largeImage" />
+      <img
+        src={user?.image || profilePlaceholder}
+        alt=""
+        className="largeImage"
+        data-testid="image"
+      />
       <DialogContent>
         <div className="spaceBetween">
-          <Typography gutterBottom variant="h4">
-            {user?.username}
+          <Typography gutterBottom variant="h4" data-testid="username">
+            {user.username}
           </Typography>
           <Button
             autoFocus
             type="submit"
+            data-testid="edit-button"
             variant="contained"
             color="primary"
             onClick={() => onEdit(user)}
@@ -69,14 +75,14 @@ const Profile: React.FC<Props> = ({ user }: Props) => {
           </Button>
         </div>
         <RoleChip user={user} />
-        <Typography gutterBottom variant="subtitle2">
+        <Typography gutterBottom variant="subtitle2" data-testid="email">
           {user.email}
         </Typography>
         <Typography gutterBottom>{user.name}</Typography>
-        <Typography gutterBottom variant="h6">
+        <Typography gutterBottom variant="h6" data-testid="bio-title">
           About {user.username}
         </Typography>
-        <Typography gutterBottom variant="body1">
+        <Typography gutterBottom variant="body1" data-testid="bio">
           {user.bio}
         </Typography>
       </DialogContent>
