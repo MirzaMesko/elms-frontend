@@ -171,7 +171,12 @@ const UserDialog: React.FC<OwnProps> = (props: Props) => {
   }, [show, user]);
 
   return (
-    <Dialog open={state.open} onClose={showConfirm} aria-labelledby="form-dialog-title">
+    <Dialog
+      open={state.open}
+      onClose={showConfirm}
+      aria-labelledby="form-dialog-title"
+      data-testid="user-dialogue"
+    >
       <Confirm
         show={state.openConfirm}
         title="Are you sure?"
