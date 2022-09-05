@@ -46,7 +46,7 @@ const Settings: React.FC<Props> = ({ users, books, token, roles, authUser }: Pro
       setValue(0);
     }
     if (window.location.href.includes('history') && value !== 2) {
-      setValue(0);
+      setValue(2);
     }
   }, [window.location.href]);
 
@@ -75,14 +75,16 @@ const Settings: React.FC<Props> = ({ users, books, token, roles, authUser }: Pro
   };
 
   React.useEffect(() => {
-    const result = users.filter((u: User) => u.username === id);
-    const notificationsSeen = result[0].notifications.map((n: NotificationType) => ({
-      message: n.message,
-      timestamp: n.timestamp,
-      seen: 'true',
-    }));
-    dispatch(updateNotifications(token, roles, result[0]._id, notificationsSeen));
-    setUser(result[0]);
+    if (users) {
+      const result = users.filter((u: User) => u.username === id);
+      const notificationsSeen = result[0].notifications.map((n: NotificationType) => ({
+        message: n.message,
+        timestamp: n.timestamp,
+        seen: 'true',
+      }));
+      dispatch(updateNotifications(token, roles, result[0]._id, notificationsSeen));
+      setUser(result[0]);
+    }
   }, [users]);
 
   function a11yProps(index: number) {
@@ -100,18 +102,27 @@ const Settings: React.FC<Props> = ({ users, books, token, roles, authUser }: Pro
         centered
         textColor="primary"
         indicatorColor="primary"
+        data-testid="settings-tabs"
       >
         <LinkTab
           title="notifications"
           href="notifications"
           username={user.username}
+          data-testid="notifications-link-tab"
           {...a11yProps(0)}
         />
-        <LinkTab title="profile" href="profile" username={user.username} {...a11yProps(1)} />
+        <LinkTab
+          title="profile"
+          href="profile"
+          username={user.username}
+          data-testid="profile-link-tab"
+          {...a11yProps(1)}
+        />
         <LinkTab
           title="reading history"
           href="reading history"
           username={user.username}
+          data-testid="reading-history-link-tab"
           {...a11yProps(2)}
         />
       </Tabs>

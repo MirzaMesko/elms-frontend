@@ -50,7 +50,7 @@ const Profile: React.FC<Props> = ({ user }: Props) => {
   };
 
   return (
-    <div className={classes.container}>
+    <div className={classes.container} data-testid="profile">
       <img
         src={user?.image || profilePlaceholder}
         alt=""
