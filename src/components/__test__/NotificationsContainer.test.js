@@ -20,7 +20,10 @@ describe('NotificationsContainer', () => {
   });
   it('displays users notifications', () => {
     const user = {
-      notifications: [{ message: 'test' }, { message: 'test2' }],
+      notifications: [
+        { message: 'test', timestamp: '123456678896875674' },
+        { message: 'test2', timestamp: '124365456446875674' },
+      ],
     };
 
     render(<NotifificationsContainer user={user} />);
@@ -30,7 +33,11 @@ describe('NotificationsContainer', () => {
   });
   it('displays users notifications in reverse order', () => {
     const user = {
-      notifications: [{ message: 'test' }, { message: 'test2' }, { message: 'test3' }],
+      notifications: [
+        { message: 'test', timestamp: '123456678896875674' },
+        { message: 'test2', timestamp: '124365456446875674' },
+        { message: 'test3', timestamp: '34564356435643896875674' },
+      ],
     };
 
     render(<NotifificationsContainer user={user} />);
