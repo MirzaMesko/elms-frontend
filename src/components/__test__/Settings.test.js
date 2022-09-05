@@ -2,7 +2,7 @@ import { screen, render, fireEvent, cleanup } from '@testing-library/react';
 import React from 'react';
 import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom';
-import { useParams } from 'react-router-dom';
+import { useParams, MemoryRouter } from 'react-router-dom';
 // @ts-ignore
 import { store } from '../../store.ts';
 import Settings from '../Settings/Settings.tsx';
@@ -29,7 +29,9 @@ const users = [
 const setup = (usersArray) => {
   render(
     <Provider store={store}>
-      <Settings users={usersArray} />
+      <MemoryRouter initialEntries={['/users/settings/test2']}>
+        <Settings users={usersArray} />
+      </MemoryRouter>
     </Provider>
   );
 };
@@ -52,6 +54,35 @@ describe('Settings', () => {
     setup(users);
 
     expect(screen.getByTestId('settings-tabs')).toBeInTheDocument();
-    expect(screen.getAllByTestId('settings-link-tab').length).toBe(3);
+    expect(screen.getByTestId('profile-link-tab')).toBeInTheDocument();
+    expect(screen.getByTestId('notifications-link-tab')).toBeInTheDocument();
+    expect(screen.getByTestId('reading-history-link-tab')).toBeInTheDocument();
+  });
+  it('displays users profile when Profile LinkTab is clicked', () => {
+    useParams.mockReturnValue({ id: 'test2' });
+    setup(users);
+
+    const tabLink = screen.getByTestId('profile-link-tab');
+    fireEvent.click(tabLink);
+
+    expect(screen.getByTestId('profile')).toBeInTheDocument();
+  });
+  it('displays users notifications when notifications LinkTab is clicked', () => {
+    useParams.mockReturnValue({ id: 'test2' });
+    setup(users);
+
+    const tabLink = screen.getByTestId('notifications-link-tab');
+    fireEvent.click(tabLink);
+
+    expect(screen.getByTestId('no-notifications')).toBeInTheDocument();
+  });
+  it('displays users reading history when Reading History LinkTab is clicked', () => {
+    useParams.mockReturnValue({ id: 'test2' });
+    setup(users);
+
+    const tabLink = screen.getByTestId('reading-history-link-tab');
+    fireEvent.click(tabLink);
+
+    expect(screen.getByTestId('no-history-message')).toBeInTheDocument();
   });
 });
