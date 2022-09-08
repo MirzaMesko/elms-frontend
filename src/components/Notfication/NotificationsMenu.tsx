@@ -50,7 +50,7 @@ const NotificationsMenu: React.FC<OwnProps> = (props: OwnProps) => {
   };
 
   return (
-    <div>
+    <div data-testid="notifications-menu">
       <IconButton
         color="inherit"
         id="basic-button"

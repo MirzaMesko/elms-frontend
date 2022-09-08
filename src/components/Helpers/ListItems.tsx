@@ -43,6 +43,7 @@ const MainListItems: React.FC<OwnProps> = (props: Props) => {
         <ListItem
           button
           component={Link}
+          data-testid="manage-users"
           to="/manage/users"
           selected={history.location.pathname === '/manage/users'}
         >
@@ -54,6 +55,7 @@ const MainListItems: React.FC<OwnProps> = (props: Props) => {
         <ListItem
           button
           component={Link}
+          data-testid="manage-books"
           to="/manage/books"
           selected={history.location.pathname === '/manage/books'}
         >
@@ -65,6 +67,7 @@ const MainListItems: React.FC<OwnProps> = (props: Props) => {
         <ListItem
           button
           component={Link}
+          data-testid="manage-overdue-books"
           to="/manage/overdue books"
           selected={history.location.pathname === '/manage/overdue books'}
         >

@@ -177,11 +177,12 @@ const Dashboard: React.FC<OwnProps> = (props: Props) => {
     <div className={classes.root}>
       <CssBaseline />
       <AppBar position="absolute" className={clsx(classes.appBar)}>
-        <Toolbar>
+        <Toolbar data-testid="toolbar">
           <IconButton
             edge="start"
             color="inherit"
             aria-label="open drawer"
+            data-testid="menu-icon-link"
             onClick={toggleDrawerOpen}
             className={clsx(classes.menuButton)}
           >
@@ -195,6 +196,7 @@ const Dashboard: React.FC<OwnProps> = (props: Props) => {
                 color: 'inherit',
                 textDecoration: 'none',
               }}
+              data-testid="elms-home-link"
             >
               Elms
             </RouterLink>
@@ -212,6 +214,7 @@ const Dashboard: React.FC<OwnProps> = (props: Props) => {
       </AppBar>
       <Drawer
         variant="permanent"
+        data-testid="dashboard-drawer"
         classes={{
           paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
         }}
