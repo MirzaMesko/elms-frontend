@@ -30,13 +30,18 @@ const Notification: React.FC<OwnProps> = (props: OwnProps) => {
   return (
     <div
       className={classes.notification}
+      data-testid="notification"
       style={{ backgroundColor: notification.seen === 'false' ? '#FFF' : '#f5f5f5' }}
     >
       <Typography variant="h5" data-testid="notification-message">
         {notification.message}
       </Typography>
       <div className="spaceBetween">
-        <Typography variant="subtitle1" style={{ color: '#AAA' }}>
+        <Typography
+          variant="subtitle1"
+          style={{ color: '#AAA' }}
+          data-testid="notification-timestamp"
+        >
           {new Date(notification.timestamp).toDateString()},{' '}
           {new Date(notification.timestamp).getUTCHours()}:
           {new Date(notification.timestamp).getMinutes()}
@@ -46,6 +51,7 @@ const Notification: React.FC<OwnProps> = (props: OwnProps) => {
           variant="outlined"
           size="small"
           onClick={() => dismiss(notification)}
+          data-testid="notification-dismiss-button"
         >
           Dismiss
         </Button>
