@@ -32,7 +32,7 @@ const Ratings: React.FC<Props> = ({ name, currentRating, onClick }: Props) => {
   };
 
   return (
-    <div>
+    <div data-testid="rating">
       {name === 'read-only' ? (
         <div className={classes.root}>
           <Rating name="read-only" value={currentRating} readOnly precision={1} />

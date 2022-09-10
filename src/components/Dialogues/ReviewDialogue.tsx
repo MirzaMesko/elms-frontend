@@ -72,7 +72,7 @@ const ReviewDialog: React.FC<OwnProps> = (props: OwnProps) => {
     <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
       <DialogTitle id="form-dialog-title">{title}</DialogTitle>
       <DialogContent>
-        <div className="dialogueContainer">
+        <div className="dialogueContainer" data-testid="review-dialogue">
           <TextField
             id="outlined-multiline-flexible"
             multiline
