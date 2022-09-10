@@ -1,7 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { connect } from 'react-redux';
 import Card from '@material-ui/core/Card';
 import Avatar from '@material-ui/core/Avatar';
 import EditIcon from '@material-ui/icons/Edit';
@@ -15,9 +14,9 @@ import ReviewDialog from '../Dialogues/ReviewDialogue.tsx';
 // @ts-ignore
 import { LightTooltip } from '../Helpers/Tooltip.tsx';
 import * as helpers from '../Helpers/helpers';
-import profilePlaceholder from '../../utils/profile-picture-default-png.png';
+// import profilePlaceholder from '../../utils/profile-picture-default-png.png';
 // @ts-ignore
-import { RootState, AppDispatch } from '../../store.ts';
+import { RootState } from '../../store.ts';
 // @ts-ignore
 import { User, Review } from '../../types.ts';
 
@@ -50,10 +49,12 @@ const useStyles = makeStyles((theme) => ({
 interface OwnProps {
   review: Array<Review>;
   authUser: string;
+  users: [User];
   onDelete: () => void;
   onEdit: () => void;
-  reviewAuthor: {
+  revAuthor: {
     username: string;
+    image: string;
     roles: any;
     _id: string;
     email: string;
@@ -61,12 +62,20 @@ interface OwnProps {
   };
 }
 
-type Props = OwnProps & RootState & AppDispatch;
+type Props = OwnProps & RootState;
 
 const ReviewCard: React.FC<OwnProps> = (props: Props) => {
-  const { review, reviewAuthor, authUser, onDelete, onEdit } = props;
+  const { review, authUser, onDelete, onEdit, users } = props;
   const [showReviewDialogue, setShowReviewDialogue] = React.useState(false);
+  const [reviewAuthor, setReviewAuthor] = React.useState<any>(null);
   const classes = useStyles();
+
+  React.useEffect(() => {
+    if (users) {
+      const author = users.filter((u: User) => u._id === review.userId)[0];
+      setReviewAuthor(author);
+    }
+  }, [users]);
 
   return (
     <Card className={classes.root} variant="outlined">
@@ -87,13 +96,14 @@ const ReviewCard: React.FC<OwnProps> = (props: Props) => {
           >
             <Avatar
               className={classes.small}
-              src={reviewAuthor?.image || profilePlaceholder}
+              data-testid="image"
+              src={reviewAuthor?.image}
               alt={reviewAuthor?.username || ''}
-              {...helpers.stringAvatar(`${reviewAuthor.username} ${reviewAuthor.name}`)}
+              {...helpers.stringAvatar(`${reviewAuthor?.username} ${reviewAuthor?.name}`)}
             >
-              {reviewAuthor.username?.slice(0, 1)}
+              {reviewAuthor?.username.slice(0, 1)}
             </Avatar>
-            <Typography variant="subtitle1" color="textSecondary">
+            <Typography variant="subtitle1" color="textSecondary" data-testid="username">
               {reviewAuthor?.username}
             </Typography>
           </div>
@@ -105,14 +115,18 @@ const ReviewCard: React.FC<OwnProps> = (props: Props) => {
               marginTop: '-0.8rem',
             }}
           >
-            {authUser === reviewAuthor.username && (
+            {authUser === reviewAuthor?.username && (
               <>
                 <LightTooltip
                   TransitionComponent={Fade}
                   TransitionProps={{ timeout: 600 }}
                   title="Edit"
                 >
-                  <IconButton aria-label="edit" onClick={() => setShowReviewDialogue(true)}>
+                  <IconButton
+                    aria-label="edit"
+                    onClick={() => setShowReviewDialogue(true)}
+                    data-testid="edit-review"
+                  >
                     <EditIcon fontSize="small" />
                   </IconButton>
                 </LightTooltip>
@@ -122,7 +136,11 @@ const ReviewCard: React.FC<OwnProps> = (props: Props) => {
                   TransitionProps={{ timeout: 600 }}
                   title="Delete"
                 >
-                  <IconButton aria-label="edit" onClick={() => onDelete(review._id)}>
+                  <IconButton
+                    aria-label="edit"
+                    onClick={() => onDelete(review._id)}
+                    data-testid="delete-review"
+                  >
                     <DeleteIcon fontSize="small" />
                   </IconButton>
                 </LightTooltip>
@@ -131,8 +149,10 @@ const ReviewCard: React.FC<OwnProps> = (props: Props) => {
           </div>
         </div>
 
-        <Typography className={classes.title}>{review.review}</Typography>
-        <Typography variant="subtitle2" color="textSecondary">
+        <Typography className={classes.title} data-testid="review-text">
+          {review.review}
+        </Typography>
+        <Typography variant="subtitle2" color="textSecondary" data-testid="review-timestamp">
           {review.timestamp}
         </Typography>
       </CardContent>
@@ -143,9 +163,4 @@ const ReviewCard: React.FC<OwnProps> = (props: Props) => {
   );
 };
 
-const mapStateToProps = (state: RootState, props: Props) => ({
-  reviewAuthor: state.users.users.filter((u: User) => u._id === props.review.userId)[0],
-  authUser: state.users.authUser.username,
-});
-
-export default connect<RootState, AppDispatch, OwnProps>(mapStateToProps)(ReviewCard);
+export default ReviewCard;
