@@ -78,3 +78,10 @@ export const setIcon = (item) => {
   }
   return <AccountCircleIcon />;
 };
+
+export const calculateRating = (ratings: [{ userId: string, rating: number }]) => {
+  const rating =
+    ratings.map((r: { userId: string, rating: number }) => r.rating).reduce((a, b) => a + b, 0) /
+    ratings.length;
+  return rating;
+};
