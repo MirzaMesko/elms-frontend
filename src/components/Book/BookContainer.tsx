@@ -1,30 +1,14 @@
 /* eslint-disable no-underscore-dangle */
 import * as React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogActions from '@material-ui/core/DialogActions';
-import IconButton from '@material-ui/core/IconButton';
-import StarsIcon from '@material-ui/icons/Stars';
-import AddCommentIcon from '@material-ui/icons/AddComment';
-import Typography from '@material-ui/core/Typography';
-import Fade from '@material-ui/core/Fade';
-import editionPlaceholder from '../../utils/edition_placeholder2.png';
-// @ts-ignore
-// import Ratings from '../Helpers/Rating.tsx';
-// @ts-ignore
-import { LightTooltip } from '../Helpers/Tooltip.tsx';
 // @ts-ignore
 import CustomizedSnackbars from '../Helpers/Snackbar.tsx';
-// @ts-ignore
-import ReviewsContainer from '../Review/ReviewsContainer.tsx';
 // @ts-ignore
 import ReviewDialog from '../Dialogues/ReviewDialogue.tsx';
 // @ts-ignore
 import RatingDialog from '../Dialogues/RatingDialogue.tsx';
 // @ts-ignore
-import Loading from '../Helpers/Loading.tsx';
+import BookDetails from './Book.tsx';
 // @ts-ignore
 import { calculateRating } from '../Helpers/helpers';
 // @ts-ignore
@@ -51,7 +35,7 @@ interface OwnProps {
   };
 }
 
-const BookDetails: React.FC<OwnProps> = ({ open, handleClose, bookId, err }: OwnProps) => {
+const BookContainer: React.FC<OwnProps> = ({ open, handleClose, bookId, err }: OwnProps) => {
   const [showRatingDialogue, setShowRatingDialogue] = React.useState(false);
   const [showReviewDialogue, setShowReviewDialogue] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
@@ -74,10 +58,6 @@ const BookDetails: React.FC<OwnProps> = ({ open, handleClose, bookId, err }: Own
     setTimeout(() => {
       setOpenSnackbar(false);
     }, 3000);
-  };
-
-  const onClose = () => {
-    handleClose();
   };
 
   const rateBook = (ratingValue: number) => {
@@ -209,78 +189,20 @@ const BookDetails: React.FC<OwnProps> = ({ open, handleClose, bookId, err }: Own
         close={() => setShowRatingDialogue(false)}
         rate={rateBook}
       />
-      <Dialog onClose={onClose} aria-labelledby="customized-dialog-title" open={open} maxWidth="md">
-        <div className="dialogueContainer">
-          <img src={book.image || editionPlaceholder} alt="" className="largeImage" />
-          <DialogContent>
-            {loading ? (
-              <Loading />
-            ) : (
-              <>
-                <div className="spaceBetween">
-                  <Typography gutterBottom variant="h4">
-                    {book.title}
-                  </Typography>
-                  <div style={{ display: 'flex', flexDirection: 'row' }}>
-                    <LightTooltip
-                      TransitionComponent={Fade}
-                      TransitionProps={{ timeout: 600 }}
-                      title="Rate this book"
-                    >
-                      <IconButton
-                        aria-label="edit"
-                        color="primary"
-                        onClick={() => setShowRatingDialogue(true)}
-                      >
-                        <StarsIcon fontSize="large" />
-                      </IconButton>
-                    </LightTooltip>
-                    <LightTooltip
-                      TransitionComponent={Fade}
-                      TransitionProps={{ timeout: 600 }}
-                      title="Add review for this book"
-                    >
-                      <IconButton
-                        aria-label="edit"
-                        color="primary"
-                        onClick={() => setShowReviewDialogue(true)}
-                      >
-                        <AddCommentIcon fontSize="large" />
-                      </IconButton>
-                    </LightTooltip>
-                  </div>
-                </div>
-
-                <Typography gutterBottom variant="subtitle2">
-                  by {book.author}
-                </Typography>
-                <Typography gutterBottom>Category: {book.category}</Typography>
-                <ReviewsContainer
-                  currentRating={bookRating}
-                  reviews={bookReviews}
-                  onDelete={delReview}
-                  onEdit={editReview}
-                  authUser={authUser.username}
-                  users={users}
-                />
-                <Typography gutterBottom variant="h6">
-                  About {book.title}
-                </Typography>
-                <Typography gutterBottom variant="body1">
-                  {book.description}
-                </Typography>
-              </>
-            )}
-          </DialogContent>
-        </div>
-        <DialogActions>
-          <Button autoFocus onClick={handleClose}>
-            back
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <BookDetails
+        open={open}
+        close={handleClose}
+        bookReviews={bookReviews}
+        bookRating={bookRating}
+        book={book}
+        loading={loading}
+        delReview={delReview}
+        editReview={editReview}
+        showReviewDialog={() => setShowReviewDialogue(true)}
+        showRatingDialog={() => setShowRatingDialogue(true)}
+      />
     </>
   );
 };
 
-export default BookDetails;
+export default BookContainer;
