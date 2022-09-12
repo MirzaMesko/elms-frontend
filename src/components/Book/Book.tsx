@@ -50,15 +50,20 @@ const BookDetails: React.FC<Props> = ({
   const { users, authUser } = useSelector((state: RootState) => state.users);
   return (
     <Dialog onClose={close} aria-labelledby="customized-dialog-title" open={open} maxWidth="md">
-      <div className="dialogueContainer">
-        <img src={book.image || editionPlaceholder} alt="" className="largeImage" />
+      <div className="dialogueContainer" data-testid="book-details">
+        <img
+          src={book?.image || editionPlaceholder}
+          alt=""
+          className="largeImage"
+          data-testid="book-image"
+        />
         <DialogContent>
           {loading ? (
             <Loading />
           ) : (
             <>
               <div className="spaceBetween">
-                <Typography gutterBottom variant="h4">
+                <Typography gutterBottom variant="h4" data-testid="book-title">
                   {book.title}
                 </Typography>
                 <div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -68,7 +73,7 @@ const BookDetails: React.FC<Props> = ({
                     title="Rate this book"
                   >
                     <IconButton aria-label="edit" color="primary" onClick={showRatingDialog}>
-                      <StarsIcon fontSize="large" />
+                      <StarsIcon fontSize="large" data-testid="rate-book-icon" />
                     </IconButton>
                   </LightTooltip>
                   <LightTooltip
@@ -77,16 +82,18 @@ const BookDetails: React.FC<Props> = ({
                     title="Add review for this book"
                   >
                     <IconButton aria-label="edit" color="primary" onClick={showReviewDialog}>
-                      <AddCommentIcon fontSize="large" />
+                      <AddCommentIcon fontSize="large" data-testid="review-book-icon" />
                     </IconButton>
                   </LightTooltip>
                 </div>
               </div>
 
-              <Typography gutterBottom variant="subtitle2">
+              <Typography gutterBottom variant="subtitle2" data-testid="book-author">
                 by {book.author}
               </Typography>
-              <Typography gutterBottom>Category: {book.category}</Typography>
+              <Typography gutterBottom data-testid="book-category">
+                Category: {book.category}
+              </Typography>
               <ReviewsContainer
                 currentRating={bookRating}
                 reviews={bookReviews}
@@ -95,10 +102,10 @@ const BookDetails: React.FC<Props> = ({
                 authUser={authUser.username}
                 users={users}
               />
-              <Typography gutterBottom variant="h6">
+              <Typography gutterBottom variant="h6" data-testid="description-title">
                 About {book.title}
               </Typography>
-              <Typography gutterBottom variant="body1">
+              <Typography gutterBottom variant="body1" data-testid="description-text">
                 {book.description}
               </Typography>
             </>
@@ -106,7 +113,7 @@ const BookDetails: React.FC<Props> = ({
         </DialogContent>
       </div>
       <DialogActions>
-        <Button autoFocus onClick={close}>
+        <Button autoFocus onClick={close} data-testid="back-button">
           back
         </Button>
       </DialogActions>
