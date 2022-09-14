@@ -84,8 +84,8 @@ const EnhancedTable: React.FC<Props> = ({ books, onShowSnackbar }: Props) => {
   const [chosenBookId, setChosenBookId] = React.useState(null);
 
   const dispatch: AppDispatch = useDispatch();
-  const { token, authUser } = useSelector((state: RootState) => state.users);
   const { error, loading } = useSelector((state: RootState) => state.books);
+  const { token, authUser } = useSelector((state: RootState) => state.users);
 
   const handleRequestSort = (event: any, property: React.SetStateAction<string>) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -146,12 +146,15 @@ const EnhancedTable: React.FC<Props> = ({ books, onShowSnackbar }: Props) => {
     <div className={classes.root}>
       <Paper className={classes.paper}>
         <Toolbar>
-          <Typography variant="h6" id="tableTitle" component="div">
+          <Typography variant="h6" id="tableTitle" component="div" data-testid="book-table-title">
             Books
           </Typography>
         </Toolbar>
         {!books.length ? (
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div
+            style={{ display: 'flex', justifyContent: 'center', minHeight: '5rem' }}
+            data-testid="no-results-message"
+          >
             <p>No matches for your search</p>
           </div>
         ) : (
@@ -210,17 +213,18 @@ const EnhancedTable: React.FC<Props> = ({ books, onShowSnackbar }: Props) => {
                 onShowSnackbar={onShowSnackbar}
               />
             </Table>
+            <TablePagination
+              rowsPerPageOptions={[10, 15, 25]}
+              component="div"
+              count={books.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onChangePage={handleChangePage}
+              onChangeRowsPerPage={handleChangeRowsPerPage}
+              data-testid="table-pagination"
+            />
           </TableContainer>
         )}
-        <TablePagination
-          rowsPerPageOptions={[10, 15, 25]}
-          component="div"
-          count={books.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onChangePage={handleChangePage}
-          onChangeRowsPerPage={handleChangeRowsPerPage}
-        />
       </Paper>
     </div>
   );
