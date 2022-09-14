@@ -27,7 +27,7 @@ const EnhancedTableHead: React.FC<Props> = (props: Props) => {
   };
 
   return (
-    <TableHead>
+    <TableHead data-testid="table-head">
       <TableRow>
         <TableCell> </TableCell>
         {headCells.map((headCell) =>

@@ -12,9 +12,10 @@ const Error: React.FC<Msg> = ({ message }: Msg) => (
     alignItems="center"
     justifyContent="center"
     minHeight="300px"
+    data-testid="error"
   >
     <Typography>Something went wrong. Please try again later.</Typography>
-    <Typography>{message}</Typography>
+    <Typography data-testid="error-message">{message}</Typography>
   </Box>
 );
 
