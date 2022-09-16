@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useHistory } from 'react-router-dom';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
-import { connect, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import IconButton from '@material-ui/core/IconButton';
 import EmailIcon from '@material-ui/icons/Email';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -35,25 +35,21 @@ interface OwnProps {
   open: boolean;
   handleClose: () => void;
   user: User;
-  onNotifyUser: () => void;
-  onSendEmail: () => void;
-  roles: Array<string>;
-  token: string;
 }
 
 type Props = OwnProps & RootState & AppDispatch;
 
-const UserDetails: React.FC<OwnProps> = (props: Props) => {
-  const { open, handleClose, user, token, roles } = props;
+const UserDetails: React.FC<OwnProps> = ({ open, handleClose, user }: Props) => {
   const [showEmailDialogue, setShowEmailDialogue] = React.useState(false);
   const [showNotificationDialogue, setShowNotificationDialogue] = React.useState(false);
   const [severity, setSeverity] = React.useState('');
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [errMessage, setErrMessage] = React.useState('');
-  const image = user?.image ? user.image : profilePlaceholder;
+  // const image = user?.image ? user.image : profilePlaceholder;
 
   const history = useHistory();
   const dispatch: AppDispatch = useDispatch();
+  const { token, authUser } = useSelector((state: RootState) => state.users);
 
   const showSnackbar = (show: boolean, status: string, message: string) => {
     setSeverity(status);
@@ -65,7 +61,7 @@ const UserDetails: React.FC<OwnProps> = (props: Props) => {
   };
 
   const handleSendEmail = (email: string, subject: string, text: string) => {
-    dispatch(sendEmail(token, roles, email, subject, text)).then((resp: any) => {
+    dispatch(sendEmail(token, authUser.roles, email, subject, text)).then((resp: any) => {
       if (resp.status !== 200) {
         showSnackbar(true, 'error', resp.message);
       }
@@ -77,7 +73,7 @@ const UserDetails: React.FC<OwnProps> = (props: Props) => {
   };
 
   const handleSendNotification = (text: string) => {
-    dispatch(notifyUser(token, roles, user._id, text)).then((resp: any) => {
+    dispatch(notifyUser(token, authUser.roles, user._id, text)).then((resp: any) => {
       if (resp.status !== 200) {
         showSnackbar(true, 'error', resp.message);
       }
@@ -111,7 +107,12 @@ const UserDetails: React.FC<OwnProps> = (props: Props) => {
         maxWidth="md"
       >
         <div className="dialogueContainer">
-          <img src={image} alt="" className="largeImage" />
+          <img
+            src={user?.image || profilePlaceholder}
+            alt=""
+            className="largeImage"
+            data-testid="user-image"
+          />
           <DialogContent>
             <span className="spaceBetween">
               <Typography gutterBottom variant="h4">
@@ -173,9 +174,4 @@ const UserDetails: React.FC<OwnProps> = (props: Props) => {
   );
 };
 
-const mapStateToProps = (state: RootState) => ({
-  token: state.users.token,
-  roles: state.users.authUser.roles,
-});
-
-export default connect<RootState>(mapStateToProps)(UserDetails);
+export default UserDetails;
