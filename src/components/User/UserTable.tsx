@@ -1,22 +1,12 @@
 import { Typography } from '@material-ui/core';
-import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
-import { useHistory } from 'react-router-dom';
 import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TablePagination from '@material-ui/core/TablePagination';
-import TableRow from '@material-ui/core/TableRow';
 import Toolbar from '@material-ui/core/Toolbar';
-import Avatar from '@material-ui/core/Avatar';
-import EditIcon from '@material-ui/icons/Edit';
-import Fade from '@material-ui/core/Fade';
-import DeleteIcon from '@material-ui/icons/Delete';
-import CompareArrowsIcon from '@material-ui/icons/CompareArrows';
 import React from 'react';
-import { connect, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 // @ts-ignore
 import UserDialog from '../Dialogues/UserDialogue.tsx';
 // @ts-ignore
@@ -24,14 +14,9 @@ import Confirm from '../Helpers/Confirm.tsx';
 // @ts-ignore
 import UserDetails from './User.tsx';
 // @ts-ignore
-import RoleChip from '../Helpers/Chip.tsx';
-// @ts-ignore
 import EnhancedTableHead from '../Helpers/EnhancedTableHead.tsx';
 // @ts-ignore
 import { getUsers, deleteUser } from '../../actions/users.tsx';
-import * as helpers from '../Helpers/helpers';
-// @ts-ignore
-import { LightTooltip } from '../Helpers/Tooltip.tsx';
 // @ts-ignore
 import Loading from '../Helpers/Loading.tsx';
 // @ts-ignore
@@ -40,6 +25,8 @@ import Error from '../Helpers/Error.tsx';
 import { RootState, AppDispatch } from '../../store.ts';
 // @ts-ignore
 import type { User } from '../../types.ts';
+// @ts-ignore
+import UserTableBody from './UserTableBody.tsx';
 
 const headCells = [
   { id: 'username', numeric: false, disablePadding: false, label: 'Username' },
@@ -77,18 +64,11 @@ const useStyles = makeStyles((theme) => ({
 interface OwnProps {
   users: [User];
   onShowSnackbar: () => void;
-  roles: Array<string>;
-  token: string;
-  loadingUsers: boolean;
-  error: {
-    error: boolean;
-    message: string;
-  };
 }
 
 type Props = OwnProps & RootState & AppDispatch;
 
-const EnhancedTable: React.FC<OwnProps> = (props: Props) => {
+const EnhancedTable: React.FC<OwnProps> = ({ users, onShowSnackbar }: Props) => {
   const classes = useStyles();
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('username');
@@ -100,11 +80,9 @@ const EnhancedTable: React.FC<OwnProps> = (props: Props) => {
   const [openUserDetails, setOpenUserDetails] = React.useState(false);
   const [chosenUser, setChosenUser] = React.useState({});
 
-  const { users, onShowSnackbar, roles, token, loadingUsers, error } = props;
-
-  const history = useHistory();
   const dispatch: AppDispatch = useDispatch();
-  const isLibrarian: boolean = roles.includes('Librarian');
+  const { token, authUser, loadingUsers, err } = useSelector((state: RootState) => state.users);
+  const isLibrarian: boolean = authUser?.roles.includes('Librarian');
 
   const handleRequestSort = (event: any, property: string) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -133,7 +111,7 @@ const EnhancedTable: React.FC<OwnProps> = (props: Props) => {
 
   const onDelete = () => {
     // eslint-disable-next-line no-underscore-dangle
-    dispatch(deleteUser(roles, selectedUser._id, token)).then((response: any) => {
+    dispatch(deleteUser(authUser.roles, selectedUser._id, token)).then((response: any) => {
       if (response.status === 400 || response.status === 401 || response.status === 403) {
         onShowSnackbar(true, 'error', response.message);
       }
@@ -150,26 +128,27 @@ const EnhancedTable: React.FC<OwnProps> = (props: Props) => {
     setChosenUser(user);
   };
 
-  const emptyRows = rowsPerPage - Math.min(rowsPerPage, users.length - page * rowsPerPage);
-
   if (loadingUsers) {
     return <Loading />;
   }
 
-  if (error.error) {
-    return <Error message={error.message} />;
+  if (err.error) {
+    return <Error message={err.message} />;
   }
 
   return (
     <div className={classes.root}>
       <Paper className={classes.paper}>
         <Toolbar>
-          <Typography variant="h6" id="tableTitle" component="div">
+          <Typography variant="h6" id="tableTitle" component="div" data-testid="user-table-title">
             Users
           </Typography>
         </Toolbar>
         {!users.length ? (
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div
+            style={{ display: 'flex', justifyContent: 'center' }}
+            data-testid="no-results-message"
+          >
             <p>No matches for your search</p>
           </div>
         ) : (
@@ -186,7 +165,6 @@ const EnhancedTable: React.FC<OwnProps> = (props: Props) => {
                 order={order}
                 orderBy={orderBy}
                 onRequestSort={handleRequestSort}
-                // rowCount={users.length}
                 headCells={headCells}
               />
               <Confirm
@@ -203,132 +181,45 @@ const EnhancedTable: React.FC<OwnProps> = (props: Props) => {
                 confirmText="delete"
                 cancelText="cancel"
               />
-              <TableBody>
-                {helpers
-                  .stableSort(users, helpers.getComparator(order, orderBy))
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((user: User) => (
-                    <TableRow hover role="checkbox" tabIndex={-1} key={user.username}>
-                      <TableCell
-                        onClick={() => onShowUserDetails(user)}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        <Avatar
-                          src={user.image}
-                          alt={user.username}
-                          {...helpers.stringAvatar(`${user.username} ${user.name}`)}
-                        >
-                          {user.username.slice(0, 1)}
-                        </Avatar>
-                      </TableCell>
-                      <TableCell
-                        component="th"
-                        scope="row"
-                        onClick={() => onShowUserDetails(user)}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        {user.username}
-                      </TableCell>
-                      <TableCell
-                        align="left"
-                        onClick={() => onShowUserDetails(user)}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        {user.email}
-                      </TableCell>
-                      <TableCell
-                        align="left"
-                        onClick={() => onShowUserDetails(user)}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        {user.name}
-                      </TableCell>
-                      <TableCell
-                        align="left"
-                        onClick={() => onShowUserDetails(user)}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        <RoleChip user={user} />
-                      </TableCell>
-                      <TableCell>
-                        {roles.includes('Admin') && (
-                          <>
-                            <LightTooltip
-                              TransitionComponent={Fade}
-                              TransitionProps={{ timeout: 600 }}
-                              title="Lend or return books"
-                            >
-                              <IconButton
-                                aria-label="edit"
-                                // eslint-disable-next-line no-underscore-dangle
-                                onClick={() => history.push(`/users/lend&return/${user._id}`)}
-                              >
-                                <CompareArrowsIcon fontSize="small" />
-                              </IconButton>
-                            </LightTooltip>
-                            <LightTooltip
-                              TransitionComponent={Fade}
-                              TransitionProps={{ timeout: 600 }}
-                              title="Edit user"
-                            >
-                              <IconButton aria-label="edit" onClick={() => onEdit(user)}>
-                                <EditIcon fontSize="small" />
-                              </IconButton>
-                            </LightTooltip>
-                            <LightTooltip
-                              TransitionComponent={Fade}
-                              TransitionProps={{ timeout: 600 }}
-                              title="Delete user"
-                            >
-                              <IconButton aria-label="edit" onClick={() => onConfirmDelete(user)}>
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
-                            </LightTooltip>
-                          </>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                {emptyRows > 0 ? (
-                  <TableRow style={{ height: 53 * emptyRows }}>
-                    <TableCell colSpan={6} />
-                  </TableRow>
-                ) : null}
-                <UserDetails
-                  open={openUserDetails}
-                  handleClose={() => setOpenUserDetails(false)}
-                  user={chosenUser}
-                />
-                <UserDialog
-                  title="Edit User"
-                  show={showEditDialogue}
-                  close={() => onEdit(null)}
-                  user={selectedUser}
-                  onShowSnackbar={onShowSnackbar}
-                />
-              </TableBody>
+              <UserTableBody
+                users={users}
+                authUser={authUser}
+                page={page}
+                order={order}
+                orderBy={orderBy}
+                rowsPerPage={rowsPerPage}
+                onShowUserDetails={onShowUserDetails}
+                onEdit={onEdit}
+                onConfirmDelete={onConfirmDelete}
+              />
+              <UserDetails
+                open={openUserDetails}
+                handleClose={() => setOpenUserDetails(false)}
+                user={chosenUser}
+              />
+              <UserDialog
+                title="Edit User"
+                show={showEditDialogue}
+                close={() => onEdit(null)}
+                user={selectedUser}
+                onShowSnackbar={onShowSnackbar}
+              />
             </Table>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={users.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onChangePage={handleChangePage}
+              onChangeRowsPerPage={handleChangeRowsPerPage}
+              data-testid="table-pagination"
+            />
           </TableContainer>
         )}
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={users.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onChangePage={handleChangePage}
-          onChangeRowsPerPage={handleChangeRowsPerPage}
-        />
       </Paper>
     </div>
   );
 };
 
-const mapStateToProps = (state: RootState) => ({
-  token: state.users.token,
-  roles: state.users.authUser.roles,
-  loadingUsers: state.users.loading,
-  error: state.users.err,
-});
-
-export default connect<RootState>(mapStateToProps)(EnhancedTable);
+export default EnhancedTable;
