@@ -75,40 +75,38 @@ const LendOrReturn: React.FC<OwnProps> = (props: Props) => {
   }
 
   return (
-    <div>
-      <div className={classes.container}>
-        <UserInfo user={user} />
-        <div style={{ flex: '6', padding: '1rem' }}>
-          <Tabs
-            value={value}
-            onChange={handleChange}
-            centered
-            textColor="primary"
-            indicatorColor="primary"
-          >
-            <Tab label="Lend new book" {...a11yProps(0)} />
-            <Tab label="Owed Books" {...a11yProps(1)} />
-          </Tabs>
-          <TabPanel value={value} index={0} key={0}>
-            <LendBook books={books} user={user} token={token} authUserRoles={authUserRoles} />
-          </TabPanel>
-          <TabPanel value={value} index={1} key={1}>
-            <OwedBooks
-              owedBooks={owedBooks}
-              books={books}
-              user={user}
-              token={token}
-              authUserRoles={authUserRoles}
-            />
-          </TabPanel>
+    <div className={classes.container} data-testid="lend-return-page">
+      <UserInfo user={user} />
+      <div style={{ flex: '6', padding: '1rem' }}>
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          centered
+          textColor="primary"
+          indicatorColor="primary"
+        >
+          <Tab label="Lend new book" {...a11yProps(0)} />
+          <Tab label="Owed Books" {...a11yProps(1)} />
+        </Tabs>
+        <TabPanel value={value} index={0} key={0}>
+          <LendBook books={books} user={user} token={token} authUserRoles={authUserRoles} />
+        </TabPanel>
+        <TabPanel value={value} index={1} key={1}>
+          <OwedBooks
+            owedBooks={owedBooks}
+            books={books}
+            user={user}
+            token={token}
+            authUserRoles={authUserRoles}
+          />
+        </TabPanel>
 
-          <div className="centered">
-            <ButtonGroup variant="outlined" size="large" aria-label="large button group">
-              <Button autoFocus onClick={() => history.push(`/manage/users`)}>
-                back to users
-              </Button>
-            </ButtonGroup>
-          </div>
+        <div className="centered">
+          <ButtonGroup variant="outlined" size="large" aria-label="large button group">
+            <Button autoFocus onClick={() => history.push(`/manage/users`)}>
+              back to users
+            </Button>
+          </ButtonGroup>
         </div>
       </div>
     </div>
