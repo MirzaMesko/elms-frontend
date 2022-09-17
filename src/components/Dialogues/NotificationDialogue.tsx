@@ -49,36 +49,38 @@ const NotificationDialog: React.FC<OwnProps> = (props: OwnProps) => {
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-      <DialogTitle id="form-dialog-title">Compose notification</DialogTitle>
-      <DialogContent>
-        <div className="dialogueContainer">
-          <TextField
-            id="outlined-multiline-flexible"
-            multiline
-            label="Text"
-            type="text"
-            required
-            defaultValue={text}
-            error={textWarning.length > 2}
-            helperText={textWarning}
-            onBlur={() =>
-              !text.length ? setTextWarning('This field must not be empty') : setTextWarning('')
-            }
-            fullWidth
-            onChange={handleTextChange}
-          />
-        </div>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose} color="primary">
-          Cancel
-        </Button>
-        <Button onClick={onSendNotification} color="primary">
-          send
-        </Button>
-      </DialogActions>
-    </Dialog>
+    <div data-testid="notification-dialog">
+      <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">Compose notification</DialogTitle>
+        <DialogContent>
+          <div className="dialogueContainer">
+            <TextField
+              id="outlined-multiline-flexible"
+              multiline
+              label="Text"
+              type="text"
+              required
+              defaultValue={text}
+              error={textWarning.length > 2}
+              helperText={textWarning}
+              onBlur={() =>
+                !text.length ? setTextWarning('This field must not be empty') : setTextWarning('')
+              }
+              fullWidth
+              onChange={handleTextChange}
+            />
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={onSendNotification} color="primary">
+            send
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
   );
 };
 

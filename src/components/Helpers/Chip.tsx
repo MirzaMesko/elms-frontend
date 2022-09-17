@@ -19,6 +19,7 @@ const RoleChip: React.FC<Props> = ({ user }: Props) =>
       label={item}
       color={helpers.roleColor(item)}
       style={{ margin: '3px' }}
+      data-testid="user-roles"
     />
   ));
 

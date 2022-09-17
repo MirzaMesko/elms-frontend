@@ -71,63 +71,65 @@ const EmailDialog: React.FC<OwnProps> = (props: OwnProps) => {
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-      <DialogTitle id="form-dialog-title">Compose email</DialogTitle>
-      <DialogContent>
-        <div style={{ display: 'flex', height: '20rem' }}>
-          <div>
-            <TextField
-              margin="dense"
-              defaultValue={email}
-              label="To*"
-              type="email"
-              disabled
-              fullWidth
-              onChange={handleEmailChange}
-            />
-            <TextField
-              margin="dense"
-              autoComplete="off"
-              label="Subject*"
-              defaultValue={subject}
-              type="text"
-              fullWidth
-              error={subjectWarning.length > 2}
-              helperText={subjectWarning}
-              onBlur={() =>
-                !subject.length
-                  ? setSubjectWarning('Subject must not be empty')
-                  : setSubjectWarning('')
-              }
-              onChange={handleSubjectChange}
-            />
-            <TextField
-              id="outlined-multiline-flexible"
-              multiline
-              label="Text"
-              type="text"
-              required
-              defaultValue={text}
-              error={textWarning.length > 2}
-              helperText={textWarning}
-              onBlur={() =>
-                !text.length ? setTextWarning('This field must not be empty') : setTextWarning('')
-              }
-              fullWidth
-              onChange={handleTextChange}
-            />
+    <div data-testid="email-dialog">
+      <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">Compose email</DialogTitle>
+        <DialogContent>
+          <div style={{ display: 'flex', height: '20rem' }}>
+            <div>
+              <TextField
+                margin="dense"
+                defaultValue={email}
+                label="To*"
+                type="email"
+                disabled
+                fullWidth
+                onChange={handleEmailChange}
+              />
+              <TextField
+                margin="dense"
+                autoComplete="off"
+                label="Subject*"
+                defaultValue={subject}
+                type="text"
+                fullWidth
+                error={subjectWarning.length > 2}
+                helperText={subjectWarning}
+                onBlur={() =>
+                  !subject.length
+                    ? setSubjectWarning('Subject must not be empty')
+                    : setSubjectWarning('')
+                }
+                onChange={handleSubjectChange}
+              />
+              <TextField
+                id="outlined-multiline-flexible"
+                multiline
+                label="Text"
+                type="text"
+                required
+                defaultValue={text}
+                error={textWarning.length > 2}
+                helperText={textWarning}
+                onBlur={() =>
+                  !text.length ? setTextWarning('This field must not be empty') : setTextWarning('')
+                }
+                fullWidth
+                onChange={handleTextChange}
+              />
+            </div>
           </div>
-        </div>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose} color="primary">
-          Cancel
-        </Button>
-        <Button onClick={onSendEmail} color="primary">
-          send
-        </Button>
-      </DialogActions>
-    </Dialog>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={onSendEmail} color="primary">
+            send
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
   );
 };
 
