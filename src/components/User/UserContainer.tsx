@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import * as React from 'react';
+import { useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 // @ts-ignore
 import { notifyUser } from '../../actions/users.tsx';
@@ -34,6 +35,7 @@ const UserContainer: React.FC<OwnProps> = ({ open, handleClose, user }: Props) =
   const [errMessage, setErrMessage] = React.useState('');
 
   const dispatch: AppDispatch = useDispatch();
+  const history: any = useHistory();
   const { token, authUser } = useSelector((state: RootState) => state.users);
 
   const showSnackbar = (show: boolean, status: string, message: string) => {
@@ -91,6 +93,7 @@ const UserContainer: React.FC<OwnProps> = ({ open, handleClose, user }: Props) =
         handleClose={handleClose}
         showNotificationDialogue={() => setShowNotificationDialogue(true)}
         showEmailDialogue={() => setShowEmailDialogue(true)}
+        history={history}
       />
     </>
   );
