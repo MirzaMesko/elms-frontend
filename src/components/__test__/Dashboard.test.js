@@ -1,4 +1,4 @@
-import { screen, render, fireEvent, cleanup } from '@testing-library/react';
+import { screen, render, cleanup } from '@testing-library/react';
 import React from 'react';
 import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom';
@@ -9,7 +9,6 @@ import Dashboard from '../Dashboard.tsx';
 import Settings from '../Settings/Settings.tsx';
 // @ts-ignore
 import '@testing-library/jest-dom/extend-expect';
-import { nothing } from 'immer';
 
 const setup = () => {
   render(
