@@ -17,11 +17,11 @@ import NotificationsIcon from '@material-ui/icons/Notifications';
 import EmailIcon from '@material-ui/icons/Email';
 import React from 'react';
 // @ts-ignore
-import BookDetails from './Book.tsx';
+import BookContainer from './BookContainer.tsx';
 // @ts-ignore
 import Confirm from '../Helpers/Confirm.tsx';
 // @ts-ignore
-import UserDetails from '../User/User.tsx';
+import UserContainer from '../User/UserContainer.tsx';
 // @ts-ignore
 import EmailDialogue from '../Dialogues/EmailDialogue.tsx';
 // @ts-ignore
@@ -385,12 +385,12 @@ const EnhancedTable: React.FC<OwnProps> = (props: Props) => {
                     <TableCell colSpan={6} />
                   </TableRow>
                 ) : null}
-                <BookDetails
+                <BookContainer
                   open={openBookDetails}
                   handleClose={() => setOpenBookDetails(false)}
                   bookId={chosenBook}
                 />
-                <UserDetails
+                <UserContainer
                   open={openUserDetails}
                   handleClose={() => setOpenUserDetails(false)}
                   user={selectedUser}
