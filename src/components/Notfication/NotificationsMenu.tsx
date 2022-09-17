@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useHistory } from 'react-router-dom';
 import Badge from '@material-ui/core/Badge';
 import IconButton from '@material-ui/core/IconButton';
 import NotificationsIcon from '@material-ui/icons/Notifications';
@@ -25,15 +24,14 @@ interface OwnProps {
   username: string;
   badgeContent: number;
   resetBadge: () => void;
+  history: any;
 }
 
 const NotificationsMenu: React.FC<OwnProps> = (props: OwnProps) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
-  const { notifications, username, badgeContent, resetBadge } = props;
+  const { notifications, username, badgeContent, resetBadge, history } = props;
   const classes = useStyles();
-
-  const history = useHistory();
 
   const handleClick = (event: { currentTarget: any }) => {
     setAnchorEl(event.currentTarget);
@@ -58,8 +56,9 @@ const NotificationsMenu: React.FC<OwnProps> = (props: OwnProps) => {
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
+        data-testid="notifications-icon"
       >
-        <Badge badgeContent={badgeContent} color="secondary">
+        <Badge data-testid="notifications-badge" badgeContent={badgeContent} color="secondary">
           <NotificationsIcon />
         </Badge>
       </IconButton>
@@ -72,14 +71,21 @@ const NotificationsMenu: React.FC<OwnProps> = (props: OwnProps) => {
           'aria-labelledby': 'basic-button',
         }}
         style={{ maxWidth: '50%' }}
+        data-testid="menu"
       >
         {!notifications?.length ? (
           <MenuItem onClick={handleClose}>
-            <Typography style={{ marginLeft: '1rem' }}>No new notifications.</Typography>
+            <Typography style={{ marginLeft: '1rem' }} data-testid="no-notifications-message">
+              No new notifications.
+            </Typography>
           </MenuItem>
         ) : (
           notifications.map((notification) => (
-            <MenuItem onClick={goToNotifications} key={notification.timestamp}>
+            <MenuItem
+              onClick={goToNotifications}
+              key={notification.timestamp}
+              data-testid={`notification-${notification.message}`}
+            >
               <div className={classes.notification}>
                 <Typography>
                   {notification.message.slice(0, 70)}
@@ -95,7 +101,7 @@ const NotificationsMenu: React.FC<OwnProps> = (props: OwnProps) => {
           ))
         )}
         <Divider />
-        <MenuItem onClick={goToNotifications}>
+        <MenuItem onClick={goToNotifications} data-testid="see-notifications-link">
           <ListItemText className="centered">See all notifications</ListItemText>
         </MenuItem>
       </Menu>
