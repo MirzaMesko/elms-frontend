@@ -51,7 +51,7 @@ const BookTableBody: React.FC<Props> = ({
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, books.length - page * rowsPerPage);
 
   return (
-    <TableBody>
+    <TableBody data-testid="book-table-body">
       {helpers
         .stableSort(books, helpers.getComparator(order, orderBy))
         .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
