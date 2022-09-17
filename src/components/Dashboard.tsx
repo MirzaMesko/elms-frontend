@@ -1,6 +1,6 @@
 import AppBar from '@material-ui/core/AppBar';
 import Box from '@material-ui/core/Box';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Drawer from '@material-ui/core/Drawer';
@@ -13,7 +13,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import clsx from 'clsx';
 // import PropTypes from 'prop-types';
 import React from 'react';
-import { NavLink as RouterLink } from 'react-router-dom';
+import { NavLink as RouterLink, useHistory } from 'react-router-dom';
 // @ts-ignore
 import MainListItems from './Helpers/ListItems.tsx';
 // @ts-ignore
@@ -24,7 +24,7 @@ import Copyright from './Helpers/Copyright';
 // @ts-ignore
 import { RootState, AppDispatch } from '../store.ts';
 // @ts-ignore
-import type { User } from '../types.ts';
+import type { User, NotificationType } from '../types.ts';
 // @ts-ignore
 import { getBooks } from '../actions/books.tsx';
 // @ts-ignore
@@ -109,45 +109,38 @@ interface OwnProps {
   onLogout: () => void;
   children: React.Component<any, any>;
   roles: string[];
-  userAvatar: string;
-  username: string;
   users: [User];
-  NotificationType: {
-    timestamp: string;
-    message: string;
-    seen: string;
-  };
+  Notification: NotificationType;
   wrapperType: React.RefObject<HTMLDivElement>;
 }
 
 type Props = RootState & AppDispatch & OwnProps;
 
-const Dashboard: React.FC<OwnProps> = (props: Props) => {
-  const {
-    onLogout,
-    children,
-    roles,
-    userAvatar,
-    username,
-    users,
-    NotificationType,
-    wrapperType,
-    onGetBooks,
-    onGetUsers,
-    token,
-  } = props;
-
+const Dashboard: React.FC<OwnProps> = ({
+  onLogout,
+  children,
+  roles,
+  Notification,
+  wrapperType,
+}: Props) => {
   const classes = useStyles();
   const [open, setOpen] = React.useState<boolean>(false);
   const [newNotifications, setNewNotifications] = React.useState<any>([]);
+
+  const dispatch: AppDispatch = useDispatch();
+  const { token, users, authUser } = useSelector((state: RootState) => state.users);
+
   const toggleDrawerOpen = () => {
     setOpen(!open);
   };
 
   const wrapper: typeof wrapperType = React.createRef();
   const isAdmin: boolean = roles.includes('Admin') || roles.includes('Librarian');
+  const history = useHistory();
 
-  const currentUser: User | undefined = users.filter((u: User) => u.username === username)[0];
+  const currentUser: User | undefined = users.filter(
+    (u: User) => u.username === authUser.username
+  )[0];
 
   const logout = () => {
     onLogout();
@@ -160,7 +153,7 @@ const Dashboard: React.FC<OwnProps> = (props: Props) => {
   React.useEffect(() => {
     if (currentUser && currentUser.notifications) {
       const notSeenNotifications: any = currentUser?.notifications.filter(
-        (n: typeof NotificationType) => n.seen === 'false'
+        (n: typeof Notification) => n.seen === 'false'
       );
       if (notSeenNotifications?.length > 0) {
         setNewNotifications(notSeenNotifications);
@@ -169,8 +162,8 @@ const Dashboard: React.FC<OwnProps> = (props: Props) => {
   }, [users]);
 
   React.useEffect(() => {
-    onGetBooks(token);
-    onGetUsers(token);
+    dispatch(getBooks(token));
+    dispatch(getUsers(token));
   }, []);
 
   return (
@@ -206,10 +199,11 @@ const Dashboard: React.FC<OwnProps> = (props: Props) => {
             notifications={currentUser?.notifications
               ?.slice(currentUser?.notifications.length - 3)
               .reverse()}
-            username={username}
+            username={authUser.username}
             resetBadge={seeNotifications}
+            history={history}
           />
-          <BasicMenu userAvatar={userAvatar} onLogout={logout} username={username} />
+          <BasicMenu userAvatar={authUser.image} onLogout={logout} username={authUser.username} />
         </Toolbar>
       </AppBar>
       <Drawer
@@ -237,16 +231,4 @@ const Dashboard: React.FC<OwnProps> = (props: Props) => {
   );
 };
 
-const mapStateToProps = (state: RootState) => ({
-  token: state.users.token,
-  userAvatar: state.users.authUser.image,
-  username: state.users.authUser.username,
-  users: state.users.users,
-});
-
-const mapDispatchToProps = (dispatch: AppDispatch) => ({
-  onGetBooks: (token: string) => dispatch(getBooks(token)),
-  onGetUsers: (token: string) => dispatch(getUsers(token)),
-});
-
-export default connect<RootState, AppDispatch>(mapStateToProps, mapDispatchToProps)(Dashboard);
+export default Dashboard;
