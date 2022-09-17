@@ -57,6 +57,7 @@ const ReviewDialog: React.FC<OwnProps> = (props: OwnProps) => {
       return;
     }
     addReview(text);
+    resetInput();
   };
 
   const editReview = () => {
@@ -69,37 +70,39 @@ const ReviewDialog: React.FC<OwnProps> = (props: OwnProps) => {
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-      <DialogTitle id="form-dialog-title">{title}</DialogTitle>
-      <DialogContent>
-        <div className="dialogueContainer" data-testid="review-dialogue">
-          <TextField
-            id="outlined-multiline-flexible"
-            multiline
-            label="Text"
-            type="text"
-            required
-            autoFocus
-            defaultValue={text}
-            error={textWarning.length > 2}
-            helperText={textWarning}
-            onBlur={() =>
-              !text?.length ? setTextWarning('This field must not be empty') : setTextWarning('')
-            }
-            fullWidth
-            onChange={handleTextChange}
-          />
-        </div>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose} color="primary">
-          Cancel
-        </Button>
-        <Button onClick={title.includes('Compose') ? onAddReview : editReview} color="primary">
-          {title.includes('Compose') ? 'add' : 'save'}
-        </Button>
-      </DialogActions>
-    </Dialog>
+    <div data-testid="review-dialog">
+      <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">{title}</DialogTitle>
+        <DialogContent data-testid="review-dialog-content">
+          <div className="dialogueContainer">
+            <TextField
+              id="outlined-multiline-flexible"
+              multiline
+              label="Text"
+              type="text"
+              required
+              autoFocus
+              defaultValue={text}
+              error={textWarning.length > 2}
+              helperText={textWarning}
+              onBlur={() =>
+                !text?.length ? setTextWarning('This field must not be empty') : setTextWarning('')
+              }
+              fullWidth
+              onChange={handleTextChange}
+            />
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={title.includes('Compose') ? onAddReview : editReview} color="primary">
+            {title.includes('Compose') ? 'add' : 'save'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
   );
 };
 

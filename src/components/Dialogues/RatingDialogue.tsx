@@ -11,11 +11,13 @@ interface Props {
 }
 
 const RatingDialogue: React.FC<Props> = ({ open, close, rate }: Props) => (
-  <Dialog open={open} onClose={close}>
-    <DialogContent style={{ padding: '1rem 3rem' }}>
-      <Ratings name="hover-feedback" onClick={rate} />
-    </DialogContent>
-  </Dialog>
+  <div data-testid="rating-dialog">
+    <Dialog open={open} onClose={close}>
+      <DialogContent style={{ padding: '1rem 3rem' }}>
+        <Ratings name="hover-feedback" onClick={rate} />
+      </DialogContent>
+    </Dialog>
+  </div>
 );
 
 export default RatingDialogue;
