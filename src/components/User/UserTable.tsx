@@ -12,7 +12,7 @@ import UserDialog from '../Dialogues/UserDialogue.tsx';
 // @ts-ignore
 import Confirm from '../Helpers/Confirm.tsx';
 // @ts-ignore
-import UserDetails from './User.tsx';
+import UserContainer from './UserContainer.tsx';
 // @ts-ignore
 import EnhancedTableHead from '../Helpers/EnhancedTableHead.tsx';
 // @ts-ignore
@@ -192,7 +192,7 @@ const EnhancedTable: React.FC<OwnProps> = ({ users, onShowSnackbar }: Props) => 
                 onEdit={onEdit}
                 onConfirmDelete={onConfirmDelete}
               />
-              <UserDetails
+              <UserContainer
                 open={openUserDetails}
                 handleClose={() => setOpenUserDetails(false)}
                 user={chosenUser}
