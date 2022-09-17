@@ -87,7 +87,7 @@ const ReviewCard: React.FC<OwnProps> = (props: Props) => {
         onEdit={onEdit}
       />
       <CardContent>
-        <div className="spaceBetween">
+        <div className="spaceBetween" data-testid="review-card">
           <div
             style={{
               display: 'flex',
