@@ -1,7 +1,7 @@
 import Avatar from '@material-ui/core/Avatar';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Container from '@material-ui/core/Container';
 import IconButton from '@material-ui/core/IconButton';
 import InputAdornment from '@material-ui/core/InputAdornment';
@@ -14,7 +14,6 @@ import React, { useState } from 'react';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import { FormControl, OutlinedInput, InputLabel } from '@material-ui/core';
-// import { NavLink } from 'react-router-dom';
 // @ts-ignore
 import { login, dismissAlert } from '../../actions/auth.tsx';
 import Alert from '../Helpers/Alert';
@@ -43,22 +42,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface OwnProps {
-  onLogin: () => void;
-  onDismissAlert: () => void;
-  error: any;
-  message: any;
-  history: any;
-}
-
-type Props = OwnProps & RootState & AppDispatch;
-
-const Login: React.FC<OwnProps> = (props: Props) => {
+const Login: React.FC = () => {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState(true);
 
   const classes = useStyles();
+  const dispatch: AppDispatch = useDispatch();
+  const { error, message } = useSelector((state: RootState) => state.users.err);
 
   const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(event.target.value);
@@ -76,16 +67,14 @@ const Login: React.FC<OwnProps> = (props: Props) => {
     setShowPassword(!showPassword);
   };
 
-  const { error, message, onDismissAlert, onLogin } = props;
-
   const logIn = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    onLogin(username, password);
+    dispatch(login(username, password));
   };
 
   return (
     <Container component="main" maxWidth="xs">
-      <Alert show={error} title="Error" message={message} onClose={onDismissAlert} />
+      <Alert show={error} title="Error" message={message} onClose={dismissAlert} />
       <CssBaseline />
       <div className={classes.paper} data-testid="login-page">
         <img src={logo} alt="logo" style={{ marginBottom: '2rem' }} />
@@ -166,14 +155,4 @@ const Login: React.FC<OwnProps> = (props: Props) => {
   );
 };
 
-// const mapStateToProps = (state: RootState) => ({
-//   error: state.users.err.error,
-//   message: state.users.err.message,
-// });
-
-const mapDispatchToProps = (dispatch: AppDispatch) => ({
-  onLogin: (username: string, password: string) => dispatch(login(username, password)),
-  onDismissAlert: () => dispatch(dismissAlert()),
-});
-
-export default connect<RootState, AppDispatch>(null, mapDispatchToProps)(Login);
+export default Login;

@@ -8,7 +8,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
 import SearchIcon from '@material-ui/icons/Search';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import React from 'react';
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
 // @ts-ignore
@@ -96,17 +96,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface OwnProps {
-  token: string;
-  onGetUsers: () => void;
-  users: [User];
-  roles: Array<string>;
-}
-
-type Props = RootState & AppDispatch & OwnProps;
-
-const ManageUsers: React.FC<OwnProps> = (props: Props) => {
-  const { token, onGetUsers, users, roles } = props;
+const ManageUsers: React.FC = () => {
   const classes = useStyles();
   const [openDialogue, setOpenDialogue] = React.useState(false);
   const [severity, setSeverity] = React.useState('');
@@ -117,6 +107,9 @@ const ManageUsers: React.FC<OwnProps> = (props: Props) => {
   const [filter, setFilter] = React.useState('username');
   const [roleFilter, setRoleFilter] = React.useState('All');
 
+  const dispatch: AppDispatch = useDispatch();
+  const { token, authUser, users } = useSelector((state: RootState) => state.users);
+  const { roles } = authUser;
   const isAdmin: boolean = roles.includes('Admin');
 
   const handleOpen = () => {
@@ -145,7 +138,7 @@ const ManageUsers: React.FC<OwnProps> = (props: Props) => {
   };
 
   React.useEffect(() => {
-    onGetUsers(token);
+    dispatch(getUsers(token));
   }, []);
 
   React.useEffect(() => {
@@ -235,16 +228,4 @@ const ManageUsers: React.FC<OwnProps> = (props: Props) => {
   );
 };
 
-const mapStateToProps = (state: RootState) => ({
-  token: state.users.token,
-  users: state.users.users,
-});
-
-const mapDispatchToProps = (dispatch: AppDispatch) => ({
-  onGetUsers: (token: string) => dispatch(getUsers(token)),
-});
-
-export default connect<RootState, AppDispatch, OwnProps>(
-  mapStateToProps,
-  mapDispatchToProps
-)(ManageUsers);
+export default ManageUsers;

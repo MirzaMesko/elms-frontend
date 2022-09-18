@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import Box from '@material-ui/core/Box';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import validator from 'validator';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
@@ -24,7 +25,7 @@ import CustomizedSnackbars from '../Helpers/Snackbar.tsx';
 import logo from '../../utils/logo.png';
 import Copyright from '../Helpers/Copyright';
 // @ts-ignore
-import { AppDispatch } from '../../store.ts';
+import { RootState, AppDispatch } from '../../store.ts';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -52,17 +53,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface OwnProps {
-  onLogin: () => void;
-  onDismissAlert: () => void;
-  error: any;
-  message: any;
-  history: any;
-}
-
-type Props = OwnProps & AppDispatch;
-
-const Register: React.FC<OwnProps> = (props: Props) => {
+const Register: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
@@ -75,8 +66,9 @@ const Register: React.FC<OwnProps> = (props: Props) => {
   const [errMessage, setErrMessage] = React.useState('');
 
   const classes = useStyles();
-
-  const { error, history, message, onDismissAlert, onLogin } = props;
+  const history = useHistory();
+  const dispatch: AppDispatch = useDispatch();
+  const { error, message } = useSelector((state: RootState) => state.users.err);
 
   const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(event.target.value);
@@ -142,13 +134,13 @@ const Register: React.FC<OwnProps> = (props: Props) => {
       return;
     }
     if (validator.isEmail(email) && username.length && validator.isStrongPassword(password)) {
-      props.onRegister(email, username, password).then((response: any) => {
+      dispatch(register(email, username, password)).then((response: any) => {
         if (response.status !== 201) {
           showSnackbar(true, 'error', response.message);
           return;
         }
         if (response.status === 201) {
-          onLogin(username, password).then(() => {
+          dispatch(login(username, password)).then(() => {
             history.push('/');
           });
         }
@@ -158,7 +150,7 @@ const Register: React.FC<OwnProps> = (props: Props) => {
 
   return (
     <Container component="main" maxWidth="xs">
-      <Alert show={error} title="Error" message={message} onClose={onDismissAlert} />
+      <Alert show={error} title="Error" message={message} onClose={dismissAlert} />
       <CustomizedSnackbars show={openSnackbar} severity={severity} message={errMessage} />
       <CssBaseline />
       <div className={classes.paper} data-testid="signup-page">
@@ -266,11 +258,4 @@ const Register: React.FC<OwnProps> = (props: Props) => {
   );
 };
 
-const mapDispatchToProps = (dispatch: AppDispatch) => ({
-  onLogin: (username: string, password: string) => dispatch(login(username, password)),
-  onRegister: (email: string, username: string, password: string) =>
-    dispatch(register(email, username, password)),
-  onDismissAlert: () => dispatch(dismissAlert()),
-});
-
-export default connect<AppDispatch>(null, mapDispatchToProps)(Register);
+export default Register;

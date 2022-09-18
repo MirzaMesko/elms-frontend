@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { connect, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Tabs from '@material-ui/core/Tabs';
 // @ts-ignore
 import NotificationsContainer from './NotificationsContainer.tsx';
@@ -18,25 +18,21 @@ import ReadingHistory from './ReadingHistory.tsx';
 // @ts-ignore
 import Profile from './Profile.tsx';
 // @ts-ignore
-import type { User, Book, NotificationType } from '../../types.ts';
+import type { User, NotificationType } from '../../types.ts';
 
 type Params = {
   id: string;
 };
 
-interface OwnProps {
-  users: [User];
-  books: [Book];
-}
-
-type Props = RootState & AppDispatch & OwnProps;
-
-const Settings: React.FC<Props> = ({ users, books, token, roles, authUser }: Props) => {
+const Settings: React.FC = () => {
   const [user, setUser] = React.useState<User | any>({});
   const [value, setValue] = React.useState<number>(0);
 
   const { id } = useParams<Params>();
   const dispatch: AppDispatch = useDispatch();
+  const { books } = useSelector((state: RootState) => state.books);
+  const { token, authUser, users } = useSelector((state: RootState) => state.users);
+  const { roles } = authUser;
 
   React.useEffect(() => {
     if (window.location.href.includes('profile') && value !== 1) {
@@ -58,7 +54,7 @@ const Settings: React.FC<Props> = ({ users, books, token, roles, authUser }: Pro
     const newNotifications = user?.notifications?.filter(
       (n: NotificationType) => n.timestamp !== notification.timestamp
     );
-    if (authUser === user.username) {
+    if (authUser.username === user.username) {
       roles.push('Admin');
     }
     dispatch(updateNotifications(token, roles, user._id, newNotifications)).then(
@@ -69,7 +65,7 @@ const Settings: React.FC<Props> = ({ users, books, token, roles, authUser }: Pro
         }
       }
     );
-    if (authUser === user.username) {
+    if (authUser.username === user.username) {
       roles.pop();
     }
   };
@@ -139,10 +135,4 @@ const Settings: React.FC<Props> = ({ users, books, token, roles, authUser }: Pro
   );
 };
 
-const mapStateToProps = (state: RootState) => ({
-  roles: state.users.authUser.roles,
-  token: state.users.token,
-  authUser: state.users.authUser.username,
-});
-
-export default connect<RootState, AppDispatch, OwnProps>(mapStateToProps)(Settings);
+export default Settings;
