@@ -7,7 +7,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
 import SearchIcon from '@material-ui/icons/Search';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import React from 'react';
 // @ts-ignore
 import OverdueBookTable from './OverdueBookTable.tsx';
@@ -91,20 +91,21 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface OwnProps {
-  roles: Array<string>;
-}
-
-type Props = OwnProps & RootState & AppDispatch;
-
-const ManageOverdueBooks: React.FC<OwnProps> = (props: Props) => {
-  const { token, onGetBooks, books, roles } = props;
+const ManageOverdueBooks: React.FC = () => {
   const classes = useStyles();
   const [searchResults, setSearchResults] = React.useState([]);
   const [categorySearchResults, setCategorySearchResults] = React.useState([]);
   const [search, setSearch] = React.useState('');
   const [searchFilter, setSearchFilter] = React.useState('title');
   const [roleFilter, setRoleFilter] = React.useState('all books');
+
+  const dispatch: AppDispatch = useDispatch();
+  const { token, authUser } = useSelector((state: RootState) => state.users);
+  const { books } = useSelector((state: RootState) => state.books);
+  const overdue = books.filter(
+    (book: Book) => new Date(book.owedBy?.dueDate).getTime() < new Date().getTime()
+  );
+  const { roles } = authUser;
 
   const categories = [
     'all books',
@@ -126,19 +127,19 @@ const ManageOverdueBooks: React.FC<OwnProps> = (props: Props) => {
   };
 
   React.useEffect(() => {
-    onGetBooks(token);
+    dispatch(getBooks(token));
   }, [token]);
 
   React.useEffect(() => {
-    setSearchResults(books);
+    setSearchResults(overdue);
   }, [books]);
 
   const filterByCategorie = () => {
     if (roleFilter === 'all books') {
-      setCategorySearchResults(books);
+      setCategorySearchResults(overdue);
       return;
     }
-    const filteredResults = books.filter(
+    const filteredResults = overdue.filter(
       (book: Book) => book.category?.toLowerCase() === roleFilter.toLowerCase()
     );
     setCategorySearchResults(filteredResults.reverse());
@@ -211,18 +212,4 @@ const ManageOverdueBooks: React.FC<OwnProps> = (props: Props) => {
   );
 };
 
-const mapStateToProps = (state: RootState) => ({
-  token: state.users.token,
-  books: state.books.books.filter(
-    (book: Book) => new Date(book.owedBy?.dueDate).getTime() < new Date().getTime()
-  ),
-});
-
-const mapDispatchToProps = (dispatch: AppDispatch) => ({
-  onGetBooks: (token: string) => dispatch(getBooks(token)),
-});
-
-export default connect<RootState, AppDispatch>(
-  mapStateToProps,
-  mapDispatchToProps
-)(ManageOverdueBooks);
+export default ManageOverdueBooks;

@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import * as React from 'react';
 import Button from '@material-ui/core/Button';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import Tabs from '@material-ui/core/Tabs';
@@ -18,7 +18,7 @@ import LendBook from './LendBook.tsx';
 // @ts-ignore
 import { RootState } from '../../store.ts';
 // @ts-ignore
-import type { Book, User } from '../../types.ts';
+import type { User } from '../../types.ts';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -29,21 +29,11 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-interface OwnProps {
-  users: [User];
-  books: [Book];
-  token: string;
-  authUserRoles: Array<string>;
-}
-
 type Params = {
   id: string;
 };
 
-type Props = OwnProps & RootState;
-
-const LendOrReturn: React.FC<OwnProps> = (props: Props) => {
-  const { users, books, token, authUserRoles } = props;
+const LendOrReturn: React.FC = () => {
   const classes = useStyles();
   const [user, setUser] = React.useState<User>({});
   const [owedBooks, setOwedBooks] = React.useState([]);
@@ -51,6 +41,8 @@ const LendOrReturn: React.FC<OwnProps> = (props: Props) => {
 
   const { id } = useParams<Params>();
   const history = useHistory();
+  const { token, authUser, users } = useSelector((state: RootState) => state.users);
+  const { books } = useSelector((state: RootState) => state.books);
 
   const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
     setValue(newValue);
@@ -89,7 +81,7 @@ const LendOrReturn: React.FC<OwnProps> = (props: Props) => {
           <Tab label="Owed Books" {...a11yProps(1)} />
         </Tabs>
         <TabPanel value={value} index={0} key={0}>
-          <LendBook books={books} user={user} token={token} authUserRoles={authUserRoles} />
+          <LendBook books={books} user={user} token={token} authUserRoles={authUser.roles} />
         </TabPanel>
         <TabPanel value={value} index={1} key={1}>
           <OwedBooks
@@ -97,7 +89,7 @@ const LendOrReturn: React.FC<OwnProps> = (props: Props) => {
             books={books}
             user={user}
             token={token}
-            authUserRoles={authUserRoles}
+            authUserRoles={authUser.roles}
           />
         </TabPanel>
 
@@ -113,11 +105,4 @@ const LendOrReturn: React.FC<OwnProps> = (props: Props) => {
   );
 };
 
-const mapStateToProps = (state: RootState) => ({
-  token: state.users.token,
-  books: state.books.books,
-  authUserRoles: state.users.authUser.roles,
-  users: state.users.users,
-});
-
-export default connect<OwnProps, RootState>(mapStateToProps)(LendOrReturn);
+export default LendOrReturn;

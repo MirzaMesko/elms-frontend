@@ -8,7 +8,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
 import SearchIcon from '@material-ui/icons/Search';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 // import { history as historyPropTypes } from 'history-prop-types';
 // import PropTypes from 'prop-types';
 import React from 'react';
@@ -99,17 +99,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface OwnProps {
-  token: string;
-  onGetBooks: () => Promise<any>;
-  books: [Book];
-  roles: Array<string>;
-}
-
-type Props = OwnProps & RootState & AppDispatch;
-
-const ManageBooks: React.FC<Props> = (props: Props) => {
-  const { token, onGetBooks, books, roles } = props;
+const ManageBooks: React.FC = () => {
   const classes = useStyles();
   const [openDialogue, setOpenDialogue] = React.useState<boolean>(false);
   const [severity, setSeverity] = React.useState<string>('');
@@ -121,6 +111,10 @@ const ManageBooks: React.FC<Props> = (props: Props) => {
   const [searchFilter, setSearchFilter] = React.useState<string>('title');
   const [roleFilter, setRoleFilter] = React.useState<any>('all books');
 
+  const dispatch: AppDispatch = useDispatch();
+  const { token, authUser } = useSelector((state: RootState) => state.users);
+  const { books } = useSelector((state: RootState) => state.books);
+  const { roles } = authUser;
   const isAdmin: boolean = roles.includes('Admin');
 
   const categories = [
@@ -160,7 +154,7 @@ const ManageBooks: React.FC<Props> = (props: Props) => {
   };
 
   React.useEffect(() => {
-    onGetBooks(token);
+    dispatch(getBooks(token));
   }, []);
 
   React.useEffect(() => {
@@ -265,16 +259,4 @@ const ManageBooks: React.FC<Props> = (props: Props) => {
   );
 };
 
-const mapStateToProps = (state: RootState) => ({
-  token: state.users.token,
-  books: state.books.books,
-});
-
-const mapDispatchToProps = (dispatch: AppDispatch) => ({
-  onGetBooks: (token: string) => dispatch(getBooks(token)),
-});
-
-export default connect<RootState, AppDispatch, OwnProps>(
-  mapStateToProps,
-  mapDispatchToProps
-)(ManageBooks);
+export default ManageBooks;
