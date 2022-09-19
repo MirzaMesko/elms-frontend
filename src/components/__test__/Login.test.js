@@ -2,45 +2,32 @@ import { screen, render, cleanup, fireEvent } from '@testing-library/react';
 import React from 'react';
 import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom';
-import { createMemoryHistory } from 'history';
+import * as reactRedux from 'react-redux';
 // @ts-ignore
 import { store } from '../../store.ts';
 import '@testing-library/jest-dom/extend-expect';
 // @ts-ignore
 import Login from '../Auth/Login.tsx';
 
-// jest.mock('react-router-dom', () => ({
-//   __esModule: true,
-//   useLocation: jest.fn().mockReturnValue({
-//     pathname: '/login',
-//     search: '',
-//     hash: '',
-//     state: null,
-//     key: '5nvxpbdafa',
-//   }),
-// }));
-
-const setup = (history) =>
+const setup = () =>
   render(
     <Provider store={store}>
-      <Login history={history} />
+      <Login />
     </Provider>
   );
 
 beforeEach(() => {
-  const history = createMemoryHistory();
-  setup(history);
+  setup();
 });
 
 afterEach(() => cleanup());
 
 describe('Login', () => {
   it('renders without crashing', () => {
-    const history = createMemoryHistory();
     const div = document.createElement('div');
     ReactDOM.render(
       <Provider store={store}>
-        <Login history={history} />
+        <Login />
       </Provider>,
       div
     );
@@ -93,15 +80,17 @@ describe('Login', () => {
     expect(screen.getByTestId('signup-link')).toBeInTheDocument();
     expect(screen.getByTestId('signup-link')).toHaveAttribute('href', '/register');
   });
-  it('renders alert if bad response from api', async () => {
+  it('renders alert if bad response from api', () => {
     cleanup();
-    const history = createMemoryHistory();
-    await render(
-      <Provider store={store}>
-        <Login error history={history} message="test" />
-      </Provider>
+    const useSelectorMock = jest.spyOn(reactRedux, 'useSelector');
+    useSelectorMock.mockReturnValue({ error: true, message: 'test' });
+    render(
+      <reactRedux.Provider store={store}>
+        <Login />
+      </reactRedux.Provider>
     );
     expect(screen.getByTestId('error-alert')).toBeInTheDocument();
     expect(screen.getByTestId('error-message').textContent).toBe('test');
+    useSelectorMock.mockClear();
   });
 });

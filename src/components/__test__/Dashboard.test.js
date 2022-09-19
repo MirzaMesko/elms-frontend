@@ -1,6 +1,7 @@
 import { screen, render, cleanup } from '@testing-library/react';
 import React from 'react';
 import { Provider } from 'react-redux';
+import * as reactRedux from 'react-redux';
 import ReactDOM from 'react-dom';
 import { useParams, MemoryRouter } from 'react-router-dom';
 // @ts-ignore
@@ -10,11 +11,34 @@ import Settings from '../Settings/Settings.tsx';
 // @ts-ignore
 import '@testing-library/jest-dom/extend-expect';
 
+const users = [
+  {
+    username: 'test',
+    email: 'test@elms.ba',
+    bio: 'Lorem ipsum dolor sit amet.',
+    roles: { member: 'Member' },
+    notifications: [],
+  },
+  {
+    username: 'test2',
+    email: 'test2@elms.ba',
+    bio: 'Lorem ipsum dolor sit amet.',
+    roles: { member: 'Member' },
+  },
+];
+
+const authUser = {
+  username: 'test2',
+  roles: ['Member'],
+};
+
 const setup = () => {
+  const useSelectorMock = jest.spyOn(reactRedux, 'useSelector');
+  useSelectorMock.mockReturnValue({ users, authUser });
   render(
     <Provider store={store}>
       <MemoryRouter>
-        <Dashboard roles={['Admin']} />
+        <Dashboard />
       </MemoryRouter>
     </Provider>
   );
@@ -24,11 +48,13 @@ afterEach(() => cleanup());
 
 describe('Dashboard', () => {
   it('renders without crashing', () => {
+    const useSelectorMock = jest.spyOn(reactRedux, 'useSelector');
+    useSelectorMock.mockReturnValue({ users, authUser });
     const div = document.createElement('div');
     ReactDOM.render(
       <Provider store={store}>
         <MemoryRouter>
-          <Dashboard roles={['Admin']} />
+          <Dashboard />
         </MemoryRouter>
       </Provider>,
       div
@@ -53,10 +79,12 @@ describe('Dashboard', () => {
   });
   it('renders children component', () => {
     useParams.mockReturnValue({ id: 'test2' });
+    const useSelectorMock = jest.spyOn(reactRedux, 'useSelector');
+    useSelectorMock.mockReturnValue({ users, authUser });
     render(
       <Provider store={store}>
         <MemoryRouter>
-          <Dashboard roles={['Admin']}>
+          <Dashboard>
             <Settings />
           </Dashboard>
         </MemoryRouter>

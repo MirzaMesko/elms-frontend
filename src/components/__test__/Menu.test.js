@@ -1,20 +1,31 @@
 import { screen, render, fireEvent, cleanup } from '@testing-library/react';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
+import * as redux from 'react-redux';
+import { store } from '../../store.ts';
 import Menu from '../Menu.tsx';
 // @ts-ignore
 import '@testing-library/jest-dom/extend-expect';
 
-const logoutFn = jest.fn(() => null);
-
-const setup = () => render(<Menu username="Mirza" onLogout={logoutFn} />);
+const setup = () =>
+  render(
+    <Provider store={store}>
+      <Menu username="Mirza" />
+    </Provider>
+  );
 
 afterEach(() => cleanup());
 
 describe('Menu', () => {
   it('renders without crashing', () => {
     const div = document.createElement('div');
-    ReactDOM.render(<Menu />, div);
+    ReactDOM.render(
+      <Provider store={store}>
+        <Menu username="Mirza" />
+      </Provider>,
+      div
+    );
   });
   it('renders the avatar button to display the menu', () => {
     setup();
@@ -51,12 +62,18 @@ describe('Menu', () => {
     expect(screen.getByTestId('logout').textContent).toBe('Log out');
   });
   it('calls logout fn when logout button is clicked', () => {
+    const useDispatchSpy = jest.spyOn(redux, 'useDispatch');
+    const mockDispatchFn = jest.fn();
+    useDispatchSpy.mockReturnValue(mockDispatchFn);
+
     setup();
     const button = screen.getByTestId('avatar-button');
 
     fireEvent.click(button);
     const logout = screen.getByTestId('logout');
     fireEvent.click(logout);
-    expect(logoutFn).toHaveBeenCalledTimes(1);
+
+    expect(mockDispatchFn).toHaveBeenCalledTimes(1);
+    useDispatchSpy.mockClear();
   });
 });

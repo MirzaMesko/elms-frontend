@@ -1,35 +1,33 @@
 import { screen, render, cleanup, fireEvent } from '@testing-library/react';
 import React from 'react';
 import { Provider } from 'react-redux';
+import * as reactRedux from 'react-redux';
 import ReactDOM from 'react-dom';
-import { createMemoryHistory } from 'history';
 // @ts-ignore
 import { store } from '../../store.ts';
 import '@testing-library/jest-dom/extend-expect';
 // @ts-ignore
 import Register from '../Auth/SignUp.tsx';
 
-const setup = (history) =>
+const setup = () =>
   render(
     <Provider store={store}>
-      <Register history={history} />
+      <Register />
     </Provider>
   );
 
 beforeEach(() => {
-  const history = createMemoryHistory();
-  setup(history);
+  setup();
 });
 
 afterEach(() => cleanup());
 
 describe('SignUp', () => {
   it('renders without crashing', () => {
-    const history = createMemoryHistory();
     const div = document.createElement('div');
     ReactDOM.render(
       <Provider store={store}>
-        <Register history={history} />
+        <Register />
       </Provider>,
       div
     );
@@ -97,12 +95,13 @@ describe('SignUp', () => {
     expect(screen.getByTestId('login-link')).toBeInTheDocument();
     expect(screen.getByTestId('login-link')).toHaveAttribute('href', '/login');
   });
-  it('renders alert if bad response from api', async () => {
+  it('renders alert if bad response from api', () => {
     cleanup();
-    const history = createMemoryHistory();
-    await render(
+    const useSelectorMock = jest.spyOn(reactRedux, 'useSelector');
+    useSelectorMock.mockReturnValue({ error: true, message: 'test' });
+    render(
       <Provider store={store}>
-        <Register error history={history} message="test" />
+        <Register />
       </Provider>
     );
     expect(screen.getByTestId('error-alert')).toBeInTheDocument();
