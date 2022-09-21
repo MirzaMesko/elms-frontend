@@ -5,13 +5,14 @@ import thunk from 'redux-thunk';
 import books from './reducers/books.tsx';
 // @ts-ignore
 import users from './reducers/users.tsx';
+import snackbarMiddleware from './components/Helpers/snackbarMiddleware';
 
 export const store = configureStore({
   reducer: {
     books,
     users,
   },
-  middleware: [thunk],
+  middleware: [thunk, snackbarMiddleware],
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
