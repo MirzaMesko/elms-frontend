@@ -10,6 +10,8 @@ import responseInterceptor from './refreshToken.tsx';
 const axios = require('axios');
 
 export const RETRIEVE_BOOKS_SUCCESS = 'RETRIEVE_BOOKS_SUCCESS';
+export const SHOW_SNACKBAR_MESSAGE = 'SHOW_SNACKBAR_MESSAGE';
+export const CLOSE_SNACKBAR_MESSAGE = 'CLOSE_SNACKBAR_MESSAGE';
 export const RETRIEVE_BOOKS_FAIL = 'RETRIEVE_BOOKS_FAIL';
 export const RETRIEVE_BOOKS_PENDING = 'RETRIEVE_BOOKS_PENDING';
 
@@ -23,6 +25,21 @@ function retrieveBooksSuccess(books: [Book]) {
   return {
     type: RETRIEVE_BOOKS_SUCCESS,
     books,
+  };
+}
+
+export function showSnackbarMessage(status: string, message: string) {
+  return {
+    type: SHOW_SNACKBAR_MESSAGE,
+    status,
+    message,
+  };
+}
+
+// used in snackbarMiddleware with timeout to close snackbar messages
+export function closeSnackbarMessage() {
+  return {
+    type: CLOSE_SNACKBAR_MESSAGE,
   };
 }
 
@@ -83,8 +100,14 @@ export function addBook(
         { title, author, year, description, category, image, publisher, serNo },
         { headers }
       )
-      .then((response: any) => response)
-      .catch((error: any) => error);
+      .then((response: any) => {
+        dispatch(showSnackbarMessage('success', 'Book successfully added to the library.'));
+        return response;
+      })
+      .catch((error: any) => {
+        dispatch(showSnackbarMessage('error', 'Something went wrong. Please try again.'));
+        return error;
+      });
   };
 }
 
@@ -122,8 +145,14 @@ export function editBook(
         },
         { headers }
       )
-      .then((response: any) => response)
-      .catch((error: any) => error.response.data);
+      .then((response: any) => {
+        dispatch(showSnackbarMessage('success', 'Book successfully edited.'));
+        return response;
+      })
+      .catch((error: any) => {
+        dispatch(showSnackbarMessage('error', 'Something went wrong. Please try again.'));
+        return error;
+      });
   };
 }
 
@@ -138,8 +167,14 @@ export function deleteBook(authUserRoles: Roles, id: string, token: string) {
 
     return axios
       .delete(url, config)
-      .then((response: any) => response)
-      .catch((error: any) => error.response.data);
+      .then((response: any) => {
+        dispatch(showSnackbarMessage('success', 'Book successfully deleted.'));
+        return response;
+      })
+      .catch((error: any) => {
+        dispatch(showSnackbarMessage('error', 'Something went wrong. Please try again.'));
+        return error;
+      });
   };
 }
 
@@ -178,8 +213,16 @@ export function lendBook(book: Book, user: User, authUserRoles: Roles, token: st
               },
               { headers }
             )
-            .then((resp: any) => resp)
-            .catch((error: any) => error.response.data);
+            .then((resp: any) => {
+              dispatch(
+                showSnackbarMessage('success', `Book ${book.title} was lent to ${user.username}`)
+              );
+              return resp;
+            })
+            .catch((error: any) => {
+              dispatch(showSnackbarMessage('error', 'Something went wrong. Please try again.'));
+              return error;
+            });
         }
         return response;
       });
@@ -219,19 +262,27 @@ export function returnBook(
               },
               { headers }
             )
-            .then((resp: any) => resp)
-            .catch((error: any) => error.response.data);
+            .then((resp: any) => {
+              dispatch(
+                showSnackbarMessage('success', `Book ${book.title} was returned to the library`)
+              );
+              return resp;
+            })
+            .catch((error: any) => {
+              dispatch(showSnackbarMessage('error', 'Something went wrong. Please try again.'));
+              return error;
+            });
         }
         return response;
       });
   };
 }
 
-export function setNotification(token: string, authUserRoles: Roles, book: Book, userId: string) {
+export function setNotification(token: string, authUserRoles: Roles, book: Book, user: User) {
   return (dispatch: AppDispatch) => {
     responseInterceptor(dispatch);
     const { reservedBy } = book;
-    reservedBy.push(userId);
+    reservedBy.push(user._d);
     const headers = { Authorization: `Bearer ${token}`, roles: authUserRoles };
     const url = `http://localhost:3500/books`;
 
@@ -240,12 +291,23 @@ export function setNotification(token: string, authUserRoles: Roles, book: Book,
         url,
         {
           id: book._id,
-          reservedBy: userId,
+          reservedBy: user._id,
         },
         { headers }
       )
-      .then((resp: any) => resp)
-      .catch((error: any) => error.response.data);
+      .then((resp: any) => {
+        dispatch(
+          showSnackbarMessage(
+            'success',
+            `User ${user.username} will be notified when ${book.title} by ${book.author} is available.`
+          )
+        );
+        return resp;
+      })
+      .catch((error: any) => {
+        dispatch(showSnackbarMessage('error', 'Something went wrong. Please try again.'));
+        return error;
+      });
   };
 }
 
@@ -273,8 +335,14 @@ export function addNewRating(
         },
         { headers }
       )
-      .then((resp: any) => resp)
-      .catch((error: any) => error);
+      .then((resp: any) => {
+        dispatch(showSnackbarMessage('success', 'Thank you for your rating.'));
+        return resp;
+      })
+      .catch((error: any) => {
+        dispatch(showSnackbarMessage('error', 'Something went wrong. Please try again.'));
+        return error;
+      });
   };
 }
 
@@ -302,8 +370,14 @@ export function addReview(
         },
         { headers }
       )
-      .then((resp: any) => resp)
-      .catch((error: any) => error);
+      .then((resp: any) => {
+        dispatch(showSnackbarMessage('success', 'Thank you for your review.'));
+        return resp;
+      })
+      .catch((error: any) => {
+        dispatch(showSnackbarMessage('error', 'Something went wrong. Please try again.'));
+        return error;
+      });
   };
 }
 
@@ -327,7 +401,13 @@ export function updateReview(
         },
         { headers }
       )
-      .then((resp: any) => resp)
-      .catch((error: any) => error);
+      .then((resp: any) => {
+        dispatch(showSnackbarMessage('success', 'Your review has been edited.'));
+        return resp;
+      })
+      .catch((error: any) => {
+        dispatch(showSnackbarMessage('error', 'Something went wrong. Please try again.'));
+        return error;
+      });
   };
 }
