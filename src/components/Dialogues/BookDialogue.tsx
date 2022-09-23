@@ -3,7 +3,7 @@
 /* eslint-disable react/jsx-no-comment-textnodes */
 import React from 'react';
 import Button from '@material-ui/core/Button';
-import { connect, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import Typography from '@material-ui/core/Typography';
@@ -14,8 +14,14 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 // import PropTypes from 'prop-types';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
-// @ts-ignore
-import { addBook, getBooks, editBook } from '../../actions/books.tsx';
+import {
+  addBook,
+  getBooks,
+  editBook,
+  closeSnackbarMessage,
+  showSnackbarMessage,
+  // @ts-ignore
+} from '../../actions/books.tsx';
 // @ts-ignore
 import Confirm from '../Helpers/Confirm.tsx';
 // @ts-ignore
@@ -27,24 +33,26 @@ import { RootState, AppDispatch } from '../../store.ts';
 import type { Book } from '../../types.ts';
 
 const categoryOptions = [
-  'All books', 'Politics', 'History', 'Romance', 'Science Fiction & Fantasy', 'Biographies', 'Classics', 'Course books',
+  'All books',
+  'Politics',
+  'History',
+  'Romance',
+  'Science Fiction & Fantasy',
+  'Biographies',
+  'Classics',
+  'Course books',
 ];
 
 interface OwnProps {
   show: boolean;
   close: () => void;
-  token: string;
-  onShowSnackbar: () => void;  
   title: string;
   book: Book;
-  authUserRoles: Array<string>;
 }
 
 type Props = OwnProps & RootState;
 
-const BookDialog: React.FC<OwnProps> = (props: Props) => {
-  const { show, close, token, onShowSnackbar, title, book, authUserRoles } = props;
-
+const BookDialog: React.FC<OwnProps> = ({ show, close, title, book }: Props) => {
   const [state, setState] = React.useState({
     bookId: '',
     bookTitle: '',
@@ -61,8 +69,10 @@ const BookDialog: React.FC<OwnProps> = (props: Props) => {
   });
 
   const dispatch: AppDispatch = useDispatch();
+  const { token, authUser } = useSelector((reduxState: RootState) => reduxState.users);
+  const { roles } = authUser;
 
-  const handleChange = (event: { target: { name: string; value: string | boolean; }; }) => {
+  const handleChange = (event: { target: { name: string; value: string | boolean } }) => {
     setState({ ...state, [event.target.name]: event.target.value });
   };
 
@@ -70,11 +80,11 @@ const BookDialog: React.FC<OwnProps> = (props: Props) => {
     setState({ ...state, category: selectedCategory });
   };
 
-  const handleImageChange = (event: { target: { value: string }; }) => {
+  const handleImageChange = (event: { target: { value: string } }) => {
     setState({ ...state, image: event.target.value });
   };
 
-  const handleKeepInfoChange = (event: { target: { name: any; checked: boolean; }; }) => {
+  const handleKeepInfoChange = (event: { target: { name: any; checked: boolean } }) => {
     setState({ ...state, [event.target.name]: event.target.checked });
   };
 
@@ -102,50 +112,55 @@ const BookDialog: React.FC<OwnProps> = (props: Props) => {
     dispatch(getBooks(token));
   };
 
-  const onAddNewBook = (event: { preventDefault: () => void; }) => {
+  const onAddNewBook = (event: { preventDefault: () => void }) => {
     event.preventDefault();
     if (!state.bookTitle || !state.author || !state.serNo || !state.year) {
-      onShowSnackbar(true, 'error', 'Please fill in the required fileds!');
+      dispatch(showSnackbarMessage('error', 'Please fill in the required fileds!'));
+      setTimeout(() => {
+        dispatch(closeSnackbarMessage());
+      }, 5000);
       return;
     }
-    dispatch(addBook(
-        authUserRoles, state.bookTitle, state.author, state.year, state.description, state.category, state.image,
-        state.publisher, state.serNo,token
+    dispatch(
+      addBook(
+        roles,
+        state.bookTitle,
+        state.author,
+        state.year,
+        state.description,
+        state.category,
+        state.image,
+        state.publisher,
+        state.serNo,
+        token
       )
     ).then((response: any) => {
-      if (response.status !== 201) {
-        onShowSnackbar(true, 'error', `${response.message}`);
-      }
       if (response.status === 201) {
-        onShowSnackbar(
-          true,
-          'success',
-          `${response.data.title} by ${response.data.author} was added to the database.`
-        );
         if (!state.keepInfo) {
           handleClose();
         }
       }
-    })
-    .catch((err: any) => {
-      onShowSnackbar(true, 'error', `${err.message}`);
     });
   };
 
-  const onEditSingleBook = (event: { preventDefault: () => void; }) => {
+  const onEditSingleBook = (event: { preventDefault: () => void }) => {
     event.preventDefault();
     dispatch(
       editBook(
-        authUserRoles, state.bookId, state.bookTitle, state.author, state.year,
-        state.description, state.category, state.image, state.publisher, state.serNo,
+        roles,
+        state.bookId,
+        state.bookTitle,
+        state.author,
+        state.year,
+        state.description,
+        state.category,
+        state.image,
+        state.publisher,
+        state.serNo,
         token
       )
-    ).then(( response: any) => {
-      if (response.status !== 200) {
-        onShowSnackbar(true, 'error', response.message);
-      }
+    ).then((response: any) => {
       if (response.status === 200) {
-        onShowSnackbar(true, 'success', `Book ${response.data.serNo} was edited`);
         handleClose();
       }
     });
@@ -153,14 +168,14 @@ const BookDialog: React.FC<OwnProps> = (props: Props) => {
 
   const showConfirm = () => {
     if (state.bookTitle?.length || state.author?.length) {
-      setState({...state, openConfirm: true})
+      setState({ ...state, openConfirm: true });
     } else {
       handleClose();
     }
   };
 
   React.useEffect(() => {
-    setState({ ...state, open: show});
+    setState({ ...state, open: show });
     if (book?.title) {
       setState({
         ...state,
@@ -174,7 +189,7 @@ const BookDialog: React.FC<OwnProps> = (props: Props) => {
         serNo: book.serNo,
         category: book.category,
         keepInfo: false,
-        open: show
+        open: show,
       });
     }
   }, [show, book]);
@@ -186,7 +201,7 @@ const BookDialog: React.FC<OwnProps> = (props: Props) => {
         title="Are you sure?"
         message="Entered input will be lost. Are you sure you want to cancel?"
         confirm={handleClose}
-        cancel={() => setState({...state, openConfirm: false})}
+        cancel={() => setState({ ...state, openConfirm: false })}
         cancelText="confirm cancel"
         confirmText="continue editing"
       />
@@ -329,11 +344,5 @@ const BookDialog: React.FC<OwnProps> = (props: Props) => {
       </DialogActions>
     </Dialog>
   );
-}
-
-const mapStateToProps = (state: RootState) => ({
-  token: state.users.token,
-  authUserRoles: state.users.authUser.roles,
-});
-
-export default connect(mapStateToProps)(BookDialog);
+};
+export default BookDialog;
