@@ -9,8 +9,6 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
 import SearchIcon from '@material-ui/icons/Search';
 import { useDispatch, useSelector } from 'react-redux';
-// import { history as historyPropTypes } from 'history-prop-types';
-// import PropTypes from 'prop-types';
 import React from 'react';
 import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
 // @ts-ignore
@@ -102,9 +100,6 @@ const useStyles = makeStyles((theme) => ({
 const ManageBooks: React.FC = () => {
   const classes = useStyles();
   const [openDialogue, setOpenDialogue] = React.useState<boolean>(false);
-  const [severity, setSeverity] = React.useState<string>('');
-  const [openSnackbar, setOpenSnackbar] = React.useState<boolean>(false);
-  const [errMessage, setErrMessage] = React.useState<string>('');
   const [searchResults, setSearchResults] = React.useState<Array<Book>>([]);
   const [categorySearchResults, setCategorySearchResults] = React.useState([]);
   const [search, setSearch] = React.useState<string>('');
@@ -142,15 +137,6 @@ const ManageBooks: React.FC = () => {
 
   const handleSearchFilterChange = (event: { target: { value: any } }) => {
     setSearchFilter(event.target.value);
-  };
-
-  const showSnackbar = (show: boolean, status: string, message: string) => {
-    setSeverity(status);
-    setErrMessage(message);
-    setOpenSnackbar(show);
-    setTimeout(() => {
-      setOpenSnackbar(false);
-    }, 6000);
   };
 
   React.useEffect(() => {
@@ -191,7 +177,7 @@ const ManageBooks: React.FC = () => {
 
   return (
     <Box>
-      <CustomizedSnackbars show={openSnackbar} severity={severity} message={errMessage} />
+      <CustomizedSnackbars />
       <div className={classes.container}>
         {isAdmin && (
           <Button
@@ -248,13 +234,8 @@ const ManageBooks: React.FC = () => {
         </FormControl>
       </div>
 
-      <BookTable books={searchResults} onShowSnackbar={showSnackbar} />
-      <BookDialogue
-        show={openDialogue}
-        close={handleClose}
-        onShowSnackbar={showSnackbar}
-        title="Add New Book"
-      />
+      <BookTable books={searchResults} />
+      <BookDialogue show={openDialogue} close={handleClose} title="Add New Book" />
     </Box>
   );
 };
