@@ -3,7 +3,7 @@ import { Typography } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
-import { connect, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -80,16 +80,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface OwnProps {
+interface Props {
   books: [Book];
-  users: [User];
-  roles: Array<string>;
-  token: string;
 }
 
-type Props = OwnProps & RootState;
-
-const EnhancedTable: React.FC<OwnProps> = (props: Props) => {
+const EnhancedTable: React.FC<Props> = ({ books }: Props) => {
   const classes = useStyles();
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('username');
@@ -106,9 +101,9 @@ const EnhancedTable: React.FC<OwnProps> = (props: Props) => {
   const [openUserDetails, setOpenUserDetails] = React.useState(false);
   const [showEmailDialogue, setShowEmailDialogue] = React.useState(false);
 
-  const { books, roles, token, users } = props;
-
   const dispatch: AppDispatch = useDispatch();
+  const { token, authUser, users } = useSelector((state: RootState) => state.users);
+  const { roles } = authUser;
 
   const handleRequestSort = (event: any, property: React.SetStateAction<string>) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -413,10 +408,4 @@ const EnhancedTable: React.FC<OwnProps> = (props: Props) => {
   );
 };
 
-const mapStateToProps = (state: RootState) => ({
-  token: state.users.token,
-  roles: state.users.authUser.roles,
-  users: state.users.users,
-});
-
-export default connect<RootState, OwnProps, AppDispatch>(mapStateToProps)(EnhancedTable);
+export default EnhancedTable;
