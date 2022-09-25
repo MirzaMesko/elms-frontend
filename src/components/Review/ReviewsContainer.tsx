@@ -11,7 +11,7 @@ import Ratings from '../Helpers/Rating.tsx';
 // @ts-ignore
 import ReviewCard from './Review.tsx';
 // @ts-ignore
-import { Review } from '../../types.ts';
+import { Review, User } from '../../types.ts';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -27,37 +27,50 @@ const useStyles = makeStyles((theme) => ({
 
 interface Props {
   currentRating: number;
-  reviews: Array<Review>;
+  reviews: [Review];
   onDelete: () => void;
   onEdit: () => void;
+  authUser: string;
+  users: [User];
 }
 
 const ReviewsContainer: React.FC<Props> = (props: Props) => {
-  const { currentRating, reviews, onDelete, onEdit } = props;
+  const { currentRating, reviews, onDelete, onEdit, authUser, users } = props;
   const classes = useStyles();
 
   return (
-    <div className={classes.root}>
+    <div className={classes.root} data-testid="reviews-container">
       <Accordion style={{ border: 'none', boxShadow: 'none' }}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1a-content"
           id="panel1a-header"
+          data-testid="expand-icon"
         >
           <div className="spaceBetween">
             <Ratings name="read-only" currentRating={currentRating} />
-            <Typography className={classes.heading}>Reviews ({reviews.length})</Typography>
+            <Typography className={classes.heading} data-testid="review-numb">
+              Reviews ({reviews.length})
+            </Typography>
           </div>
         </AccordionSummary>
         <div style={{ maxHeight: '300px', overflow: 'auto' }}>
           {!reviews.length ? (
-            <AccordionDetails className="centered">
-              <Typography>Be the first to review this book.</Typography>
+            <AccordionDetails className="centered" data-testid="accordion-details">
+              <Typography data-testid="no-reviews-message">
+                Be the first to review this book.
+              </Typography>
             </AccordionDetails>
           ) : (
             reviews.map((review) => (
               <AccordionDetails key={review._id}>
-                <ReviewCard review={review} onDelete={onDelete} onEdit={onEdit} />
+                <ReviewCard
+                  review={review}
+                  onDelete={onDelete}
+                  onEdit={onEdit}
+                  authUser={authUser}
+                  users={users}
+                />
               </AccordionDetails>
             ))
           )}
