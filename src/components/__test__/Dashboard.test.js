@@ -24,6 +24,7 @@ const users = [
     email: 'test2@elms.ba',
     bio: 'Lorem ipsum dolor sit amet.',
     roles: { member: 'Member' },
+    notifications: [],
   },
 ];
 
