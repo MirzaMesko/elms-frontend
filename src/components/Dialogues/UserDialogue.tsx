@@ -104,11 +104,7 @@ const UserDialog: React.FC<OwnProps> = (props: Props) => {
         token
       )
     ).then((response: any) => {
-      if (response.status !== 201) {
-        onShowSnackbar(true, 'error', `${response.message}`);
-      }
       if (response.status === 201) {
-        onShowSnackbar(true, 'success', `User ${response.data.username} was created`);
         handleClose();
       }
     });
@@ -131,11 +127,7 @@ const UserDialog: React.FC<OwnProps> = (props: Props) => {
         token
       )
     ).then((response: any) => {
-      if (response.status === 400 || response.status === 401 || response.status === 403) {
-        onShowSnackbar(true, 'error', response.message);
-      }
       if (response.status === 200) {
-        onShowSnackbar(true, 'success', `User ${response.data.username} was edited`);
         handleClose();
       }
     });
