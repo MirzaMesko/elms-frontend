@@ -1,20 +1,12 @@
 /* eslint-disable no-underscore-dangle */
 import { Typography } from '@material-ui/core';
-import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TablePagination from '@material-ui/core/TablePagination';
-import TableRow from '@material-ui/core/TableRow';
 import Toolbar from '@material-ui/core/Toolbar';
-import Avatar from '@material-ui/core/Avatar';
-import Fade from '@material-ui/core/Fade';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import EmailIcon from '@material-ui/icons/Email';
 import React from 'react';
 // @ts-ignore
 import BookContainer from './BookContainer.tsx';
@@ -29,18 +21,17 @@ import CustomizedSnackbars from '../Helpers/Snackbar.tsx';
 // @ts-ignore
 import EnhancedTableHead from '../Helpers/EnhancedTableHead.tsx';
 // @ts-ignore
-import { getBooks } from '../../actions/books.tsx';
+import { showSnackbarMessage } from '../../actions/books.tsx';
 // @ts-ignore
-import { notifyUser, getUsers } from '../../actions/users.tsx';
+import { notifyUser } from '../../actions/users.tsx';
 // @ts-ignore
 import { sendEmail } from '../../actions/email.tsx';
-import * as helpers from '../Helpers/helpers';
-// @ts-ignore
-import { LightTooltip } from '../Helpers/Tooltip.tsx';
 // @ts-ignore
 import { RootState, AppDispatch } from '../../store.ts';
 // @ts-ignore
 import type { Book, User } from '../../types.ts';
+// @ts-ignore
+import OverdueBookTableBody from './OverdueBookTableBody.tsx';
 
 const headCells = [
   { id: 'title', numeric: false, disablePadding: false, label: 'Title' },
@@ -93,9 +84,6 @@ const EnhancedTable: React.FC<Props> = ({ books }: Props) => {
   const [selectedBook, setSelectedBook] = React.useState<Book | undefined>();
   const [selectedUser, setSelectedUser] = React.useState<User | undefined>({});
   const [showConfirm, setShowConfirm] = React.useState(false);
-  const [severity, setSeverity] = React.useState('');
-  const [openSnackbar, setOpenSnackbar] = React.useState(false);
-  const [errMessage, setErrMessage] = React.useState('');
   const [openBookDetails, setOpenBookDetails] = React.useState(false);
   const [chosenBook, setChosenBook] = React.useState(null);
   const [openUserDetails, setOpenUserDetails] = React.useState(false);
@@ -120,33 +108,23 @@ const EnhancedTable: React.FC<Props> = ({ books }: Props) => {
     setPage(0);
   };
 
-  const showSnackbar = (show: boolean, status: string, message: string) => {
-    setSeverity(status);
-    setErrMessage(message);
-    setOpenSnackbar(show);
-    setTimeout(() => {
-      setOpenSnackbar(false);
-    }, 6000);
-    dispatch(getUsers(token));
-    dispatch(getBooks(token));
-  };
-
   const handleSendEmail = (email: string, subject: string, text: string) => {
     dispatch(sendEmail(token, roles, email, subject, text)).then(
       (resp: { status: number; message: any }) => {
         if (resp.status !== 200) {
-          showSnackbar(true, 'error', resp.message);
+          dispatch(showSnackbarMessage('error', resp.message));
         }
         if (resp.status === 200) {
           setShowEmailDialogue(false);
-          showSnackbar(
-            true,
-            'success',
-            `A email reminder that "${selectedBook.title}" by "${
-              selectedBook.author
-            }" is overdue was sent to ${
-              users?.filter((u: { _id: any }) => u._id === selectedBook.owedBy.userId)[0].username
-            }.`
+          dispatch(
+            showSnackbarMessage(
+              'success',
+              `A email reminder that "${selectedBook.title}" by "${
+                selectedBook.author
+              }" is overdue was sent to ${
+                users?.filter((u: { _id: any }) => u._id === selectedBook.owedBy.userId)[0].username
+              }.`
+            )
           );
         }
       }
@@ -169,15 +147,16 @@ const EnhancedTable: React.FC<Props> = ({ books }: Props) => {
       )
     ).then((response: { status: number; message: any }) => {
       if (response.status !== 200) {
-        showSnackbar(true, 'error', response.message);
+        dispatch(showSnackbarMessage('error', response.message));
       }
       if (response.status === 200) {
-        showSnackbar(
-          true,
-          'success',
-          `A reminder that "${book.title}" by "${book.author}" is overdue was sent to ${
-            users?.filter((u: { _id: any }) => u._id === selectedBook.owedBy.userId)[0].username
-          }.`
+        dispatch(
+          showSnackbarMessage(
+            'success',
+            `A reminder that "${book.title}" by "${book.author}" is overdue was sent to ${
+              users?.filter((u: { _id: any }) => u._id === selectedBook.owedBy.userId)[0].username
+            }.`
+          )
         );
       }
     });
@@ -201,11 +180,9 @@ const EnhancedTable: React.FC<Props> = ({ books }: Props) => {
     setShowEmailDialogue(true);
   };
 
-  const emptyRows = rowsPerPage - Math.min(rowsPerPage, books.length - page * rowsPerPage);
-
   return (
     <div className={classes.root}>
-      <CustomizedSnackbars show={openSnackbar} severity={severity} message={errMessage} />
+      <CustomizedSnackbars />
       <Paper className={classes.paper}>
         <Toolbar>
           <Typography variant="h6" id="tableTitle" component="div">
@@ -251,158 +228,49 @@ const EnhancedTable: React.FC<Props> = ({ books }: Props) => {
                 confirmText="send notification"
                 cancelText="cancel"
               />
-              <TableBody>
-                {helpers
-                  .stableSort(books, helpers.getComparator(order, orderBy))
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((book: Book) => (
-                    <TableRow
-                      hover
-                      role="checkbox"
-                      tabIndex={0}
-                      // eslint-disable-next-line no-underscore-dangle
-                      key={book._id}
-                    >
-                      <TableCell
-                        onClick={() => onShowBookDetails(book)}
-                        style={{ cursor: 'pointer' }}
-                        key={book.title.slice(0, 5)}
-                      >
-                        <Avatar
-                          src={book.image}
-                          alt={book.title}
-                          variant="square"
-                          className={classes.large}
-                        >
-                          {book.title.slice(0, 1)}
-                        </Avatar>
-                      </TableCell>
-                      <TableCell
-                        onClick={() => onShowBookDetails(book)}
-                        style={{ cursor: 'pointer' }}
-                        key={book.title.slice(5, 10)}
-                      >
-                        {book.title}
-                      </TableCell>
-                      <TableCell
-                        align="left"
-                        onClick={() => onShowBookDetails(book)}
-                        style={{ cursor: 'pointer' }}
-                        key={book.author.slice(0, 5)}
-                      >
-                        {book.author}
-                      </TableCell>
-                      {roles.length === 1 && roles[0] === 'Member' ? null : (
-                        <TableCell
-                          align="left"
-                          onClick={() => onShowBookDetails(book)}
-                          style={{ cursor: 'pointer' }}
-                          key={book.serNo}
-                        >
-                          {book.serNo}
-                        </TableCell>
-                      )}
-                      {users?.map((u: User) => {
-                        if (u._id === book.owedBy.userId) {
-                          return (
-                            <TableCell
-                              onClick={() => onShowUserDetails(u)}
-                              style={{ cursor: 'pointer' }}
-                              key={book.owedBy.userId}
-                            >
-                              <div>
-                                <Avatar
-                                  src={u.image}
-                                  alt={u.username}
-                                  variant="square"
-                                  className={classes.large}
-                                >
-                                  {u.username.slice(0, 1)}
-                                </Avatar>
-                                {u.username}
-                              </div>
-                            </TableCell>
-                          );
-                        }
-                        return null;
-                      })}
-                      <TableCell key={book.owedBy.dueDate}>{book.owedBy.dueDate}</TableCell>
-
-                      {roles.includes('Librarian') && (
-                        <TableCell align="center" key={book.owedBy.userId.slice(0, 6)}>
-                          <div
-                            style={{
-                              display: 'flex',
-                              flexDirection: 'row',
-                            }}
-                          >
-                            <LightTooltip
-                              TransitionComponent={Fade}
-                              TransitionProps={{ timeout: 600 }}
-                              title="Send e-mail"
-                            >
-                              <IconButton
-                                aria-label="edit"
-                                onClick={() =>
-                                  setEmailInfo(
-                                    book,
-                                    users?.filter((u: { _id: any }) => u._id === book.owedBy.userId)
-                                  )
-                                }
-                              >
-                                <EmailIcon fontSize="small" />
-                              </IconButton>
-                            </LightTooltip>
-                            <LightTooltip
-                              TransitionComponent={Fade}
-                              TransitionProps={{ timeout: 600 }}
-                              title="Send notification"
-                            >
-                              <IconButton aria-label="edit" onClick={() => onConfirmNotify(book)}>
-                                <NotificationsIcon fontSize="small" />
-                              </IconButton>
-                            </LightTooltip>
-                            <EmailDialogue
-                              show={showEmailDialogue}
-                              close={() => setShowEmailDialogue(false)}
-                              emailSubject="Reminder of an overdue book"
-                              emailText={`You received this email because the following book: "${selectedBook?.title}" by "${selectedBook?.author}" is overdue. Please return it as soon as possible!\n\nBest regards,\nYour ELMS team`}
-                              sendEmail={handleSendEmail}
-                              recepientsEmail={selectedUser.email}
-                            />
-                          </div>
-                        </TableCell>
-                      )}
-                    </TableRow>
-                  ))}
-                {emptyRows > 0 ? (
-                  <TableRow style={{ height: 53 * emptyRows }}>
-                    <TableCell colSpan={6} />
-                  </TableRow>
-                ) : null}
-                <BookContainer
-                  open={openBookDetails}
-                  handleClose={() => setOpenBookDetails(false)}
-                  bookId={chosenBook}
-                />
-                <UserContainer
-                  open={openUserDetails}
-                  handleClose={() => setOpenUserDetails(false)}
-                  user={selectedUser}
-                />
-              </TableBody>
+              <OverdueBookTableBody
+                users={users}
+                books={books}
+                authUser={authUser}
+                page={page}
+                order={order}
+                orderBy={orderBy}
+                rowsPerPage={rowsPerPage}
+                onShowUserDetails={onShowUserDetails}
+                onShowBookDetails={onShowBookDetails}
+                onConfirmNotify={onConfirmNotify}
+                setEmailInfo={setEmailInfo}
+              />
+              <EmailDialogue
+                show={showEmailDialogue}
+                close={() => setShowEmailDialogue(false)}
+                emailSubject="Reminder of an overdue book"
+                emailText={`You received this email because the following book: "${selectedBook?.title}" by "${selectedBook?.author}" is overdue. Please return it as soon as possible!\n\nBest regards,\nYour ELMS team`}
+                sendEmail={handleSendEmail}
+                recepientsEmail={selectedUser.email}
+              />
+              <BookContainer
+                open={openBookDetails}
+                handleClose={() => setOpenBookDetails(false)}
+                bookId={chosenBook}
+              />
+              <UserContainer
+                open={openUserDetails}
+                handleClose={() => setOpenUserDetails(false)}
+                user={selectedUser}
+              />
             </Table>
+            <TablePagination
+              rowsPerPageOptions={[10, 15, 25]}
+              component="div"
+              count={books.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onChangePage={handleChangePage}
+              onChangeRowsPerPage={handleChangeRowsPerPage}
+            />
           </TableContainer>
         )}
-        <TablePagination
-          rowsPerPageOptions={[10, 15, 25]}
-          component="div"
-          count={books.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onChangePage={handleChangePage}
-          onChangeRowsPerPage={handleChangeRowsPerPage}
-        />
       </Paper>
     </div>
   );
