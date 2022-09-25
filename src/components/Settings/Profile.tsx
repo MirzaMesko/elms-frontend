@@ -29,20 +29,7 @@ interface Props {
 const Profile: React.FC<Props> = ({ user }: Props) => {
   const [showEditDialogue, setShowEditDialogue] = React.useState<boolean>(false);
   const [selectedUser, setSelectedUser] = React.useState<User | {}>({});
-  const [severity, setSeverity] = React.useState<string>('');
-  const [openSnackbar, setOpenSnackbar] = React.useState<boolean>(false);
-  const [message, setMessage] = React.useState<string>('');
-
   const classes = useStyles();
-
-  const showSnackbar = (show: boolean, status: string, msg: string) => {
-    setSeverity(status);
-    setMessage(msg);
-    setOpenSnackbar(show);
-    setTimeout(() => {
-      setOpenSnackbar(false);
-    }, 6000);
-  };
 
   const onEdit = (u: {}) => {
     setSelectedUser(u);
@@ -86,13 +73,12 @@ const Profile: React.FC<Props> = ({ user }: Props) => {
           {user.bio}
         </Typography>
       </DialogContent>
-      <CustomizedSnackbars show={openSnackbar} severity={severity} message={message} />
+      <CustomizedSnackbars />
       <UserDialog
         title="Edit User"
         show={showEditDialogue}
         close={() => onEdit(selectedUser)}
         user={selectedUser}
-        onShowSnackbar={showSnackbar}
       />
     </div>
   );
