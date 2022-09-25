@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
+import { useSelector } from 'react-redux';
 import Paper from '@material-ui/core/Paper';
 import Avatar from '@material-ui/core/Avatar';
 import AvatarGroup from '@material-ui/lab/AvatarGroup';
@@ -12,7 +13,9 @@ import { NavLink as RouterLink } from 'react-router-dom';
 import Card from './Card.tsx';
 import background from '../../utils/row-of-books.png';
 // @ts-ignore
-import type { Book, User } from '../../types.ts';
+import type { RootState } from '../../store.ts';
+// @ts-ignore
+import type { User, Book } from '../../types.ts';
 
 const drawerWidth = 240;
 
@@ -97,23 +100,18 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface Props {
-  roles: Array<string>;
-  user: string;
-  users: [User];
-  books: [Book];
-}
-
-const Links: React.FC<Props> = (props: Props) => {
-  const { roles, user, users, books } = props;
+const Links: React.FC = () => {
   const classes = useStyles();
+
+  const { books } = useSelector((state: RootState) => state.books);
+  const { authUser, users } = useSelector((state: RootState) => state.users);
+  const { roles } = authUser;
 
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
   return (
     <div className={classes.divider}>
-      <Typography className={classes.title}>Hello {user}</Typography>
+      <Typography className={classes.title}>Hello {authUser.username}</Typography>
       <Grid container spacing={3}>
-        {/* Chart */}
         <Grid
           item
           xs={12}
@@ -128,7 +126,7 @@ const Links: React.FC<Props> = (props: Props) => {
             <Paper className={fixedHeightPaper}>
               <Card title="Manage Users " text="Add, edit or remove users from Elms" />
               <AvatarGroup max={8}>
-                {users.map((u) => (
+                {users.map((u: User) => (
                   <Avatar src={u.image} key={u._id}>
                     {u.username.slice(0, 1)}
                   </Avatar>
@@ -151,9 +149,9 @@ const Links: React.FC<Props> = (props: Props) => {
             <Paper className={fixedHeightPaper}>
               <Card title="Manage Books " text="Add, edit or remove books from Elms" />
               <AvatarGroup max={8}>
-                {books.map((u) => (
-                  <Avatar src={u.image} key={u._id}>
-                    {u.title.slice(0, 1)}
+                {books.map((book: Book) => (
+                  <Avatar src={book.image} key={book._id}>
+                    {book.title.slice(0, 1)}
                   </Avatar>
                 ))}
               </AvatarGroup>
@@ -177,9 +175,9 @@ const Links: React.FC<Props> = (props: Props) => {
             <Paper className={fixedHeightPaper}>
               <Card title="Search books & more " text="Find the book you're looking for" />
               <AvatarGroup max={8}>
-                {books.map((u) => (
-                  <Avatar src={u.image} key={u._id}>
-                    {u.title.slice(0, 1)}
+                {books.map((book: Book) => (
+                  <Avatar src={book.image} key={book._id}>
+                    {book.title.slice(0, 1)}
                   </Avatar>
                 ))}
               </AvatarGroup>
