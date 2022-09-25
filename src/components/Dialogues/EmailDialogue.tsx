@@ -133,17 +133,4 @@ const EmailDialog: React.FC<OwnProps> = (props: OwnProps) => {
   );
 };
 
-// EmailDialog.defaultProps = {
-//   recepientsEmail: '',
-// };
-
-// EmailDialog.propTypes = {
-//   show: PropTypes.bool.isRequired,
-//   close: PropTypes.func.isRequired,
-//   emailSubject: PropTypes.string.isRequired,
-//   emailText: PropTypes.string.isRequired,
-//   sendEmail: PropTypes.func.isRequired,
-//   recepientsEmail: PropTypes.string,
-// };
-
 export default EmailDialog;
