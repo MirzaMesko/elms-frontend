@@ -2,8 +2,6 @@
 import * as React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 // @ts-ignore
-import CustomizedSnackbars from '../Helpers/Snackbar.tsx';
-// @ts-ignore
 import ReviewDialog from '../Dialogues/ReviewDialogue.tsx';
 // @ts-ignore
 import RatingDialog from '../Dialogues/RatingDialogue.tsx';
@@ -39,9 +37,6 @@ const BookContainer: React.FC<OwnProps> = ({ open, handleClose, bookId, err }: O
   const [showRatingDialogue, setShowRatingDialogue] = React.useState(false);
   const [showReviewDialogue, setShowReviewDialogue] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
-  const [severity, setSeverity] = React.useState('');
-  const [openSnackbar, setOpenSnackbar] = React.useState(false);
-  const [errMessage, setErrMessage] = React.useState('');
   const [bookRating, setBookRating] = React.useState(0);
   const [bookReviews, setBookReviews] = React.useState<Book.reviews>([]);
   const [book, setBook] = React.useState<Book>({});
@@ -51,24 +46,11 @@ const BookContainer: React.FC<OwnProps> = ({ open, handleClose, bookId, err }: O
   const { token, users, authUser } = useSelector((state: RootState) => state.users);
   const user = users.filter((u: User) => u.username === authUser.username);
 
-  const showSnackbar = (show: boolean, status: string, message: string) => {
-    setSeverity(status);
-    setErrMessage(message);
-    setOpenSnackbar(show);
-    setTimeout(() => {
-      setOpenSnackbar(false);
-    }, 3000);
-  };
-
   const rateBook = (ratingValue: number) => {
     setShowRatingDialogue(false);
     dispatch(addNewRating(token, authUser.roles, book.title, user[0]._id, ratingValue)).then(
       (response: { status: number; message: string }) => {
-        if (response.status !== 200) {
-          showSnackbar(true, 'error', response.message);
-        }
         if (response.status === 200) {
-          showSnackbar(true, 'success', 'Thank you for your rating.');
           const sum: Array<{ userId: string; rating: number }> | any = [
             ...book.rating,
             { userId: user[0]._id, rating: ratingValue },
@@ -84,11 +66,7 @@ const BookContainer: React.FC<OwnProps> = ({ open, handleClose, bookId, err }: O
     setShowReviewDialogue(false);
     dispatch(addReview(token, authUser.roles, book.title, user[0]._id, review)).then(
       (response: { status: number; message: string; data: any }) => {
-        if (response.status !== 200) {
-          showSnackbar(true, 'error', response.message);
-        }
         if (response.status === 200) {
-          showSnackbar(true, 'success', 'Thank you for your review.');
           setBookReviews([...bookReviews, response.data]);
         }
       }
@@ -101,11 +79,7 @@ const BookContainer: React.FC<OwnProps> = ({ open, handleClose, bookId, err }: O
     );
     dispatch(updateReview(token, authUser.roles, book.title, afterDelete)).then(
       (response: { status: number; message: string }) => {
-        if (response.status !== 200) {
-          showSnackbar(true, 'error', response.message);
-        }
         if (response.status === 200) {
-          showSnackbar(true, 'success', 'The review has been deleted.');
           setBookReviews(afterDelete);
         }
       }
@@ -121,11 +95,7 @@ const BookContainer: React.FC<OwnProps> = ({ open, handleClose, bookId, err }: O
     });
     dispatch(updateReview(token, authUser.roles, book.title, afterEdit)).then(
       (response: { status: number; message: string }) => {
-        if (response.status !== 200) {
-          showSnackbar(true, 'error', response.message);
-        }
         if (response.status === 200) {
-          showSnackbar(true, 'success', 'The review has been edited.');
           setBookReviews(afterEdit);
         }
       }
@@ -177,7 +147,6 @@ const BookContainer: React.FC<OwnProps> = ({ open, handleClose, bookId, err }: O
 
   return (
     <>
-      <CustomizedSnackbars show={openSnackbar} severity={severity} message={errMessage} />
       <ReviewDialog
         show={showReviewDialogue}
         close={() => setShowReviewDialogue(false)}
