@@ -106,9 +106,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface OwnProps {
-  onLogout: () => void;
   children: React.Component<any, any>;
-  roles: string[];
   users: [User];
   Notification: NotificationType;
   wrapperType: React.RefObject<HTMLDivElement>;
@@ -116,19 +114,14 @@ interface OwnProps {
 
 type Props = RootState & AppDispatch & OwnProps;
 
-const Dashboard: React.FC<OwnProps> = ({
-  onLogout,
-  children,
-  roles,
-  Notification,
-  wrapperType,
-}: Props) => {
+const Dashboard: React.FC<OwnProps> = ({ children, Notification, wrapperType }: Props) => {
   const classes = useStyles();
   const [open, setOpen] = React.useState<boolean>(false);
   const [newNotifications, setNewNotifications] = React.useState<any>([]);
 
   const dispatch: AppDispatch = useDispatch();
   const { token, users, authUser } = useSelector((state: RootState) => state.users);
+  const { roles } = authUser;
 
   const toggleDrawerOpen = () => {
     setOpen(!open);
@@ -142,20 +135,16 @@ const Dashboard: React.FC<OwnProps> = ({
     (u: User) => u.username === authUser.username
   )[0];
 
-  const logout = () => {
-    onLogout();
-  };
-
   const seeNotifications = () => {
     setNewNotifications([]);
   };
 
   React.useEffect(() => {
     if (currentUser && currentUser.notifications) {
-      const notSeenNotifications: any = currentUser?.notifications.filter(
+      const notSeenNotifications: any = currentUser?.notifications?.filter(
         (n: typeof Notification) => n.seen === 'false'
       );
-      if (notSeenNotifications?.length > 0) {
+      if (notSeenNotifications && notSeenNotifications?.length > 0) {
         setNewNotifications(notSeenNotifications);
       }
     }
@@ -203,7 +192,7 @@ const Dashboard: React.FC<OwnProps> = ({
             resetBadge={seeNotifications}
             history={history}
           />
-          <BasicMenu userAvatar={authUser.image} onLogout={logout} username={authUser.username} />
+          <BasicMenu />
         </Toolbar>
       </AppBar>
       <Drawer
