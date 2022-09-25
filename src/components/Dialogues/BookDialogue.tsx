@@ -18,7 +18,6 @@ import {
   addBook,
   getBooks,
   editBook,
-  closeSnackbarMessage,
   showSnackbarMessage,
   // @ts-ignore
 } from '../../actions/books.tsx';
@@ -116,9 +115,6 @@ const BookDialog: React.FC<OwnProps> = ({ show, close, title, book }: Props) => 
     event.preventDefault();
     if (!state.bookTitle || !state.author || !state.serNo || !state.year) {
       dispatch(showSnackbarMessage('error', 'Please fill in the required fileds!'));
-      setTimeout(() => {
-        dispatch(closeSnackbarMessage());
-      }, 5000);
       return;
     }
     dispatch(
