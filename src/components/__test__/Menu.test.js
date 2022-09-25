@@ -8,12 +8,15 @@ import Menu from '../Menu.tsx';
 // @ts-ignore
 import '@testing-library/jest-dom/extend-expect';
 
-const setup = () =>
+const setup = () => {
+  const useSelectorMock = jest.spyOn(redux, 'useSelector');
+  useSelectorMock.mockReturnValue({ username: 'Mirza' });
   render(
     <Provider store={store}>
-      <Menu username="Mirza" />
+      <Menu />
     </Provider>
   );
+};
 
 afterEach(() => cleanup());
 
@@ -22,7 +25,7 @@ describe('Menu', () => {
     const div = document.createElement('div');
     ReactDOM.render(
       <Provider store={store}>
-        <Menu username="Mirza" />
+        <Menu />
       </Provider>,
       div
     );
