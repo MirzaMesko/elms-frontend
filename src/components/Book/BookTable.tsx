@@ -66,12 +66,11 @@ const useStyles = makeStyles((theme) => ({
 
 interface OwnProps {
   books: [Book];
-  onShowSnackbar: () => void;
 }
 
 type Props = RootState & AppDispatch & OwnProps;
 
-const EnhancedTable: React.FC<Props> = ({ books, onShowSnackbar }: Props) => {
+const EnhancedTable: React.FC<Props> = ({ books }: Props) => {
   const classes = useStyles();
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('username');
@@ -115,11 +114,7 @@ const EnhancedTable: React.FC<Props> = ({ books, onShowSnackbar }: Props) => {
   const onDelete = () => {
     dispatch(deleteBook(authUser.roles, selectedBook._id, token)).then(
       (response: { status: number; message: any }) => {
-        if (response.status !== 200) {
-          onShowSnackbar(true, 'error', response.message);
-        }
         if (response.status === 200) {
-          onShowSnackbar(true, 'success', `Book deleted`);
           setShowDeleteConfirm(false);
           dispatch(getBooks(token));
         }
@@ -210,7 +205,6 @@ const EnhancedTable: React.FC<Props> = ({ books, onShowSnackbar }: Props) => {
                 show={showEditDialogue}
                 close={() => onEdit(null)}
                 book={selectedBook}
-                onShowSnackbar={onShowSnackbar}
               />
             </Table>
             <TablePagination
