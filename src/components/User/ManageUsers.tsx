@@ -99,9 +99,6 @@ const useStyles = makeStyles((theme) => ({
 const ManageUsers: React.FC = () => {
   const classes = useStyles();
   const [openDialogue, setOpenDialogue] = React.useState(false);
-  const [severity, setSeverity] = React.useState('');
-  const [openSnackbar, setOpenSnackbar] = React.useState(false);
-  const [newUser, setNewUser] = React.useState('');
   const [searchResults, setSearchResults] = React.useState([]);
   const [search, setSearch] = React.useState('');
   const [filter, setFilter] = React.useState('username');
@@ -126,15 +123,6 @@ const ManageUsers: React.FC = () => {
 
   const handleRoleFilterChange = (event: any) => {
     setRoleFilter(event.target.value);
-  };
-
-  const showSnackbar = (show: boolean, status: string, message: string) => {
-    setSeverity(status);
-    setNewUser(message);
-    setOpenSnackbar(show);
-    setTimeout(() => {
-      setOpenSnackbar(false);
-    }, 6000);
   };
 
   React.useEffect(() => {
@@ -168,7 +156,7 @@ const ManageUsers: React.FC = () => {
 
   return (
     <Box>
-      <CustomizedSnackbars show={openSnackbar} severity={severity} message={newUser} />
+      <CustomizedSnackbars />
       <div className={classes.container}>
         {isAdmin && (
           <Button
@@ -217,13 +205,8 @@ const ManageUsers: React.FC = () => {
         </FormControl>
       </div>
 
-      <UserTable users={searchResults} onShowSnackbar={showSnackbar} />
-      <UserDialogue
-        show={openDialogue}
-        close={handleClose}
-        onShowSnackbar={showSnackbar}
-        title="Add New User"
-      />
+      <UserTable users={searchResults} />
+      <UserDialogue show={openDialogue} close={handleClose} title="Add New User" />
     </Box>
   );
 };
