@@ -11,7 +11,7 @@ import ConciseBook from './ConciseBook.tsx';
 // @ts-ignore
 import CustomizedSnackbars from '../Helpers/Snackbar.tsx';
 // @ts-ignore
-import { getBooks, returnBook } from '../../actions/books.tsx';
+import { getBooks, returnBook, showSnackbarMessage } from '../../actions/books.tsx';
 // @ts-ignore
 import { getUsers, notifyUser } from '../../actions/users.tsx';
 
@@ -23,39 +23,16 @@ interface Props {
   user: User;
 }
 
-const OwedBooks: React.FC<Props> = (props: Props) => {
-  const [severity, setSeverity] = React.useState('');
-  const [openSnackbar, setOpenSnackbar] = React.useState(false);
-  const [errMessage, setErrMessage] = React.useState('');
-
-  const { owedBooks, books, token, authUserRoles, user } = props;
-
+const OwedBooks: React.FC<Props> = ({ owedBooks, books, token, authUserRoles, user }: Props) => {
   const dispatch: AppDispatch = useDispatch();
-
-  const showSnackbar = (
-    show: boolean | ((prevState: boolean) => boolean),
-    status: string,
-    message: string
-  ) => {
-    setSeverity(status);
-    setErrMessage(message);
-    setOpenSnackbar(show);
-    setTimeout(() => {
-      setOpenSnackbar(false);
-    }, 6000);
-    dispatch(getBooks(token));
-    dispatch(getUsers(token));
-  };
 
   const returnABook = (book: Book) => {
     const newOwedBooks = owedBooks.filter((i) => i !== book._id);
     dispatch(returnBook(token, authUserRoles, book, user, newOwedBooks)).then(
       (resp: { status: number; message: any }) => {
-        if (resp.status !== 200) {
-          showSnackbar(true, 'error', resp.message);
-        }
         if (resp.status === 200) {
-          showSnackbar(true, 'success', `Book ${book.title} was returned`);
+          dispatch(getBooks(token));
+          dispatch(getUsers(token));
           if (book.reservedBy[0]) {
             dispatch(
               notifyUser(
@@ -81,13 +58,14 @@ const OwedBooks: React.FC<Props> = (props: Props) => {
       )
     ).then((response: { status: number; message: any }) => {
       if (response.status !== 200) {
-        showSnackbar(true, 'error', response.message);
+        dispatch(showSnackbarMessage('error', response.message));
       }
       if (response.status === 200) {
-        showSnackbar(
-          true,
-          'success',
-          `A reminder that "${book.title}" by "${book.author}" is overdue was sent to ${user.username}.`
+        dispatch(
+          showSnackbarMessage(
+            'success',
+            `A reminder that "${book.title}" by "${book.author}" is overdue was sent to ${user.username}.`
+          )
         );
       }
     });
@@ -97,7 +75,7 @@ const OwedBooks: React.FC<Props> = (props: Props) => {
     <Typography className="centered">No owed books for this user.</Typography>
   ) : (
     <>
-      <CustomizedSnackbars show={openSnackbar} severity={severity} message={errMessage} />
+      <CustomizedSnackbars />
       {owedBooks.map((bookId) => {
         const match = books.filter((book: { _id: string }) => book._id === bookId);
         return match.map((owedBook: Book) => (
