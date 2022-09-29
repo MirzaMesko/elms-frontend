@@ -46,7 +46,7 @@ const ConciseBook: React.FC<OwnProps> = (props: OwnProps) => {
   }
 
   return (
-    <div className={classes.selectedBook} data-testid="owedBook">
+    <div className={classes.selectedBook} data-testid="concise-book">
       <img src={book.image || editionPlaceholder} alt="" className="smallImage" />
       {book.serNo && (
         <div style={{ marginLeft: '2rem', width: '100%' }}>
