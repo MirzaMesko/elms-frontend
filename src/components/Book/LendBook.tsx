@@ -83,25 +83,11 @@ const LendBook: React.FC<Props> = (props: Props) => {
   const classes = useStyles();
   const [search, setSearch] = React.useState('');
   const [searchResults, setSearchResults] = React.useState<Book[]>([]);
-  const [severity, setSeverity] = React.useState('');
-  const [openSnackbar, setOpenSnackbar] = React.useState(false);
-  const [errMessage, setErrMessage] = React.useState('');
 
   const dispatch: AppDispatch = useDispatch();
 
-  const showSnackbar = (
-    show: boolean | ((prevState: boolean) => boolean),
-    status: string,
-    message: string
-  ) => {
-    setSeverity(status);
-    setErrMessage(message);
-    setOpenSnackbar(show);
-    setTimeout(() => {
-      setOpenSnackbar(false);
-    }, 6000);
-    dispatch(getBooks(token));
-    dispatch(getUsers(token));
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(event.target.value);
   };
 
   React.useEffect(() => {
@@ -122,55 +108,44 @@ const LendBook: React.FC<Props> = (props: Props) => {
     setSearch('');
     dispatch(lendBook(book, user, authUserRoles, token)).then(
       (resp: { status: number; message: any }) => {
-        if (resp.status !== 200) {
-          showSnackbar(true, 'error', resp.message);
-        }
         if (resp.status === 200) {
-          showSnackbar(true, 'success', `Book ${book.title} was lent to ${user.username}`);
+          dispatch(getBooks(token));
+          dispatch(getUsers(token));
         }
       }
     );
   };
 
   const setNewNotification = (book: Book) => {
-    dispatch(setNotification(token, authUserRoles, book, user._id)).then(
-      (resp: { status: number; message: any }) => {
-        if (resp.status !== 200) {
-          showSnackbar(true, 'error', resp.message);
-        }
-        if (resp.status === 200) {
-          showSnackbar(
-            true,
-            'success',
-            `User ${user.username} will be notified when ${book.title} by ${book.author} is available.`
-          );
-        }
-      }
-    );
+    dispatch(setNotification(token, authUserRoles, book, user));
   };
 
   return (
     <>
-      <CustomizedSnackbars show={openSnackbar} severity={severity} message={errMessage} />
-      <FormControl fullWidth variant="standard">
-        <InputLabel htmlFor="demo-customized-textbox">
+      <CustomizedSnackbars />
+      <FormControl fullWidth variant="standard" data-testid="lend-book-form">
+        <InputLabel htmlFor="demo-customized-textbox" data-testid="form-input-label">
           search books by title or serial number
         </InputLabel>
         <BootstrapInput
           id="demo-customized-textbox"
           type="text"
           placeholder=""
+          inputProps={{ 'data-testid': 'form-input' }}
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          name="search"
+          onChange={handleSearchChange}
         />
         <SearchIconWrapper>
           <SearchIcon color="primary" />
         </SearchIconWrapper>
       </FormControl>
 
-      <div className={classes.results}>
+      <div className={classes.results} data-testid="results">
         {!searchResults?.length ? (
-          <Typography className="centered">No results.</Typography>
+          <Typography className="centered" data-testid="no-results-message">
+            No results.
+          </Typography>
         ) : (
           searchResults.map((book: Book) => (
             <ConciseBook book={book} lend={lend} onNotifyUser={setNewNotification} key={book._id} />
