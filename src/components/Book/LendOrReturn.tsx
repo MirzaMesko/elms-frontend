@@ -77,8 +77,8 @@ const LendOrReturn: React.FC = () => {
           textColor="primary"
           indicatorColor="primary"
         >
-          <Tab label="Lend new book" {...a11yProps(0)} />
-          <Tab label="Owed Books" {...a11yProps(1)} />
+          <Tab label="Lend new book" {...a11yProps(0)} data-testid="lend-new-book-tab" />
+          <Tab label="Owed Books" {...a11yProps(1)} data-testid="owed-books-tab" />
         </Tabs>
         <TabPanel value={value} index={0} key={0}>
           <LendBook books={books} user={user} token={token} authUserRoles={authUser.roles} />
@@ -95,7 +95,11 @@ const LendOrReturn: React.FC = () => {
 
         <div className="centered">
           <ButtonGroup variant="outlined" size="large" aria-label="large button group">
-            <Button autoFocus onClick={() => history.push(`/manage/users`)}>
+            <Button
+              autoFocus
+              onClick={() => history.push(`/manage/users`)}
+              data-testid="back-to-users-button"
+            >
               back to users
             </Button>
           </ButtonGroup>
