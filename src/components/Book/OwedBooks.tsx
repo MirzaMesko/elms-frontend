@@ -72,7 +72,9 @@ const OwedBooks: React.FC<Props> = ({ owedBooks, books, token, authUserRoles, us
   };
 
   return !owedBooks.length ? (
-    <Typography className="centered">No owed books for this user.</Typography>
+    <Typography className="centered" data-testid="no-owed-books">
+      No owed books for this user.
+    </Typography>
   ) : (
     <>
       <CustomizedSnackbars />
