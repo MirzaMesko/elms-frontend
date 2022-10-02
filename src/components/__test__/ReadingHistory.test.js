@@ -29,7 +29,7 @@ describe('ReadingHistory', () => {
     ];
 
     render(<ReadingHistory user={user} books={books} />);
-    expect(screen.getAllByTestId('owedBook')[0]).toBeInTheDocument();
-    expect(screen.getAllByTestId('owedBook').length).toBe(3);
+    expect(screen.getAllByTestId('concise-book')[0]).toBeInTheDocument();
+    expect(screen.getAllByTestId('concise-book').length).toBe(3);
   });
 });
