@@ -56,7 +56,13 @@ const BookTableBody: React.FC<Props> = ({
         .stableSort(books, helpers.getComparator(order, orderBy))
         .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
         .map((book: Book) => (
-          <TableRow hover role="checkbox" tabIndex={0} key={book._id + book._id}>
+          <TableRow
+            hover
+            role="checkbox"
+            tabIndex={0}
+            key={book._id + book._id}
+            data-testid="table-row"
+          >
             <TableCell
               onClick={() => onShowBookDetails(book)}
               style={{ cursor: 'pointer' }}
