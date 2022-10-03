@@ -37,7 +37,7 @@ const headCells = [
   { id: 'title', numeric: false, disablePadding: false, label: 'Title' },
   { id: 'author', numeric: false, disablePadding: false, label: 'Author' },
   { id: 'serNo', numeric: false, disablePadding: false, label: 'Serial No' },
-  { id: 'owed by', numeric: false, disablePadding: false, label: 'Owed By' },
+  { id: 'owed by', numeric: false, disablePadding: false, label: 'Owed by' },
   { id: 'due on', numeric: false, disablePadding: false, label: 'Due on' },
   { id: 'actions', numeric: true, disablePadding: false, label: 'Actions' },
 ];
@@ -185,13 +185,21 @@ const EnhancedTable: React.FC<Props> = ({ books }: Props) => {
       <CustomizedSnackbars />
       <Paper className={classes.paper}>
         <Toolbar>
-          <Typography variant="h6" id="tableTitle" component="div">
+          <Typography
+            variant="h6"
+            id="tableTitle"
+            component="div"
+            data-testid="overdue-book-table-title"
+          >
             Overdue Books
           </Typography>
         </Toolbar>
         {!books.length ? (
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <p>No matches for your search</p>
+          <div
+            style={{ display: 'flex', justifyContent: 'center' }}
+            data-testid="no-results-message"
+          >
+            <p>No overdue books to display.</p>
           </div>
         ) : (
           <TableContainer>
@@ -268,6 +276,7 @@ const EnhancedTable: React.FC<Props> = ({ books }: Props) => {
               page={page}
               onChangePage={handleChangePage}
               onChangeRowsPerPage={handleChangeRowsPerPage}
+              data-testid="table-pagination"
             />
           </TableContainer>
         )}
