@@ -1,12 +1,12 @@
 /* eslint-disable no-underscore-dangle */
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
-import Chip from '@material-ui/core/Chip';
 import { makeStyles } from '@material-ui/core/styles';
 import profilePlaceholder from '../../utils/profile-picture-default-png.png';
-import * as helpers from '../Helpers/helpers';
 // @ts-ignore
 import Loading from '../Helpers/Loading.tsx';
+// @ts-ignore
+import RoleChip from '../Helpers/Chip.tsx';
 // @ts-ignore
 import type { User } from '../../types.ts';
 
@@ -22,36 +22,27 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const UserInfo: React.FC<User> = (props: User) => {
+const UserInfo: React.FC<User> = ({ user }: User) => {
   const classes = useStyles();
-  const { user } = props;
-
   const image = user?.image ? user.image : profilePlaceholder;
 
-  if (!user.username) {
+  if (!user) {
     return <Loading />;
   }
 
   return (
     <div className={classes.container}>
-      <img src={image} alt="" className="mediumImage" />
-      <Typography gutterBottom variant="h4">
+      <img src={image} alt="" className="mediumImage" data-testid="user-image" />
+      <Typography gutterBottom variant="h4" data-testid="username">
         {user.username}
       </Typography>
-      {Object.values(user.roles).map((item) => (
-        <Chip
-          key={item + user._id}
-          icon={helpers.setIcon(item)}
-          size="small"
-          label={`${item}`}
-          color={helpers.roleColor(item)}
-          style={{ margin: '3px' }}
-        />
-      ))}
-      <Typography gutterBottom variant="subtitle2">
+      <RoleChip user={user} />
+      <Typography gutterBottom variant="subtitle2" data-testid="user-email">
         {user.email}
       </Typography>
-      <Typography gutterBottom>{user.name}</Typography>
+      <Typography gutterBottom data-testid="user-name">
+        {user.name}
+      </Typography>
     </div>
   );
 };
