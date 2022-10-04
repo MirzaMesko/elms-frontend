@@ -19,7 +19,8 @@ import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import { FormControl, OutlinedInput, FormHelperText, InputLabel } from '@material-ui/core';
 // @ts-ignore
 import { login, register, dismissAlert } from '../../actions/auth.tsx';
-import Alert from '../Helpers/Alert';
+// @ts-ignore
+import Alert from '../Helpers/Alert.tsx';
 // @ts-ignore
 import CustomizedSnackbars from '../Helpers/Snackbar.tsx';
 import logo from '../../utils/logo.png';
@@ -150,7 +151,12 @@ const Register: React.FC = () => {
 
   return (
     <Container component="main" maxWidth="xs">
-      <Alert show={error} title="Error" message={message} onClose={dismissAlert} />
+      <Alert
+        show={error}
+        title="Error"
+        message={message}
+        onClose={() => dispatch(dismissAlert())}
+      />
       <CustomizedSnackbars show={openSnackbar} severity={severity} message={errMessage} />
       <CssBaseline />
       <div className={classes.paper} data-testid="signup-page">

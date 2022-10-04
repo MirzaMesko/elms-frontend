@@ -16,7 +16,8 @@ import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import { FormControl, OutlinedInput, InputLabel } from '@material-ui/core';
 // @ts-ignore
 import { login, dismissAlert } from '../../actions/auth.tsx';
-import Alert from '../Helpers/Alert';
+// @ts-ignore
+import Alert from '../Helpers/Alert.tsx';
 import logo from '../../utils/logo.png';
 import Copyright from '../Helpers/Copyright';
 // @ts-ignore
@@ -74,7 +75,12 @@ const Login: React.FC = () => {
 
   return (
     <Container component="main" maxWidth="xs">
-      <Alert show={error} title="Error" message={message} onClose={dismissAlert} />
+      <Alert
+        show={error}
+        title="Error"
+        message={message}
+        onClose={() => dispatch(dismissAlert())}
+      />
       <CssBaseline />
       <div className={classes.paper} data-testid="login-page">
         <img src={logo} alt="logo" style={{ marginBottom: '2rem' }} />
