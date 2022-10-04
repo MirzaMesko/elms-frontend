@@ -1,28 +1,28 @@
 import * as React from 'react';
 import { useHistory } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 import Menu from '@material-ui/core/Menu';
+import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
 import MenuItem from '@material-ui/core/MenuItem';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import SettingsIcon from '@material-ui/icons/Settings';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import Avatar from '@material-ui/core/Avatar';
+// @ts-ignore
+import { AppDispatch, RootState } from '../store.ts';
+// @ts-ignore
+import { logout } from '../actions/auth.tsx';
 
-interface MenuProps {
-  userAvatar: string;
-  username: string;
-  onLogout: () => void;
-}
-
-const BasicMenu: React.FC<MenuProps> = (props: MenuProps) => {
+const BasicMenu: React.FC = () => {
   const [anchorEl, setAnchorEl] = React.useState<any>();
   const open = Boolean(anchorEl);
-  const { userAvatar, onLogout, username } = props;
 
   const history = useHistory();
+  const dispatch: AppDispatch = useDispatch();
+  const { image, username } = useSelector((state: RootState) => state.users.authUser);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
     setAnchorEl(event.currentTarget);
@@ -37,6 +37,10 @@ const BasicMenu: React.FC<MenuProps> = (props: MenuProps) => {
     handleClose();
   };
 
+  const onLogout = () => {
+    dispatch(logout());
+  };
+
   return (
     <div>
       <Button
@@ -47,7 +51,7 @@ const BasicMenu: React.FC<MenuProps> = (props: MenuProps) => {
         onClick={handleClick}
         data-testid="avatar-button"
       >
-        <Avatar src={userAvatar} />
+        <Avatar src={image} />
       </Button>
       <Menu
         id="basic-menu"
@@ -60,7 +64,7 @@ const BasicMenu: React.FC<MenuProps> = (props: MenuProps) => {
         }}
       >
         <MenuItem onClick={handleClose}>
-          <Avatar src={userAvatar} data-testid="avatar" />
+          <Avatar src={image} data-testid="avatar" />
           <Typography style={{ marginLeft: '1rem' }} data-testid="username">
             {username}
           </Typography>
