@@ -35,7 +35,7 @@ type Params = {
 
 const LendOrReturn: React.FC = () => {
   const classes = useStyles();
-  const [user, setUser] = React.useState<User>({});
+  const [user, setUser] = React.useState<User>();
   const [owedBooks, setOwedBooks] = React.useState([]);
   const [value, setValue] = React.useState(0);
 
