@@ -11,7 +11,7 @@ interface Props {
 
 const Card: React.FC<Props> = ({ title, text }: Props) => (
   <React.Fragment>
-    <Title>{title}</Title>
+    <Title data-testid="title">{title}</Title>
     <Typography>{text}</Typography>
   </React.Fragment>
 );

@@ -59,20 +59,27 @@ const Alert: React.FC<Props> = ({ show, title, message, onClose }: Props) => {
     <div data-testid="error-alert">
       <Dialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
         <MuiDialogTitle disableTypography className={classes.root}>
-          <Typography variant="h6">{title}</Typography>
+          <Typography variant="h6" data-testid="alert-title">
+            {title}
+          </Typography>
           {onClose ? (
-            <IconButton aria-label="close" className={classes.closeButton} onClick={onClose}>
+            <IconButton
+              aria-label="close"
+              className={classes.closeButton}
+              onClick={onClose}
+              data-testid="close-alert-icon"
+            >
               <CloseIcon />
             </IconButton>
           ) : null}
         </MuiDialogTitle>
         <DialogContent dividers>
-          <Typography gutterBottom data-testid="error-message">
+          <Typography gutterBottom data-testid="alert-message">
             {message || 'Something went wrong. Please try again.'}
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick={handleClose} color="primary" data-testid="close-alert-button">
             OK
           </Button>
         </DialogActions>
