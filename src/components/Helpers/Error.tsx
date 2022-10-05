@@ -14,8 +14,9 @@ const Error: React.FC<Msg> = ({ message }: Msg) => (
     minHeight="300px"
     data-testid="error"
   >
-    <Typography>Something went wrong. Please try again later.</Typography>
-    <Typography data-testid="error-message">{message}</Typography>
+    <Typography data-testid="error-message">
+      {message || 'Something went wrong. Please try again.'}
+    </Typography>
   </Box>
 );
 
