@@ -54,24 +54,17 @@ const Confirm: React.FC<ConfirmProps> = (props: ConfirmProps) => {
     setOpen(show);
   }, [show]);
 
-  const handleClose = () => {
-    setOpen(false);
-    if (confirm) {
-      confirm();
-    }
-  };
-
   return (
-    <Dialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
+    <Dialog aria-labelledby="customized-dialog-title" open={open}>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent dividers>
         <Typography gutterBottom>{message}</Typography>
       </DialogContent>
       <DialogActions>
-        <Button autoFocus onClick={handleClose} color="primary">
+        <Button autoFocus onClick={cancel} color="primary" data-testid="cancel">
           {cancelText}
         </Button>
-        <Button onClick={cancel} color="primary">
+        <Button onClick={confirm} color="primary" data-testid="confirm">
           {confirmText}
         </Button>
       </DialogActions>
