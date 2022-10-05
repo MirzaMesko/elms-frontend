@@ -54,7 +54,7 @@ const OverdueBookTableBody: React.FC<Props> = ({
   const classes = useStyles();
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, books.length - page * rowsPerPage);
   return (
-    <TableBody>
+    <TableBody data-testid="overdue-book-table-body">
       {helpers
         .stableSort(books, helpers.getComparator(order, orderBy))
         .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
