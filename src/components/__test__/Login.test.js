@@ -90,7 +90,7 @@ describe('Login', () => {
       </reactRedux.Provider>
     );
     expect(screen.getByTestId('error-alert')).toBeInTheDocument();
-    expect(screen.getByTestId('error-message').textContent).toBe('test');
+    expect(screen.getByTestId('alert-message').textContent).toBe('test');
     useSelectorMock.mockClear();
   });
 });
