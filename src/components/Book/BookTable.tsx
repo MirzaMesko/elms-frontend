@@ -45,7 +45,8 @@ const useStyles = makeStyles((theme) => ({
     margin: '0 auto',
   },
   paper: {
-    width: '100%',
+    width: '95%',
+    margin: '0 auto',
     marginBottom: theme.spacing(2),
   },
   table: {
@@ -138,89 +139,87 @@ const EnhancedTable: React.FC<Props> = ({ books }: Props) => {
   }
 
   return (
-    <div className={classes.root}>
-      <Paper className={classes.paper}>
-        <Toolbar>
-          <Typography variant="h6" id="tableTitle" component="div" data-testid="book-table-title">
-            Books
-          </Typography>
-        </Toolbar>
-        {!books.length ? (
-          <div
-            style={{ display: 'flex', justifyContent: 'center', minHeight: '5rem' }}
-            data-testid="no-results-message"
+    <Paper className={classes.paper}>
+      <Toolbar>
+        <Typography variant="h6" id="tableTitle" component="div" data-testid="book-table-title">
+          Books
+        </Typography>
+      </Toolbar>
+      {!books.length ? (
+        <div
+          style={{ display: 'flex', justifyContent: 'center', minHeight: '5rem' }}
+          data-testid="no-results-message"
+        >
+          <p>No matches for your search</p>
+        </div>
+      ) : (
+        <TableContainer>
+          <Table
+            className={classes.table}
+            aria-labelledby="tableTitle"
+            size="medium"
+            aria-label="sticky table"
+            stickyHeader
           >
-            <p>No matches for your search</p>
-          </div>
-        ) : (
-          <TableContainer>
-            <Table
-              className={classes.table}
-              aria-labelledby="tableTitle"
-              size="medium"
-              aria-label="sticky table"
-              stickyHeader
-            >
-              <EnhancedTableHead
-                classes={classes}
-                order={order}
-                orderBy={orderBy}
-                onRequestSort={handleRequestSort}
-                isLibrarian={authUser.roles.includes('Librarian')}
-                headCells={headCells}
-              />
-              <Confirm
-                show={showConfirmDelete}
-                title="Are you sure?"
-                message={
-                  selectedBook
-                    ? `${selectedBook.title.toUpperCase()} by ${
-                        selectedBook.author
-                      }, serial number ${selectedBook.serNo} will be deleted!`
-                    : ''
-                }
-                confirm={() => setShowDeleteConfirm(false)}
-                cancel={onDelete}
-                confirmText="delete"
-                cancelText="cancel"
-              />
-              <BookTableBody
-                books={books}
-                authUser={authUser}
-                page={page}
-                order={order}
-                orderBy={orderBy}
-                rowsPerPage={rowsPerPage}
-                onShowBookDetails={onShowBookDetails}
-                onEdit={onEdit}
-                onConfirmDelete={onConfirmDelete}
-              />
-              <BookContainer
-                open={openBookDetails}
-                handleClose={() => setOpenBookDetails(false)}
-                bookId={chosenBookId}
-              />
-              <BookDialog
-                title="Edit Book"
-                show={showEditDialogue}
-                close={() => onEdit(null)}
-                book={selectedBook}
-              />
-            </Table>
-            <TablePagination
-              rowsPerPageOptions={[10, 15, 25]}
-              component="div"
-              count={books.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onChangePage={handleChangePage}
-              onChangeRowsPerPage={handleChangeRowsPerPage}
-              data-testid="table-pagination"
+            <EnhancedTableHead
+              classes={classes}
+              order={order}
+              orderBy={orderBy}
+              onRequestSort={handleRequestSort}
+              isLibrarian={authUser.roles.includes('Librarian')}
+              headCells={headCells}
             />
-          </TableContainer>
-        )}
-      </Paper>
-    </div>
+            <Confirm
+              show={showConfirmDelete}
+              title="Are you sure?"
+              message={
+                selectedBook
+                  ? `${selectedBook.title.toUpperCase()} by ${selectedBook.author}, serial number ${
+                      selectedBook.serNo
+                    } will be deleted!`
+                  : ''
+              }
+              cancel={() => setShowDeleteConfirm(false)}
+              confirm={onDelete}
+              confirmText="delete"
+              cancelText="cancel"
+            />
+            <BookTableBody
+              books={books}
+              authUser={authUser}
+              page={page}
+              order={order}
+              orderBy={orderBy}
+              rowsPerPage={rowsPerPage}
+              onShowBookDetails={onShowBookDetails}
+              onEdit={onEdit}
+              onConfirmDelete={onConfirmDelete}
+            />
+            <BookContainer
+              open={openBookDetails}
+              handleClose={() => setOpenBookDetails(false)}
+              bookId={chosenBookId}
+            />
+            <BookDialog
+              title="Edit Book"
+              show={showEditDialogue}
+              close={() => onEdit(null)}
+              book={selectedBook}
+            />
+          </Table>
+          <TablePagination
+            rowsPerPageOptions={[10, 15, 25]}
+            component="div"
+            count={books.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onChangePage={handleChangePage}
+            onChangeRowsPerPage={handleChangeRowsPerPage}
+            data-testid="table-pagination"
+          />
+        </TableContainer>
+      )}
+    </Paper>
   );
 };
 

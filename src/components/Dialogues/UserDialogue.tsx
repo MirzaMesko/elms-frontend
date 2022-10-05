@@ -173,8 +173,8 @@ const UserDialog: React.FC<OwnProps> = (props: Props) => {
         show={state.openConfirm}
         title="Are you sure?"
         message="Entered input will be lost. Are you sure you want to cancel?"
-        confirm={handleClose}
-        cancel={() => setState({ ...state, openConfirm: false })}
+        cancel={handleClose}
+        confirm={() => setState({ ...state, openConfirm: false })}
         cancelText="confirm cancel"
         confirmText="continue editing"
       />

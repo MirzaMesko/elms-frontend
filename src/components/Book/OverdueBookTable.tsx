@@ -231,8 +231,8 @@ const EnhancedTable: React.FC<Props> = ({ books }: Props) => {
                       }, serial number ${selectedBook.serNo} is overdue!`
                     : ''
                 }
-                confirm={() => setShowConfirm(false)}
-                cancel={() => sendReminder(selectedBook)}
+                cancel={() => setShowConfirm(false)}
+                confirm={() => sendReminder(selectedBook)}
                 confirmText="send notification"
                 cancelText="cancel"
               />

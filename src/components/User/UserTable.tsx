@@ -112,11 +112,7 @@ const EnhancedTable: React.FC<OwnProps> = ({ users, onShowSnackbar }: Props) => 
   const onDelete = () => {
     // eslint-disable-next-line no-underscore-dangle
     dispatch(deleteUser(authUser.roles, selectedUser._id, token)).then((response: any) => {
-      if (response.status === 400 || response.status === 401 || response.status === 403) {
-        onShowSnackbar(true, 'error', response.message);
-      }
       if (response.status === 200) {
-        onShowSnackbar(true, 'success', `User deleted`);
         setShowDeleteConfirm(false);
         dispatch(getUsers(token));
       }
@@ -176,8 +172,8 @@ const EnhancedTable: React.FC<OwnProps> = ({ users, onShowSnackbar }: Props) => 
                      will be deleted!`
                     : ''
                 }
-                confirm={() => setShowDeleteConfirm(false)}
-                cancel={onDelete}
+                cancel={() => setShowDeleteConfirm(false)}
+                confirm={onDelete}
                 confirmText="delete"
                 cancelText="cancel"
               />
