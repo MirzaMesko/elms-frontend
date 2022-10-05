@@ -28,6 +28,11 @@ const booksArray = [
   },
 ];
 
+const authUser = {
+  username: 'test2',
+  roles: ['Librarian', 'Member'],
+};
+
 const setup = (books) => {
   render(
     <Provider store={store}>
@@ -90,5 +95,28 @@ describe('BookTable', () => {
     expect(screen.getByTestId('error')).toBeInTheDocument();
     expect(screen.getByTestId('error-message').textContent).toBe('test');
     useSelectorMock.mockClear();
+  });
+  it('renders tablehead with headcells for Title, Author, Year, Description, Publisher, Serial No and Actions', () => {
+    const useSelectorMock = jest.spyOn(reactRedux, 'useSelector');
+    useSelectorMock.mockReturnValue({ authUser, error: { error: false, message: '' } });
+    setup(booksArray);
+
+    expect(screen.getByText('Title')).toBeInTheDocument();
+    expect(screen.getByText('Author')).toBeInTheDocument();
+    expect(screen.getByText('Year')).toBeInTheDocument();
+    expect(screen.getByText('Description')).toBeInTheDocument();
+    expect(screen.getByText('Publisher')).toBeInTheDocument();
+    expect(screen.getByText('Serial No')).toBeInTheDocument();
+    expect(screen.getByText('Actions')).toBeInTheDocument();
+  });
+  it('does not render headcells for Serial No and Actions if user not admin', () => {
+    const useSelectorMock = jest.spyOn(reactRedux, 'useSelector');
+    useSelectorMock.mockReturnValue({
+      authUser: { roles: ['Member'] },
+      error: { error: false, message: '' },
+    });
+    setup(booksArray);
+    expect(screen.queryByText('Serial No')).not.toBeInTheDocument();
+    expect(screen.queryByText('Actions')).not.toBeInTheDocument();
   });
 });
