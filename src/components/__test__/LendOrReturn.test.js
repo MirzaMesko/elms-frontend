@@ -15,7 +15,7 @@ const usersArray = [
     name: 'name',
     username: 'username',
     image: 'image',
-    roles: ['Member'],
+    roles: { member: 'Member' },
     email: 'user@email.com',
     owedBooks: ['123456789', '456'],
   },
@@ -24,7 +24,7 @@ const usersArray = [
     name: 'name',
     username: 'username',
     image: 'image',
-    roles: ['Member'],
+    roles: { member: 'Member' },
     email: 'user@email.com',
   },
 ];
@@ -52,7 +52,7 @@ const booksArray = [
 
 const authUser = {
   username: 'test2',
-  roles: ['Member'],
+  roles: { member: 'Member' },
 };
 
 const setup = (users) => {
