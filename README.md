@@ -12,6 +12,12 @@ ELMS is a simple app intended for small libraries allowing administrators and li
 ![Screenshot 2022-08-23 214200](https://user-images.githubusercontent.com/54722233/186252367-075091bc-8920-4aa0-b0c1-1952447d58e0.png)
 
 https://user-images.githubusercontent.com/54722233/186242342-624a816b-53aa-4312-a6c1-db51b6b098a7.mp4
+https://user-images.githubusercontent.com/54722233/195994969-64a06747-22fe-4fa7-94e4-4450b0d1c3c7.mp4
+https://user-images.githubusercontent.com/54722233/195994997-a439c20d-cbf4-41d0-ba46-9156916a2483.mp4
+
+
+
+
 
 ## Available Scripts
 
