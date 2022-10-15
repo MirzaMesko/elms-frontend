@@ -4,6 +4,8 @@ import { AppDispatch } from '../store.ts';
 import type { User, NotificationType, Roles } from '../types.ts';
 // @ts-ignore
 import responseInterceptor from './refreshToken.tsx';
+// @ts-ignore
+import { showSnackbarMessage } from './books.tsx';
 
 const axios = require('axios');
 
@@ -39,8 +41,14 @@ export function addUser(
         { email, username, password, roles, name, image, bio },
         { headers }
       )
-      .then((response: any) => response)
-      .catch((error: any) => error.response.data);
+      .then((response: any) => {
+        dispatch(showSnackbarMessage('success', `User ${response.data.username} was created`));
+        return response;
+      })
+      .catch((error: any) => {
+        dispatch(showSnackbarMessage('error', `Something went wrong. Please try again.`));
+        return error;
+      });
   };
 }
 
@@ -113,8 +121,19 @@ export function editUser(
 
     return axios
       .put(url, { id, email, roles, name, image, bio }, { headers })
-      .then((response: any) => response)
-      .catch((error: any) => error.response.data);
+      .then((response: any) => {
+        dispatch(showSnackbarMessage('success', `User ${response.data.username} was edited.`));
+        return response;
+      })
+      .catch((error: any) => {
+        dispatch(
+          showSnackbarMessage(
+            'error',
+            `Something went wrong. Please try again.${error.response.data}`
+          )
+        );
+        return error;
+      });
   };
 }
 
@@ -129,8 +148,19 @@ export function deleteUser(authUserRoles: Roles, id: string, token: string) {
 
     return axios
       .delete(url, config)
-      .then((response: any) => response)
-      .catch((error: any) => error.response.data);
+      .then((response: any) => {
+        dispatch(showSnackbarMessage('success', `User deleted.`));
+        return response;
+      })
+      .catch((error: any) => {
+        dispatch(
+          showSnackbarMessage(
+            'error',
+            `Something went wrong. Please try again.${error.response.data}`
+          )
+        );
+        return error;
+      });
   };
 }
 
@@ -143,7 +173,15 @@ export function notifyUser(token: string, authUserRoles: Roles, userId: string, 
     return axios
       .put(url, { id: userId, newNotification: message, seen: 'false' }, { headers })
       .then((response: any) => response)
-      .catch((error: any) => error.response.data);
+      .catch((error: any) => {
+        dispatch(
+          showSnackbarMessage(
+            'error',
+            `Something went wrong. Please try again.${error.response.data}`
+          )
+        );
+        return error;
+      });
   };
 }
 
