@@ -4,7 +4,6 @@ import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 // @ts-ignore
 import { RootState, AppDispatch } from '../../store.ts';
-// @ts-ignore
 import {
   closeSnackbarMessage,
   // @ts-ignore
@@ -23,7 +22,6 @@ const CustomizedSnackbars: React.FC = () => {
     if (reason === 'clickaway') {
       return;
     }
-
     dispatch(closeSnackbarMessage());
   };
 
