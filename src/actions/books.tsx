@@ -101,11 +101,20 @@ export function addBook(
         { headers }
       )
       .then((response: any) => {
-        dispatch(showSnackbarMessage('success', 'Book successfully added to the library.'));
+        if (response.status === 201) {
+          dispatch(showSnackbarMessage('success', 'Book successfully added to the library.'));
+        } else {
+          dispatch(
+            showSnackbarMessage(
+              'error',
+              `Something went wrong. Please try again.${response.data.message}`
+            )
+          );
+        }
         return response;
       })
       .catch((error: any) => {
-        dispatch(showSnackbarMessage('error', 'Something went wrong. Please try again.'));
+        dispatch(showSnackbarMessage('error', `Something went wrong. Please try again.`));
         return error;
       });
   };
