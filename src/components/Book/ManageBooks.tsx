@@ -139,14 +139,6 @@ const ManageBooks: React.FC = () => {
     setSearchFilter(event.target.value);
   };
 
-  React.useEffect(() => {
-    dispatch(getBooks(token));
-  }, []);
-
-  React.useEffect(() => {
-    setSearchResults(books);
-  }, [books]);
-
   const filterByCategorie = () => {
     if (roleFilter === 'all books') {
       setCategorySearchResults(books);
@@ -157,6 +149,18 @@ const ManageBooks: React.FC = () => {
     );
     setCategorySearchResults(filteredResults.reverse());
   };
+
+  React.useEffect(() => {
+    dispatch(getBooks(token));
+  }, []);
+
+  React.useEffect(() => {
+    setSearchResults(books);
+  }, [books]);
+
+  React.useEffect(() => {
+    filterByCategorie();
+  }, [roleFilter]);
 
   React.useEffect(() => {
     const filteredResults = categorySearchResults.filter(
@@ -171,10 +175,6 @@ const ManageBooks: React.FC = () => {
     setSearchResults(filteredResults.reverse());
   }, [search, searchFilter, categorySearchResults]);
 
-  React.useEffect(() => {
-    filterByCategorie();
-  }, [roleFilter]);
-
   return (
     <Box>
       <CustomizedSnackbars />
@@ -184,6 +184,7 @@ const ManageBooks: React.FC = () => {
             type="submit"
             variant="contained"
             color="primary"
+            data-testid="add-book-button"
             className={classes.submit}
             onClick={handleOpen}
           >
