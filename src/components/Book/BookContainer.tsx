@@ -44,7 +44,7 @@ const BookContainer: React.FC<OwnProps> = ({ open, handleClose, bookId, err }: O
 
   const dispatch: AppDispatch = useDispatch();
   const { token, users, authUser } = useSelector((state: RootState) => state.users);
-  const user = users.filter((u: User) => u.username === authUser.username);
+  const user: User | undefined = users?.filter((u: User) => u.username === authUser.username);
 
   const rateBook = (ratingValue: number) => {
     setShowRatingDialogue(false);
