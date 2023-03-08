@@ -27,6 +27,7 @@ export function refresh() {
 export default function responseInterceptor(dispatch: AppDispatch) {
   // Add a response interceptor
   axios.interceptors.response.use(
+    // eslint-disable-next-line no-console
     (response: any) => response,
     // eslint-disable-next-line consistent-return
     async (error: any) => {

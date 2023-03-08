@@ -95,7 +95,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundPosition: 'center',
     backgroundSize: 'cover',
     backgroundRepeat: 'repeat',
-    width: '100%',
+    minWidth: '100vw',
     padding: '20px',
   },
 }));
