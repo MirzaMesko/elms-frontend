@@ -14,7 +14,7 @@ export type User = {
   password: string;
   name: string;
   bio?: string;
-  image: string;
+  image: string | undefined;
   owedBooks?: [];
   readingHistory?: [];
   notifications?: [
