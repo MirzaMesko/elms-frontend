@@ -8,7 +8,10 @@ const axios = require('axios');
 export function refresh() {
   return (dispatch: AppDispatch) =>
     axios
-      .get('http://localhost:3500/refresh', { withCredentials: true, credentials: 'include' })
+      .get('http://localhost:3500/refresh', {
+        withCredentials: true,
+        credentials: 'include',
+      })
       // eslint-disable-next-line consistent-return
       .then((response: { data: { accessToken: string } }) => {
         dispatch(authSuccess(response.data.accessToken));
