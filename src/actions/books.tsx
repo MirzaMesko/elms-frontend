@@ -69,7 +69,7 @@ export function getBooks(token: string) {
     const headers = { Authorization: `Bearer ${token}` };
     const url = 'http://localhost:3500/books';
     return axios
-      .get(url, { headers })
+      .get(url, { headers }, { 'Access-Control-Allow-Origin': '*' })
       .then((response: any) => {
         dispatch(retrieveBooksSuccess(response.data));
       })
