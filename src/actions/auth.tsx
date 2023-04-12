@@ -54,7 +54,10 @@ export function logoutSuccess() {
 export function logout() {
   return (dispatch: AppDispatch) =>
     axios
-      .get('http://localhost:3500/logout', { withCredentials: true, credentials: 'include' })
+      .get('http://localhost:3500/logout', {
+        withCredentials: true,
+        credentials: 'include',
+      })
       .then(() => {
         dispatch(logoutSuccess());
       });
@@ -81,7 +84,11 @@ export function login(username: string, password: string) {
 export function register(email: string, username: string, password: string) {
   return () =>
     axios
-      .post('http://localhost:3500/register', { email, username, password })
+      .post(
+        'http://localhost:3500/register',
+        { email, username, password },
+        { withCredentials: true, credentials: 'include' }
+      )
       .then((response: { data: { message: string } }) => response)
       .catch((error: { response: { data: any } }) => error.response.data);
 }
