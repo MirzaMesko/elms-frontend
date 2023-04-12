@@ -25,18 +25,25 @@ import { RootState, AppDispatch } from '../../store.ts';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
-    marginTop: theme.spacing(8),
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    [theme.breakpoints.up('sm')]: {
+      marginTop: '150px',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+    },
   },
   avatar: {
     margin: theme.spacing(1),
     backgroundColor: theme.palette.secondary.main,
   },
   form: {
-    width: '100%', // Fix IE 11 issue.
+    width: '70%', // Fix IE 11 issue.
     marginTop: theme.spacing(1),
+    [theme.breakpoints.up('sm')]: {
+      width: '100%',
+    },
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
@@ -46,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
 const Login: React.FC = () => {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [showPassword, setShowPassword] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
 
   const classes = useStyles();
   const dispatch: AppDispatch = useDispatch();
@@ -74,7 +81,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
+    <Container component="main" maxWidth="sm">
       <Alert
         show={error}
         title="Error"
@@ -83,76 +90,87 @@ const Login: React.FC = () => {
       />
       <CssBaseline />
       <div className={classes.paper} data-testid="login-page">
-        <img src={logo} alt="logo" style={{ marginBottom: '2rem' }} />
-        <Avatar className={classes.avatar}>
-          <LockOutlinedIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5" data-testid="log-in-text">
-          Log in
-        </Typography>
-        <form className={classes.form} data-testid="log-in-form">
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            inputProps={{ 'data-testid': 'username-input' }}
-            label="Username"
-            value={username}
-            name="username"
-            autoComplete="username"
-            autoFocus
-            onChange={handleUsernameChange}
-          />
-          <FormControl fullWidth>
-            <InputLabel
-              htmlFor="outlined-adornment-password"
-              required
-              margin="dense"
+        <>
+          <img src={logo} alt="logo" style={{ margin: '0 1rem', paddingTop: '50px' }} />
+        </>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            margin: '0 1rem',
+          }}
+        >
+          <Avatar className={classes.avatar}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5" data-testid="log-in-text">
+            Log in
+          </Typography>
+          <form className={classes.form} data-testid="log-in-form">
+            <TextField
               variant="outlined"
-            >
-              Password
-            </InputLabel>
-            <OutlinedInput
-              name="password"
-              value={password}
-              type={showPassword ? 'text' : 'password'}
-              id="outlined-adornment-password"
-              onChange={handlePasswordChange}
-              inputProps={{ 'data-testid': 'password-input' }}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={handleClickShowPassword}
-                    onMouseDown={handleMouseDownPassword}
-                    edge="end"
-                  >
-                    {showPassword ? <VisibilityIcon /> : <VisibilityOff />}
-                  </IconButton>
-                </InputAdornment>
-              }
+              margin="normal"
+              required
+              fullWidth
+              inputProps={{ 'data-testid': 'username-input' }}
+              label="Username"
+              value={username}
+              name="username"
+              autoComplete="username"
+              autoFocus
+              onChange={handleUsernameChange}
             />
-          </FormControl>
-          <Button
-            type="submit"
-            fullWidth
-            disabled={!username || !password}
-            variant="contained"
-            color="primary"
-            className={classes.submit}
-            onClick={logIn}
-            data-testid="login-button"
-          >
-            Login
-          </Button>
-        </form>
-        <p data-testid="signup-message">
-          Don&#39;t have an account?{' '}
-          <a href="/register" data-testid="signup-link">
-            Sign up
-          </a>
-        </p>
+            <FormControl fullWidth>
+              <InputLabel
+                htmlFor="outlined-adornment-password"
+                required
+                margin="dense"
+                variant="outlined"
+              >
+                Password
+              </InputLabel>
+              <OutlinedInput
+                name="password"
+                value={password}
+                type={showPassword ? 'text' : 'password'}
+                id="outlined-adornment-password"
+                onChange={handlePasswordChange}
+                inputProps={{ 'data-testid': 'password-input' }}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      onMouseDown={handleMouseDownPassword}
+                      edge="end"
+                    >
+                      {!showPassword ? <VisibilityIcon /> : <VisibilityOff />}
+                    </IconButton>
+                  </InputAdornment>
+                }
+              />
+            </FormControl>
+            <Button
+              type="submit"
+              fullWidth
+              disabled={!username || !password}
+              variant="contained"
+              color="primary"
+              className={classes.submit}
+              onClick={logIn}
+              data-testid="login-button"
+            >
+              Login
+            </Button>
+          </form>
+          <p data-testid="signup-message">
+            Don&#39;t have an account?{' '}
+            <a href="/register" data-testid="signup-link">
+              Sign up
+            </a>
+          </p>
+        </div>
       </div>
       <Box mt={8}>
         <Copyright />

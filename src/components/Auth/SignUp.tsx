@@ -30,10 +30,14 @@ import { RootState, AppDispatch } from '../../store.ts';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
-    marginTop: theme.spacing(8),
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    [theme.breakpoints.up('sm')]: {
+      marginTop: '150px',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+    },
   },
   avatar: {
     margin: theme.spacing(1),
@@ -42,6 +46,9 @@ const useStyles = makeStyles((theme) => ({
   form: {
     width: '100%', // Fix IE 11 issue.
     marginTop: theme.spacing(1),
+    [theme.breakpoints.up('sm')]: {
+      width: '100%',
+    },
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
@@ -61,7 +68,7 @@ const Register: React.FC = () => {
   const [emailWarning, setEmailWarning] = useState('');
   const [passwordWarning, setPasswordlWarning] = useState('');
   const [usernameWarning, setUsernameWarning] = useState('');
-  const [showPassword, setShowPassword] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
   const [severity, setSeverity] = React.useState('');
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [errMessage, setErrMessage] = React.useState('');
@@ -150,7 +157,7 @@ const Register: React.FC = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
+    <Container component="main" maxWidth="sm">
       <Alert
         show={error}
         title="Error"
@@ -160,102 +167,111 @@ const Register: React.FC = () => {
       <CustomizedSnackbars show={openSnackbar} severity={severity} message={errMessage} />
       <CssBaseline />
       <div className={classes.paper} data-testid="signup-page">
-        <img src={logo} alt="logo" style={{ marginBottom: '2rem' }} />
-        <Avatar className={classes.avatar}>
-          <LockOutlinedIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5" data-testid="sign-up-text">
-          Sign up
-        </Typography>
-        <form className={classes.form} data-testid="sign-up-form">
-          <TextField
-            variant="outlined"
-            margin="normal"
-            inputProps={{ 'data-testid': 'email-input' }}
-            required
-            error={emailWarning.length > 2}
-            helperText={emailWarning}
-            fullWidth
-            id="email"
-            label="Email"
-            name="email"
-            autoFocus
-            onBlur={emailValidator}
-            onChange={handleEmailChange}
-          />
-          <TextField
-            variant="outlined"
-            margin="normal"
-            inputProps={{ 'data-testid': 'username-input' }}
-            required
-            fullWidth
-            id="username"
-            label="Username"
-            name="username"
-            error={usernameWarning.length > 2}
-            helperText={usernameWarning}
-            onBlur={() =>
-              !username.length
-                ? setUsernameWarning('Username must not be empty')
-                : setUsernameWarning('')
-            }
-            onChange={handleUsernameChange}
-          />
-          <FormControl fullWidth>
-            <InputLabel
-              htmlFor="outlined-adornment-password"
-              required
-              margin="dense"
+        <img src={logo} alt="logo" style={{ margin: '0 1rem', paddingTop: '50px' }} />
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            margin: '0 1rem',
+          }}
+        >
+          <Avatar className={classes.avatar}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5" data-testid="sign-up-text">
+            Sign up
+          </Typography>
+          <form className={classes.form} data-testid="sign-up-form">
+            <TextField
               variant="outlined"
-            >
-              Password
-            </InputLabel>
-            <OutlinedInput
-              name="password"
-              inputProps={{ 'data-testid': 'password-input' }}
-              type={showPassword ? 'text' : 'password'}
-              id="outlined-adornment-password"
-              onBlur={passwordValidator}
-              value={password}
-              error={passwordWarning.length > 2}
-              onChange={handlePasswordChange}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={handleClickShowPassword}
-                    onMouseDown={handleMouseDownPassword}
-                    edge="end"
-                  >
-                    {showPassword ? <VisibilityOff /> : <VisibilityIcon />}
-                  </IconButton>
-                </InputAdornment>
-              }
+              margin="normal"
+              inputProps={{ 'data-testid': 'email-input' }}
+              required
+              error={emailWarning.length > 2}
+              helperText={emailWarning}
+              fullWidth
+              id="email"
+              label="Email"
+              name="email"
+              autoFocus
+              onBlur={emailValidator}
+              onChange={handleEmailChange}
             />
-            <FormHelperText id="my-helper-text" error={passwordWarning.length > 2}>
-              {passwordWarning}
-            </FormHelperText>
-          </FormControl>
+            <TextField
+              variant="outlined"
+              margin="normal"
+              inputProps={{ 'data-testid': 'username-input' }}
+              required
+              fullWidth
+              id="username"
+              label="Username"
+              name="username"
+              error={usernameWarning.length > 2}
+              helperText={usernameWarning}
+              onBlur={() =>
+                !username.length
+                  ? setUsernameWarning('Username must not be empty')
+                  : setUsernameWarning('')
+              }
+              onChange={handleUsernameChange}
+            />
+            <FormControl fullWidth>
+              <InputLabel
+                htmlFor="outlined-adornment-password"
+                required
+                margin="dense"
+                variant="outlined"
+              >
+                Password
+              </InputLabel>
+              <OutlinedInput
+                name="password"
+                inputProps={{ 'data-testid': 'password-input' }}
+                type={showPassword ? 'text' : 'password'}
+                id="outlined-adornment-password"
+                onBlur={passwordValidator}
+                value={password}
+                error={passwordWarning.length > 2}
+                onChange={handlePasswordChange}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      onMouseDown={handleMouseDownPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <VisibilityIcon />}
+                    </IconButton>
+                  </InputAdornment>
+                }
+              />
+              <FormHelperText id="my-helper-text" error={passwordWarning.length > 2}>
+                {passwordWarning}
+              </FormHelperText>
+            </FormControl>
 
-          <Button
-            type="submit"
-            data-testid="signup-button"
-            fullWidth
-            variant="contained"
-            disabled={!username || !password || !email}
-            color="primary"
-            className={classes.submit}
-            onClick={signUp}
-          >
-            Sign Up
-          </Button>
-        </form>
-        <p data-testid="login-message">
-          Have an account?{' '}
-          <a href="/login" data-testid="login-link">
-            Log in now.
-          </a>
-        </p>
+            <Button
+              type="submit"
+              data-testid="signup-button"
+              fullWidth
+              variant="contained"
+              disabled={!username || !password || !email}
+              color="primary"
+              className={classes.submit}
+              onClick={signUp}
+            >
+              Sign Up
+            </Button>
+          </form>
+          <p data-testid="login-message">
+            Have an account?{' '}
+            <a href="/login" data-testid="login-link">
+              Log in now.
+            </a>
+          </p>
+        </div>
       </div>
       <Box mt={8}>
         <Copyright />
