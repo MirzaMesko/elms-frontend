@@ -54,6 +54,7 @@
   width: 200px;
   display: inline-flex;
   object-fit: cover;
+  position: relative;
 }
 
 .smallImage {
@@ -65,9 +66,25 @@
 
 .dialogueContainer {
   display: flex;
-  max-height:  500px;
+  max-height: 500px;
   min-width: 500px;
   padding: 1rem;
+}
+
+
+.hidden {
+  display: none;
+}
+
+@media only screen and (max-width: 700px) {
+  .mediumImage {
+    height: 200px;
+    width: 150px;
+  }
+  .largeImage {
+    height: 250px;
+    width: 200px;
+  }
 }
 
 @keyframes App-logo-spin {
