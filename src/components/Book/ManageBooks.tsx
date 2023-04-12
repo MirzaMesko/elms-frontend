@@ -27,6 +27,9 @@ import type { Book } from '../../types.ts';
 const BootstrapInput = styled(InputBase)(({ theme }) => ({
   'label + &': {
     margin: theme.spacing(3, 2, 2, 0),
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 6,
+    },
   },
   '& .MuiInputBase-input': {
     borderRadius: 4,
@@ -54,6 +57,17 @@ const BootstrapInput = styled(InputBase)(({ theme }) => ({
       borderColor: '#80bdff',
       boxShadow: '0 0 0 0.2rem rgba(0,123,255,.25)',
     },
+    [theme.breakpoints.down('md')]: {
+      padding: '12px 26px 10px 10px',
+      fontSize: 14,
+      minWidth: '100px',
+    },
+    [theme.breakpoints.down('sm')]: {
+      padding: '12px 16px 10px 6px',
+      fontSize: 10,
+      minWidth: '50px',
+      marginRight: 0,
+    },
   },
 }));
 
@@ -70,29 +84,43 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
 const useStyles = makeStyles((theme) => ({
   submit: {
     margin: theme.spacing(3, 3, 2),
+    maxHeight: '40px',
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '0.5rem',
+      maxHeight: '35px',
+      margin: theme.spacing(3, 1, 2, 2),
+      padding: '3px 5px',
+    },
+  },
+  addBookIcon: {
+    marginRight: '15px',
+    [theme.breakpoints.down('sm')]: {
+      margin: '2px',
+      padding: 0,
+    },
   },
   container: {
     display: 'flex',
     flexDirection: 'row',
-    margin: theme.spacing(0, 3, 0),
+    justifyContent: 'centre',
+    alignContent: 'centre',
+    flexWrap: 'wrap',
   },
-  search: {
-    margin: theme.spacing(3, 0, 2),
-    padding: '0.1rem',
+  form: {
+    margin: theme.spacing(0, 4, 0),
   },
   label: {
     fontSize: '20px',
     color: '#3f51b5',
-  },
-  input: {
-    border: '1px solid #3f51b5',
-    padding: '0.3rem 0.3rem',
-    marginRight: '0.5rem',
-    color: '#3f51b5',
+    margin: '2rem 3px 2rem 0rem',
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '14px',
+      maxHeight: '40px',
+    },
   },
   option: {
-    margin: ' 0 0.2rem',
-    fontSize: '20px',
+    margin: ' 0 0.1rem',
+    fontSize: '10px',
     color: '#3f51b5',
   },
 }));
@@ -176,7 +204,7 @@ const ManageBooks: React.FC = () => {
   }, [search, searchFilter, categorySearchResults]);
 
   return (
-    <Box>
+    <Box maxWidth="md" className="padding: 10px">
       <CustomizedSnackbars />
       <div className={classes.container}>
         {isAdmin && (
@@ -188,11 +216,11 @@ const ManageBooks: React.FC = () => {
             className={classes.submit}
             onClick={handleOpen}
           >
-            <LibraryBooksIcon style={{ marginRight: '15px' }} />
+            <LibraryBooksIcon className={classes.addBookIcon} />
             New Book
           </Button>
         )}
-        <FormControl variant="standard">
+        <FormControl variant="standard" className={classes.form}>
           <InputLabel htmlFor="demo-customized-textbox">search books</InputLabel>
           <BootstrapInput
             id="demo-customized-textbox"
@@ -206,7 +234,8 @@ const ManageBooks: React.FC = () => {
             <SearchIcon color="primary" />
           </SearchIconWrapper>
         </FormControl>
-        <Typography style={{ margin: '2rem 0.5rem' }}>by</Typography>
+
+        <Typography className={classes.label}>by</Typography>
         <FormControl variant="standard">
           <InputLabel htmlFor="demo-customized-textbox"> </InputLabel>
           <Select
@@ -222,7 +251,7 @@ const ManageBooks: React.FC = () => {
             {roles === 'Member' && <MenuItem value="category">category</MenuItem>}
           </Select>
         </FormControl>
-        <Typography style={{ margin: '2rem 0.5rem 2rem 9rem' }}>showing</Typography>
+        <Typography className={classes.label}>showing</Typography>
         <FormControl variant="standard">
           <InputLabel htmlFor="demo-customized-textbox"> </InputLabel>
           <Select value={roleFilter} onChange={handleRoleFilterChange} input={<BootstrapInput />}>
