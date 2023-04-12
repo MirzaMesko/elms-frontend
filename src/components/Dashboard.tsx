@@ -103,6 +103,15 @@ const useStyles = makeStyles((theme) => ({
     color: 'red',
     textDecoration: 'none',
   },
+  copyrightBox: {
+    position: 'fixed',
+    bottom: 0,
+    backgroundColor: '#3f51b5',
+    width: '100vw',
+    padding: 4,
+    color: 'white',
+    marginTop: 4,
+  },
 }));
 
 interface OwnProps {
@@ -195,23 +204,25 @@ const Dashboard: React.FC<OwnProps> = ({ children, Notification, wrapperType }: 
           <BasicMenu />
         </Toolbar>
       </AppBar>
-      <Drawer
-        variant="permanent"
-        data-testid="dashboard-drawer"
-        classes={{
-          paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
-        }}
-        open={open}
-      >
-        <List style={{ marginTop: '55px', alignItems: 'center', justifyContent: 'flex-end' }}>
-          <MainListItems show={isAdmin} />
-        </List>
-      </Drawer>
+      {isAdmin && (
+        <Drawer
+          variant="permanent"
+          data-testid="dashboard-drawer"
+          classes={{
+            paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
+          }}
+          open={open}
+        >
+          <List style={{ marginTop: '55px', alignItems: 'center', justifyContent: 'flex-end' }}>
+            <MainListItems show={isAdmin} />
+          </List>
+        </Drawer>
+      )}
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
-        <Container maxWidth="lg" className={classes.container}>
+        <Container maxWidth="xl" className={classes.container}>
           <div ref={wrapper}>{children}</div>
-          <Box pt={18}>
+          <Box className={classes.copyrightBox}>
             <Copyright />
           </Box>
         </Container>
