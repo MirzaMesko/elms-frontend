@@ -17,54 +17,12 @@ import type { RootState } from '../../store.ts';
 // @ts-ignore
 import type { User, Book } from '../../types.ts';
 
-const drawerWidth = 240;
+// const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-  },
-  toolbar: {
-    paddingRight: 24, // keep right padding when drawer closed
-  },
-  appBar: {
-    zIndex: theme.zIndex.drawer + 1,
-  },
-  menuButton: {
-    marginRight: 36,
-  },
   title: {
     flexGrow: 1,
     color: 'white',
-  },
-  drawerPaper: {
-    position: 'relative',
-    whiteSpace: 'nowrap',
-    width: drawerWidth,
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  drawerPaperClose: {
-    overflowX: 'hidden',
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    width: theme.spacing(7),
-    [theme.breakpoints.up('sm')]: {
-      width: theme.spacing(9),
-    },
-  },
-  appBarSpacer: theme.mixins.toolbar,
-  content: {
-    flexGrow: 1,
-    height: '100vh',
-    overflow: 'auto',
-  },
-  container: {
-    paddingTop: theme.spacing(4),
-    paddingBottom: theme.spacing(4),
   },
   paper: {
     padding: theme.spacing(2),
@@ -75,10 +33,7 @@ const useStyles = makeStyles((theme) => ({
     '&:hover': { backgroundColor: '#abc' },
   },
   fixedHeight: {
-    height: 150,
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2),
+    height: 160,
   },
   link: {
     color: 'red',
@@ -90,13 +45,13 @@ const useStyles = makeStyles((theme) => ({
     textDecoration: 'none',
   },
   divider: {
-    height: '150px',
+    height: '100vh',
     backgroundImage: `url(${background})`,
     backgroundPosition: 'center',
     backgroundSize: 'cover',
     backgroundRepeat: 'repeat',
     minWidth: '100vw',
-    padding: '20px',
+    padding: '40px',
   },
 }));
 
@@ -117,14 +72,21 @@ const Links: React.FC = () => {
           xs={12}
           md={4}
           style={{
-            display: roles.includes('Admin') ? 'flex' : 'none',
+            display: roles.includes('Admin') || roles.includes('Librarian') ? 'flex' : 'none',
             marginLeft: '16px',
             marginTop: '30px',
           }}
         >
           <RouterLink to="/manage/users" className={classes.link && classes.linkActive}>
             <Paper className={fixedHeightPaper}>
-              <Card title="Manage Users " text="Add, edit or remove users from Elms" />
+              <Card
+                title="Manage Users "
+                text={` ${
+                  roles.includes('Admin')
+                    ? 'Add, edit or remove users from Elms'
+                    : 'Add & edit members, lend & return books'
+                }`}
+              />
               <AvatarGroup max={8}>
                 {users.map((u: User) => (
                   <Avatar src={u.image} key={u._id}>
@@ -163,10 +125,7 @@ const Links: React.FC = () => {
           xs={12}
           md={4}
           style={{
-            display:
-              !roles.includes('Admin') && !Object.values(roles).includes('Librarian')
-                ? 'flex'
-                : 'none',
+            display: !roles.includes('Admin') && !roles.includes('Librarian') ? 'flex' : 'none',
             marginLeft: '16px',
             marginTop: '30px',
           }}
