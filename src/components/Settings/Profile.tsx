@@ -15,10 +15,22 @@ import RoleChip from '../Helpers/Chip.tsx';
 import type { User } from '../../types.ts';
 import profilePlaceholder from '../../utils/profile-picture-default-png.png';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   container: {
     display: 'flex',
     padding: '1rem',
+    [theme.breakpoints.down('xs')]: {
+      flexDirection: 'column',
+      alignItems: 'center',
+      padding: 0,
+    },
+  },
+  content: {
+    [theme.breakpoints.down('xs')]: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+    },
   },
 }));
 
@@ -44,7 +56,7 @@ const Profile: React.FC<Props> = ({ user }: Props) => {
         className="largeImage"
         data-testid="image"
       />
-      <DialogContent>
+      <DialogContent className={classes.content}>
         <div className="spaceBetween">
           <Typography gutterBottom variant="h4" data-testid="username">
             {user.username}
@@ -57,8 +69,7 @@ const Profile: React.FC<Props> = ({ user }: Props) => {
             color="primary"
             onClick={() => onEdit(user)}
           >
-            <EditIcon style={{ marginRight: '15px' }} />
-            Edit Profile
+            <EditIcon fontSize="default" />
           </Button>
         </div>
         <RoleChip user={user} />
