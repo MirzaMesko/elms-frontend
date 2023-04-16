@@ -25,8 +25,6 @@ const useStyles = makeStyles(() => ({
 const UserInfo: React.FC<User> = ({ user }: User) => {
   const classes = useStyles();
   const image = user?.image ? user.image : profilePlaceholder;
-  // eslint-disable-next-line no-console
-  console.log(user);
 
   if (!user) {
     return <Loading />;
