@@ -73,12 +73,14 @@ const Settings: React.FC = () => {
   React.useEffect(() => {
     if (users) {
       const result = users.filter((u: User) => u.username === id);
-      const notificationsSeen = result[0].notifications.map((n: NotificationType) => ({
-        message: n.message,
-        timestamp: n.timestamp,
-        seen: 'true',
-      }));
-      dispatch(updateNotifications(token, roles, result[0]._id, notificationsSeen));
+      if (result && result[0].notifications) {
+        const notificationsSeen = result[0].notifications.map((n: NotificationType) => ({
+          message: n.message,
+          timestamp: n.timestamp,
+          seen: 'true',
+        }));
+        dispatch(updateNotifications(token, roles, result[0]._id, notificationsSeen));
+      }
       setUser(result[0]);
     }
   }, [users]);
