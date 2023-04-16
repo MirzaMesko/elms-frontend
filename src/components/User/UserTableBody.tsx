@@ -90,7 +90,7 @@ const UserTableBody: React.FC<Props> = ({
               <RoleChip user={user} />
             </TableCell>
             <TableCell>
-              {authUser.roles.includes('Admin') && (
+              {authUser.roles.includes('Librarian') && (
                 <>
                   <LightTooltip
                     TransitionComponent={Fade}
@@ -114,15 +114,17 @@ const UserTableBody: React.FC<Props> = ({
                       <EditIcon fontSize="small" />
                     </IconButton>
                   </LightTooltip>
-                  <LightTooltip
-                    TransitionComponent={Fade}
-                    TransitionProps={{ timeout: 600 }}
-                    title="Delete user"
-                  >
-                    <IconButton aria-label="edit" onClick={() => onConfirmDelete(user)}>
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </LightTooltip>
+                  {authUser.roles.includes('Admin') && (
+                    <LightTooltip
+                      TransitionComponent={Fade}
+                      TransitionProps={{ timeout: 600 }}
+                      title="Delete user"
+                    >
+                      <IconButton aria-label="edit" onClick={() => onConfirmDelete(user)}>
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </LightTooltip>
+                  )}
                 </>
               )}
             </TableCell>
