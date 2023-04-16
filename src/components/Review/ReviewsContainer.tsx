@@ -50,12 +50,12 @@ const ReviewsContainer: React.FC<Props> = (props: Props) => {
           <div className="spaceBetween">
             <Ratings name="read-only" currentRating={currentRating} />
             <Typography className={classes.heading} data-testid="review-numb">
-              Reviews ({reviews.length})
+              {!reviews ? 'Reviews(0)' : `Reviews (${reviews.length})`}
             </Typography>
           </div>
         </AccordionSummary>
         <div style={{ maxHeight: '300px', overflow: 'auto' }}>
-          {!reviews.length ? (
+          {!reviews || !reviews.length ? (
             <AccordionDetails className="centered" data-testid="accordion-details">
               <Typography data-testid="no-reviews-message">
                 Be the first to review this book.
