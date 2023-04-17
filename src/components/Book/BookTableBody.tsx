@@ -15,10 +15,25 @@ import { LightTooltip } from '../Helpers/Tooltip.tsx';
 // @ts-ignore
 import type { Book } from '../../types.ts';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   large: {
     width: '45px',
     height: '65px',
+  },
+  cell: {
+    fontSize: 14,
+    cursor: 'pointer',
+    padding: '10px 15px',
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 12,
+      padding: '5px',
+    },
+  },
+  row: {
+    [theme.breakpoints.down('sm')]: {
+      maxWidth: '100px',
+    },
+    pading: '5px',
   },
 }));
 
@@ -62,10 +77,11 @@ const BookTableBody: React.FC<Props> = ({
             tabIndex={0}
             key={book._id + book._id}
             data-testid="table-row"
+            className={classes.row}
           >
             <TableCell
               onClick={() => onShowBookDetails(book)}
-              style={{ cursor: 'pointer' }}
+              className={classes.cell}
               key={book.title + book._id}
             >
               <Avatar src={book.image} alt={book.title} variant="square" className={classes.large}>
@@ -74,7 +90,7 @@ const BookTableBody: React.FC<Props> = ({
             </TableCell>
             <TableCell
               onClick={() => onShowBookDetails(book)}
-              style={{ cursor: 'pointer' }}
+              className={classes.cell}
               key={book._id + book.title}
             >
               {book.title}
@@ -82,7 +98,7 @@ const BookTableBody: React.FC<Props> = ({
             <TableCell
               align="left"
               onClick={() => onShowBookDetails(book)}
-              style={{ cursor: 'pointer' }}
+              className={classes.cell}
               key={book._id + book.author}
             >
               {book.author}
@@ -90,7 +106,7 @@ const BookTableBody: React.FC<Props> = ({
             <TableCell
               align="left"
               onClick={() => onShowBookDetails(book)}
-              style={{ cursor: 'pointer' }}
+              className={classes.cell}
               key={book._id + book.year}
             >
               {book.year}
@@ -98,7 +114,7 @@ const BookTableBody: React.FC<Props> = ({
             <TableCell
               align="left"
               onClick={() => onShowBookDetails(book)}
-              style={{ cursor: 'pointer' }}
+              className={classes.cell}
               key={book._id + book.description.slice(0, 4)}
             >
               {book.description.slice(0, 60)}...
@@ -106,30 +122,24 @@ const BookTableBody: React.FC<Props> = ({
             <TableCell
               align="left"
               onClick={() => onShowBookDetails(book)}
-              style={{ cursor: 'pointer' }}
+              className={classes.cell}
               key={book._id + book.publisher}
             >
               {book.publisher}
             </TableCell>
-            {!authUser.roles.includes('Admin' || 'Librarian') ? null : (
+            {!authUser.roles.includes('Librarian') ? null : (
               <TableCell
                 align="left"
                 onClick={() => onShowBookDetails(book)}
-                style={{ cursor: 'pointer' }}
+                className={classes.cell}
                 key={book._id + book.serNo}
               >
                 {book.serNo}
               </TableCell>
             )}
             {authUser.roles.includes('Librarian') && (
-              <TableCell align="center">
-                <span
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                  }}
-                  key={book._id}
-                >
+              <TableCell>
+                <>
                   <LightTooltip
                     TransitionComponent={Fade}
                     TransitionProps={{ timeout: 600 }}
@@ -149,7 +159,7 @@ const BookTableBody: React.FC<Props> = ({
                       <DeleteIcon fontSize="small" />
                     </IconButton>
                   </LightTooltip>
-                </span>
+                </>
               </TableCell>
             )}
           </TableRow>
