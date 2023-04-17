@@ -1,12 +1,16 @@
+/* eslint-disable react/button-has-type */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable prettier/prettier */
 /* eslint-disable react/jsx-no-comment-textnodes */
 import React from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import CameraAltIcon from '@material-ui/icons/CameraAlt';
+import IconButton from '@material-ui/core/IconButton';
+import ImageUploading, { ImageListType } from 'react-images-uploading';
 import Button from '@material-ui/core/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
-import Typography from '@material-ui/core/Typography';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
@@ -31,6 +35,27 @@ import { RootState, AppDispatch } from '../../store.ts';
 // @ts-ignore
 import type { Book } from '../../types.ts';
 
+const useStyles = makeStyles((theme) => ({
+  container: {
+    [theme.breakpoints.down('xs')]: {
+      maxWidth: '90vw',
+    },
+  },
+  content: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    marginTop: '-4.5rem',
+  },
+  cameraIcon: {
+    color: '#f5f5f5',
+    backgroundColor: 'rgb(0, 0, 0, 0.2)',
+    padding: '5px',
+    fontSize: '48',
+    borderRadius: '20%',
+  },
+}));
+
 const categoryOptions = [
   'All books',
   'Politics',
@@ -52,6 +77,10 @@ interface OwnProps {
 type Props = OwnProps & RootState;
 
 const BookDialog: React.FC<OwnProps> = ({ show, close, title, book }: Props) => {
+  const maxNumber = 69;
+  const classes = useStyles();
+
+  const [images, setImages] = React.useState<any>([]);
   const [state, setState] = React.useState({
     bookId: '',
     bookTitle: '',
@@ -71,16 +100,20 @@ const BookDialog: React.FC<OwnProps> = ({ show, close, title, book }: Props) => 
   const { token, authUser } = useSelector((reduxState: RootState) => reduxState.users);
   const { roles } = authUser;
 
+  const onChange = (imageList: ImageListType, addUpdateIndex: number[] | undefined) => {
+    // data for submit
+    // eslint-disable-next-line no-console
+    console.log(imageList, addUpdateIndex);
+    setImages(imageList);
+    setState({ ...state, image: imageList[0].dataURL });
+  };
+
   const handleChange = (event: { target: { name: string; value: string | boolean } }) => {
     setState({ ...state, [event.target.name]: event.target.value });
   };
 
   const handleCategoryChange = (selectedCategory: string) => {
     setState({ ...state, category: selectedCategory });
-  };
-
-  const handleImageChange = (event: { target: { value: string } }) => {
-    setState({ ...state, image: event.target.value });
   };
 
   const handleKeepInfoChange = (event: { target: { name: any; checked: boolean } }) => {
@@ -103,6 +136,7 @@ const BookDialog: React.FC<OwnProps> = ({ show, close, title, book }: Props) => 
       open: false,
       openConfirm: false,
     });
+    setImages([]);
   };
 
   const handleClose = () => {
@@ -191,7 +225,12 @@ const BookDialog: React.FC<OwnProps> = ({ show, close, title, book }: Props) => 
   }, [show, book]);
 
   return (
-    <Dialog open={state.open} onClose={showConfirm} aria-labelledby="form-dialog-title">
+    <Dialog
+      open={state.open}
+      onClose={showConfirm}
+      aria-labelledby="form-dialog-title"
+      className={classes.container}
+    >
       <Confirm
         show={state.openConfirm}
         title="Are you sure?"
@@ -206,19 +245,21 @@ const BookDialog: React.FC<OwnProps> = ({ show, close, title, book }: Props) => 
         <DialogContentText>Please fill in the following information.</DialogContentText>
         <div style={{ display: 'flex' }}>
           <div>
-            <input
-              type="image"
-              id="image"
-              alt="Login"
-              src={state.image}
-              style={{
-                height: '320px',
-                display: 'block',
-                paddingRight: '1rem',
-              }}
-            />
+            <input type="image" id="image" alt="Login" src={state.image} className="mediumImage" />
+            <div className={classes.content}>
+              <ImageUploading multiple value={images} onChange={onChange} maxNumber={maxNumber}>
+                {({ onImageUpload, dragProps }) => (
+                  <div>
+                    <IconButton onClick={onImageUpload} {...dragProps}>
+                      <CameraAltIcon
+                        className={classes.cameraIcon} />
+                    </IconButton>                  
+                    </div>
+                )}
+              </ImageUploading>
+            </div>
           </div>
-          <div>
+          <div style={{ marginLeft: '1rem' }}>
             <TextField
               autoFocus
               margin="dense"
@@ -240,16 +281,7 @@ const BookDialog: React.FC<OwnProps> = ({ show, close, title, book }: Props) => 
               name="author"
               onChange={handleChange}
             />
-            <TextField
-              margin="dense"
-              id="year"
-              label="Year*"
-              type="year"
-              defaultValue={state.year}
-              fullWidth
-              name="year"
-              onChange={handleChange}
-            />
+
             <BasicSelect
               onChange={handleCategoryChange}
               selected={state.category || 'All books'}
@@ -266,44 +298,28 @@ const BookDialog: React.FC<OwnProps> = ({ show, close, title, book }: Props) => 
               name="publisher"
               onChange={handleChange}
             />
-            <TextField
-              margin="dense"
-              id="serNo"
-              label="Serial No*"
-              type="text"
-              defaultValue={state.serNo}
-              fullWidth
-              name="serNo"
-              onChange={handleChange}
-            />
+            <div style={{ display: 'flex' }}>
+              <TextField
+                margin="dense"
+                id="serNo"
+                label="Serial No*"
+                type="text"
+                defaultValue={state.serNo}
+                name="serNo"
+                onChange={handleChange}
+              />
+              <TextField
+                margin="dense"
+                id="year"
+                label="Year*"
+                type="year"
+                defaultValue={state.year}
+                style={{ marginLeft: '5px' }}
+                name="year"
+                onChange={handleChange}
+              />
+            </div>
           </div>
-        </div>
-        <TextField
-          margin="dense"
-          id="image"
-          label="Image Url"
-          type="text"
-          defaultValue={state.image}
-          fullWidth
-          name="image"
-          onChange={handleChange}
-        />
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <Typography>or</Typography>
-          <label htmlFor="raised-button-file">
-            <input
-              accept="image/*"
-              style={{ display: 'none' }}
-              id="raised-button-file"
-              multiple
-              type="file"
-              hidden
-              onChange={(event) => handleImageChange(event)}
-            />
-            <Button variant="outlined" component="span">
-              Upload image
-            </Button>
-          </label>
         </div>
         <TextField
           margin="dense"
