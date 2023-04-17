@@ -71,7 +71,12 @@ const ReviewDialog: React.FC<OwnProps> = (props: OwnProps) => {
 
   return (
     <div data-testid="review-dialog">
-      <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="form-dialog-title"
+        style={{ maxWidth: '80vw', margin: '0 auto' }}
+      >
         <DialogTitle id="form-dialog-title">{title}</DialogTitle>
         <DialogContent data-testid="review-dialog-content">
           <div className="dialogueContainer">
