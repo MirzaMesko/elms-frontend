@@ -15,14 +15,18 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import { AppDispatch, RootState } from '../store.ts';
 // @ts-ignore
 import { logout } from '../actions/auth.tsx';
+// @ts-ignore
+import type { User } from '../types.ts';
 
 const BasicMenu: React.FC = () => {
   const [anchorEl, setAnchorEl] = React.useState<any>();
   const open = Boolean(anchorEl);
+  const [user, setUser] = React.useState<User | undefined>();
 
   const history = useHistory();
   const dispatch: AppDispatch = useDispatch();
-  const { image, username } = useSelector((state: RootState) => state.users.authUser);
+  const { username } = useSelector((state: RootState) => state.users.authUser);
+  const { users } = useSelector((state: RootState) => state.users);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
     setAnchorEl(event.currentTarget);
@@ -41,6 +45,10 @@ const BasicMenu: React.FC = () => {
     dispatch(logout());
   };
 
+  React.useEffect(() => {
+    const currentUser = users.filter((u: any) => u.username === username)[0];
+    setUser(currentUser);
+  }, [users]);
   return (
     <div>
       <Button
@@ -51,7 +59,7 @@ const BasicMenu: React.FC = () => {
         onClick={handleClick}
         data-testid="avatar-button"
       >
-        <Avatar src={image} />
+        <Avatar src={user?.image} />
       </Button>
       <Menu
         id="basic-menu"
@@ -64,7 +72,7 @@ const BasicMenu: React.FC = () => {
         }}
       >
         <MenuItem onClick={handleClose}>
-          <Avatar src={image} data-testid="avatar" />
+          <Avatar src={user?.image} data-testid="avatar" />
           <Typography style={{ marginLeft: '1rem' }} data-testid="username">
             {username}
           </Typography>
